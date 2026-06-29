@@ -1,0 +1,17 @@
+{
+  "name": "散歩ルート検索",
+  "short_name": "散歩ルート",
+  "description": "歩数を指定してお散歩ルートを検索するアプリ",
+  "start_url": "./walk-route.html",
+  "display": "standalone",
+  "background_color": "#f5f7f5",
+  "theme_color": "#27ae60",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='50' fill='%2327ae60'/><text y='.9em' font-size='70' x='15'>🚶</text></svg>",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ]
+}

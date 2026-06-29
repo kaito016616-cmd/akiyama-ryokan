@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>離れ | あきやま旅館</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700&family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+        :root{
+            --bg:#f0f8ff;--bg2:#e2f1fb;--card:#ffffff;
+            --ocean:#0088cc;--teal:#00b4d8;
+            --grad:linear-gradient(135deg,#0088cc,#00b4d8);
+            --txt:#0d1b2a;--txt2:#3d5a73;--txt3:#8aabb8;
+            --border:rgba(0,136,204,0.15);
+            --shadow:0 4px 24px rgba(0,100,180,0.1);
+            --shadow-h:0 12px 40px rgba(0,100,180,0.18);
+            --r:12px;--rl:16px;
+            --jp:'Noto Sans JP',sans-serif;--en:'Montserrat',sans-serif;
+        }
+        body{font-family:var(--jp);background:var(--bg);color:var(--txt);}
+        a{color:inherit;text-decoration:none;}
+        img{max-width:100%;height:auto;}
+
+        .nav{position:sticky;top:0;z-index:100;background:rgba(255,255,255,0.96);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);padding:0 40px;height:64px;display:flex;align-items:center;justify-content:space-between;}
+        .nav-back{font-family:var(--en);font-size:13px;font-weight:600;color:var(--ocean);display:flex;align-items:center;gap:6px;transition:opacity .2s;}
+        .nav-back:hover{opacity:.7;}
+        .nav-logo{font-family:var(--en);font-size:14px;font-weight:700;color:var(--txt);letter-spacing:2px;}
+        .nav-reserve{background:var(--grad);color:#fff;font-family:var(--en);font-size:12px;font-weight:700;letter-spacing:1px;padding:10px 22px;border-radius:50px;transition:opacity .2s;}
+        .nav-reserve:hover{opacity:.85;}
+
+        .room-hero{position:relative;height:65vh;min-height:380px;overflow:hidden;}
+        .room-hero img{width:100%;height:100%;object-fit:cover;display:block;}
+        .room-hero-ov{position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,0.65) 0%,rgba(0,0,0,0.05) 55%,transparent 100%);}
+        .room-hero-info{position:absolute;bottom:44px;left:52px;color:#fff;}
+        .room-hero-type{font-family:var(--en);font-size:11px;font-weight:700;letter-spacing:3px;background:rgba(0,180,216,0.35);border:1px solid rgba(0,180,216,0.6);padding:5px 16px;border-radius:50px;display:inline-block;margin-bottom:14px;}
+        .room-hero-name{font-size:clamp(30px,5vw,52px);font-weight:700;letter-spacing:4px;line-height:1.2;margin-bottom:8px;}
+        .room-hero-sub{font-size:15px;opacity:.85;letter-spacing:1px;}
+
+        .wrap{max-width:980px;margin:0 auto;padding:0 40px;}
+
+        .gallery-sec{padding:72px 0 56px;}
+        .sec-head{margin-bottom:32px;}
+        .sec-label{font-family:var(--en);font-size:11px;font-weight:700;letter-spacing:3px;color:var(--ocean);text-transform:uppercase;margin-bottom:6px;}
+        .sec-title{font-size:22px;font-weight:700;color:var(--txt);}
+        .bar{width:36px;height:3px;background:var(--grad);border-radius:2px;margin-top:10px;}
+
+        .gal-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;}
+        .gal-item{border-radius:var(--r);overflow:hidden;aspect-ratio:4/3;cursor:pointer;transition:transform .3s,box-shadow .3s;}
+        .gal-item:hover{transform:scale(1.02);box-shadow:var(--shadow-h);}
+        .gal-item img{width:100%;height:100%;object-fit:cover;display:block;}
+        .gal-item.wide{grid-column:span 2;aspect-ratio:16/9;}
+
+        .sec-divider{border:none;border-top:1px solid var(--border);margin:52px 0;}
+
+        .shared-label-wrap{display:flex;align-items:center;gap:10px;margin-bottom:8px;}
+        .shared-tag{display:inline-block;background:var(--bg2);color:var(--ocean);font-family:var(--en);font-size:10px;font-weight:700;letter-spacing:2px;padding:4px 14px;border-radius:50px;border:1px solid var(--border);}
+
+        .info-sec{background:var(--bg2);padding:64px 0;}
+        .info-grid{display:grid;grid-template-columns:1fr 1fr;gap:56px;align-items:start;}
+        .info-box h3{font-size:18px;font-weight:700;margin-bottom:22px;color:var(--txt);}
+        .spec-row{display:flex;align-items:baseline;border-bottom:1px solid var(--border);padding:13px 0;}
+        .spec-row:first-of-type{border-top:1px solid var(--border);}
+        .spec-l{width:110px;font-size:13px;color:var(--txt3);flex-shrink:0;}
+        .spec-v{font-size:14px;font-weight:500;color:var(--txt);line-height:1.5;}
+        .cta-desc{font-size:14px;color:var(--txt2);line-height:1.75;margin-bottom:28px;}
+        .btn-reserve{display:inline-block;background:var(--grad);color:#fff;font-family:var(--en);font-size:14px;font-weight:700;letter-spacing:1px;padding:16px 44px;border-radius:50px;transition:opacity .2s,transform .2s;box-shadow:0 4px 20px rgba(0,136,204,0.3);}
+        .btn-reserve:hover{opacity:.9;transform:translateY(-2px);}
+        .btn-back{display:inline-flex;align-items:center;gap:6px;color:var(--ocean);font-size:14px;font-weight:500;margin-top:16px;transition:opacity .2s;}
+        .btn-back:hover{opacity:.7;}
+
+        .room-footer{background:#0d1b2a;color:#7a95ad;padding:36px 40px;text-align:center;font-size:13px;line-height:1.8;}
+        .room-footer a{color:#7a95ad;transition:color .2s;}
+        .room-footer a:hover{color:#fff;}
+
+        .lb{display:none;position:fixed;inset:0;z-index:1000;background:rgba(0,0,0,0.93);align-items:center;justify-content:center;padding:24px;}
+        .lb.open{display:flex;}
+        .lb-img{max-width:90vw;max-height:90vh;object-fit:contain;border-radius:8px;}
+        .lb-close{position:absolute;top:20px;right:28px;color:#fff;font-size:36px;cursor:pointer;line-height:1;opacity:.8;transition:opacity .2s;background:none;border:none;}
+        .lb-close:hover{opacity:1;}
+
+        @media(max-width:768px){
+            .nav{padding:0 20px;}
+            .room-hero{height:50vh;min-height:280px;}
+            .room-hero-info{left:24px;bottom:28px;}
+            .wrap{padding:0 20px;}
+            .gal-grid{grid-template-columns:1fr 1fr;}
+            .gal-item.wide{grid-column:span 2;}
+            .info-grid{grid-template-columns:1fr;gap:36px;}
+        }
+        @media(max-width:480px){
+            .gal-grid{gap:6px;}
+            .room-hero-name{letter-spacing:2px;}
+        }
+    </style>
+</head>
+<body>
+
+<nav class="nav">
+    <a href="index.html" class="nav-back">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M19 12H5"/><path d="M12 5l-7 7 7 7"/></svg>
+        TOP に戻る
+    </a>
+    <span class="nav-logo">AKIYAMA RYOKAN</span>
+    <a href="https://reserva.be/akiyamaryokan" target="_blank" class="nav-reserve">予約する</a>
+</nav>
+
+<div class="room-hero">
+    <img src="images/離れリビング.jpg" alt="離れ">
+    <div class="room-hero-ov"></div>
+    <div class="room-hero-info">
+        <span class="room-hero-type">TYPE C</span>
+        <h1 class="room-hero-name">離れ</h1>
+        <p class="room-hero-sub">最大7名 · 独立棟1棟 · ¥5,000 / 人</p>
+    </div>
+</div>
+
+<section class="gallery-sec">
+    <div class="wrap">
+
+        <div class="sec-head">
+            <p class="sec-label">Room Photos</p>
+            <h2 class="sec-title">離れの写真</h2>
+            <div class="bar"></div>
+        </div>
+        <div class="gal-grid">
+            <div class="gal-item wide" onclick="openLb('images/離れリビング.jpg')">
+                <img src="images/離れリビング.jpg" alt="離れ リビング">
+            </div>
+            <div class="gal-item" onclick="openLb('images/離れ和室.jpg')">
+                <img src="images/離れ和室.jpg" alt="離れ 和室">
+            </div>
+            <div class="gal-item" onclick="openLb('images/離れ洗面台.jpg')">
+                <img src="images/離れ洗面台.jpg" alt="離れ 洗面台">
+            </div>
+        </div>
+
+        <hr class="sec-divider">
+
+        <div class="sec-head">
+            <div class="shared-label-wrap">
+                <span class="shared-tag">SHARED</span>
+            </div>
+            <h2 class="sec-title">共用設備</h2>
+            <div class="bar"></div>
+        </div>
+        <div class="gal-grid">
+            <div class="gal-item" onclick="openLb('images/風呂1.jpg')">
+                <img src="images/風呂1.jpg" alt="お風呂">
+            </div>
+            <div class="gal-item" onclick="openLb('images/風呂2.jpg')">
+                <img src="images/風呂2.jpg" alt="お風呂（別角度）">
+            </div>
+            <div class="gal-item" onclick="openLb('images/脱衣所.jpg')">
+                <img src="images/脱衣所.jpg" alt="脱衣所">
+            </div>
+        </div>
+
+    </div>
+</section>
+
+<section class="info-sec">
+    <div class="wrap">
+        <div class="info-grid">
+            <div class="info-box">
+                <h3>お部屋の詳細</h3>
+                <div class="spec-row"><span class="spec-l">タイプ</span><span class="spec-v">TYPE C · 離れ（独立棟）</span></div>
+                <div class="spec-row"><span class="spec-l">定員</span><span class="spec-v">最大 7 名</span></div>
+                <div class="spec-row"><span class="spec-l">棟数</span><span class="spec-v">1棟（母屋に隣接）</span></div>
+                <div class="spec-row"><span class="spec-l">料金</span><span class="spec-v">¥5,000 / 人 · 泊（税込）</span></div>
+                <div class="spec-row"><span class="spec-l">お支払い</span><span class="spec-v">現地払い（現金 / PayPay）</span></div>
+                <div class="spec-row"><span class="spec-l">チェックイン</span><span class="spec-v">15:00〜</span></div>
+                <div class="spec-row"><span class="spec-l">チェックアウト</span><span class="spec-v">〜10:00（要相談）</span></div>
+                <div class="spec-row"><span class="spec-l">Wi-Fi</span><span class="spec-v">無料でご利用いただけます</span></div>
+                <div class="spec-row"><span class="spec-l">駐車場</span><span class="spec-v">無料（全8台）</span></div>
+            </div>
+            <div class="info-box">
+                <h3>ご予約</h3>
+                <p class="cta-desc">大人数グループや合宿に最適な独立棟です。ご希望の日程・人数をRESERVAでお選びください。お問い合わせはお電話でも承ります。</p>
+                <a href="https://reserva.be/akiyamaryokan" target="_blank" class="btn-reserve">空き状況を確認 · 予約する</a>
+                <br>
+                <a href="index.html" class="btn-back">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M19 12H5"/><path d="M12 5l-7 7 7 7"/></svg>
+                    トップページに戻る
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<footer class="room-footer">
+    <p>〒413-0233 静岡県伊東市赤沢163-2 &nbsp;|&nbsp; TEL: 090-6398-3964</p>
+    <p style="margin-top:6px;">&copy; 2025 あきやま旅館 &nbsp;·&nbsp; <a href="index.html">トップページ</a></p>
+</footer>
+
+<div class="lb" id="lb" onclick="closeLb()">
+    <button class="lb-close" onclick="closeLb()">&times;</button>
+    <img class="lb-img" id="lb-img" src="" alt="">
+</div>
+
+<script>
+function openLb(src){document.getElementById('lb-img').src=src;document.getElementById('lb').classList.add('open');document.body.style.overflow='hidden';}
+function closeLb(){document.getElementById('lb').classList.remove('open');document.body.style.overflow='';}
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeLb();});
+</script>
+</body>
+</html>

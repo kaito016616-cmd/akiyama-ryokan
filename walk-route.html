@@ -1,0 +1,731 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#27ae60">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <title>散歩ルート検索</title>
+    <link rel="manifest" href="walk-manifest.json">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Hiragino Sans', 'Meiryo', 'Yu Gothic', sans-serif;
+            background: #f5f7f5;
+            height: 100dvh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        header {
+            background: linear-gradient(135deg, #27ae60, #2ecc71);
+            color: white;
+            padding: 13px 16px;
+            text-align: center;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+            flex-shrink: 0;
+        }
+        header h1 { font-size: 1.1rem; font-weight: 700; letter-spacing: 0.5px; }
+
+        /* ===== スクロール可能なパネル ===== */
+        #panel {
+            background: white;
+            padding: 12px 14px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.12);
+            flex-shrink: 0;
+            overflow-y: auto;
+            max-height: 70dvh;
+        }
+
+        .api-notice {
+            background: #fff8e1;
+            border: 1px solid #ffd54f;
+            border-radius: 8px;
+            padding: 7px 10px;
+            margin-bottom: 8px;
+            font-size: 0.74rem;
+            color: #5d4037;
+            line-height: 1.5;
+        }
+        .api-notice a { color: #e65100; font-weight: bold; text-decoration: none; }
+
+        .row {
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            margin-bottom: 7px;
+        }
+        .row label {
+            font-size: 0.8rem;
+            color: #444;
+            white-space: nowrap;
+            font-weight: 600;
+            min-width: 52px;
+        }
+
+        input[type="text"], input[type="number"] {
+            flex: 1;
+            padding: 8px 10px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 0.93rem;
+            outline: none;
+            transition: border-color 0.2s;
+            background: #fafafa;
+        }
+        input[type="text"]:focus, input[type="number"]:focus {
+            border-color: #2ecc71;
+            background: white;
+        }
+        .unit { font-size: 0.85rem; color: #888; white-space: nowrap; }
+
+        .dist-tag {
+            background: #e8f5e9;
+            border: 1px solid #a5d6a7;
+            border-radius: 8px;
+            padding: 5px 10px;
+            font-size: 0.82rem;
+            color: #2e7d32;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+
+        /* ===== 出発地点タブ ===== */
+        .section-title {
+            font-size: 0.75rem;
+            color: #555;
+            font-weight: 700;
+            margin-bottom: 5px;
+            letter-spacing: 0.3px;
+        }
+
+        .loc-tabs {
+            display: flex;
+            gap: 5px;
+            margin-bottom: 7px;
+        }
+        .loc-tab {
+            flex: 1;
+            padding: 7px 4px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            background: white;
+            font-size: 0.78rem;
+            cursor: pointer;
+            color: #666;
+            font-weight: 600;
+            transition: all 0.2s;
+            text-align: center;
+        }
+        .loc-tab.active {
+            border-color: #2ecc71;
+            background: #e8f5e9;
+            color: #2e7d32;
+        }
+
+        /* 住所検索の候補リスト */
+        #addrSuggestions {
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            background: white;
+            margin-top: 4px;
+            display: none;
+            max-height: 140px;
+            overflow-y: auto;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        .suggestion-item {
+            padding: 9px 11px;
+            font-size: 0.82rem;
+            color: #333;
+            cursor: pointer;
+            border-bottom: 1px solid #f0f0f0;
+            line-height: 1.3;
+        }
+        .suggestion-item:last-child { border-bottom: none; }
+        .suggestion-item:hover { background: #e8f5e9; }
+
+        /* 地図クリックの案内 */
+        #mapHint {
+            background: #e3f2fd;
+            border: 1px solid #90caf9;
+            border-radius: 8px;
+            padding: 7px 10px;
+            font-size: 0.78rem;
+            color: #1565c0;
+            display: none;
+            margin-bottom: 7px;
+            line-height: 1.4;
+        }
+
+        /* 選択済み出発地点の表示 */
+        #selectedLoc {
+            background: #e8f5e9;
+            border: 1px solid #66bb6a;
+            border-radius: 8px;
+            padding: 6px 10px;
+            font-size: 0.8rem;
+            color: #2e7d32;
+            margin-bottom: 7px;
+            display: none;
+            line-height: 1.4;
+        }
+
+        .variation-label { font-size: 0.73rem; color: #777; margin-bottom: 4px; }
+
+        .seed-row {
+            display: flex;
+            gap: 4px;
+            margin-bottom: 8px;
+        }
+        .seed-btn {
+            flex: 1;
+            padding: 6px 2px;
+            border: 2px solid #e0e0e0;
+            border-radius: 7px;
+            background: white;
+            font-size: 0.78rem;
+            cursor: pointer;
+            color: #666;
+            transition: all 0.2s;
+            font-weight: 500;
+        }
+        .seed-btn.active {
+            border-color: #2ecc71;
+            background: #e8f5e9;
+            color: #2e7d32;
+        }
+
+        #errorMsg {
+            background: #ffebee;
+            color: #c62828;
+            border-radius: 8px;
+            padding: 7px 10px;
+            margin-bottom: 7px;
+            font-size: 0.78rem;
+            display: none;
+            line-height: 1.4;
+        }
+        #loadingMsg {
+            text-align: center;
+            color: #27ae60;
+            font-size: 0.83rem;
+            padding: 4px 0;
+            display: none;
+        }
+
+        .btn-search {
+            width: 100%;
+            padding: 11px;
+            background: linear-gradient(135deg, #27ae60, #2ecc71);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 0.95rem;
+            font-weight: 700;
+            cursor: pointer;
+            letter-spacing: 0.5px;
+            transition: all 0.2s;
+            margin-bottom: 5px;
+        }
+        .btn-search:active { transform: scale(0.98); opacity: 0.9; }
+        .btn-search:disabled { background: #aaa; cursor: not-allowed; transform: none; }
+
+        .btn-gps {
+            width: 100%;
+            padding: 8px;
+            background: white;
+            color: #27ae60;
+            border: 2px solid #27ae60;
+            border-radius: 8px;
+            font-size: 0.82rem;
+            font-weight: 600;
+            cursor: pointer;
+            margin-bottom: 7px;
+            transition: all 0.2s;
+        }
+        .btn-gps:active { background: #e8f5e9; }
+
+        .btn-toggle {
+            width: 100%;
+            padding: 6px;
+            background: #f0f0f0;
+            color: #555;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.76rem;
+            cursor: pointer;
+        }
+
+        /* ===== 地図 ===== */
+        #map {
+            flex: 1;
+            z-index: 0;
+            min-height: 0;
+        }
+
+        /* ===== 結果バー ===== */
+        #infoBar {
+            background: white;
+            padding: 8px 12px;
+            display: none;
+            justify-content: space-around;
+            align-items: center;
+            box-shadow: 0 -2px 8px rgba(0,0,0,0.1);
+            flex-shrink: 0;
+        }
+        .info-item { text-align: center; }
+        .info-item .val {
+            font-size: 0.98rem;
+            font-weight: 700;
+            color: #27ae60;
+        }
+        .info-item .lbl {
+            font-size: 0.65rem;
+            color: #999;
+            margin-top: 1px;
+        }
+
+        #floatToggle {
+            display: none;
+            position: absolute;
+            top: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 1000;
+            padding: 7px 18px;
+            background: white;
+            border: 1px solid #ccc;
+            border-radius: 20px;
+            font-size: 0.78rem;
+            cursor: pointer;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+            white-space: nowrap;
+        }
+
+        /* 地図クリックモード時のカーソル */
+        #map.picking { cursor: crosshair; }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>🚶 散歩ルート検索</h1>
+</header>
+
+<div id="panel">
+    <div class="api-notice">
+        <strong>初回のみ：無料APIキーが必要</strong><br>
+        <a href="https://openrouteservice.org/dev/#/signup" target="_blank">openrouteservice.org</a> で無料登録 → 「Tokens」タブでキーをコピー
+    </div>
+
+    <div class="row">
+        <label>APIキー</label>
+        <input type="text" id="apiKey" placeholder="取得したキーを貼り付け"/>
+    </div>
+
+    <div class="row">
+        <label>歩数</label>
+        <input type="number" id="steps" value="5000" min="100" max="200000" inputmode="numeric"/>
+        <span class="unit">歩</span>
+    </div>
+
+    <div class="dist-tag">
+        目標距離：<span id="distVal">3,219 m（約 3.2 km）</span>
+    </div>
+
+    <!-- ===== 出発地点の設定 ===== -->
+    <div class="section-title">📍 出発地点の設定（3種類から選べます）</div>
+
+    <div class="loc-tabs">
+        <button class="loc-tab active" onclick="setLocMode('gps')" id="tabGps">① 現在地</button>
+        <button class="loc-tab" onclick="setLocMode('address')" id="tabAddr">② 住所・地名</button>
+        <button class="loc-tab" onclick="setLocMode('map')" id="tabMap">③ 地図をタップ</button>
+    </div>
+
+    <!-- ① 現在地モード -->
+    <div id="modeGps">
+        <button class="btn-gps" id="gpsBtn" onclick="tryGPS()">
+            📡 現在地を取得する
+        </button>
+    </div>
+
+    <!-- ② 住所・地名モード -->
+    <div id="modeAddr" style="display:none;">
+        <div class="row" style="margin-bottom:3px;">
+            <input type="text" id="addrInput" placeholder="例：東京駅、新宿中央公園、渋谷" inputmode="search"/>
+            <button onclick="searchAddress()" style="padding:8px 12px;background:#27ae60;color:white;border:none;border-radius:8px;font-size:0.82rem;cursor:pointer;white-space:nowrap;font-weight:600;">検索</button>
+        </div>
+        <div id="addrSuggestions"></div>
+    </div>
+
+    <!-- ③ 地図タップモード -->
+    <div id="modeMap" style="display:none;">
+        <div id="mapHint">
+            地図上をタップ／クリックして出発地点を選んでください。<br>
+            先に「▲ 地図を広げる」を押すと操作しやすくなります。
+        </div>
+    </div>
+
+    <!-- 選択済み出発地点 -->
+    <div id="selectedLoc"></div>
+
+    <div class="variation-label">ルートのバリエーション（同じ歩数で異なる経路を生成）:</div>
+    <div class="seed-row">
+        <button class="seed-btn active" data-seed="1">ルート A</button>
+        <button class="seed-btn" data-seed="2">ルート B</button>
+        <button class="seed-btn" data-seed="3">ルート C</button>
+        <button class="seed-btn" data-seed="4">ルート D</button>
+    </div>
+
+    <div id="errorMsg"></div>
+    <div id="loadingMsg">🔍 ルートを検索中...</div>
+
+    <button class="btn-search" id="searchBtn" onclick="searchRoute()">
+        🗺️ ルートを検索
+    </button>
+    <button class="btn-toggle" onclick="togglePanel()">
+        ▲ 地図を広げる（入力パネルを隠す）
+    </button>
+</div>
+
+<div id="map" style="position:relative;">
+    <button id="floatToggle" onclick="togglePanel()">▼ 入力パネルを開く</button>
+</div>
+
+<div id="infoBar">
+    <div class="info-item">
+        <div class="val" id="iDist">—</div>
+        <div class="lbl">実際の距離</div>
+    </div>
+    <div class="info-item">
+        <div class="val" id="iSteps">—</div>
+        <div class="lbl">推定歩数</div>
+    </div>
+    <div class="info-item">
+        <div class="val" id="iTime">—</div>
+        <div class="lbl">所要時間</div>
+    </div>
+    <div class="info-item">
+        <div class="val" id="iCal">—</div>
+        <div class="lbl">消費カロリー</div>
+    </div>
+</div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+    const STEP_M = 0.64375;
+
+    let map = null;
+    let routeLayer = null;
+    let startMarker = null;
+    let currentSeed = 1;
+    let panelOpen = true;
+    let locMode = 'gps';       // 'gps' | 'address' | 'map'
+    let selectedLat = null;
+    let selectedLng = null;
+    let selectedLabel = '';
+    let mapClickMode = false;
+
+    // ====== 距離表示の更新 ======
+    function updateDist() {
+        const steps = parseInt(document.getElementById('steps').value) || 0;
+        const m = Math.round(steps * STEP_M);
+        const km = (m / 1000).toFixed(1);
+        document.getElementById('distVal').textContent =
+            `${m.toLocaleString()} m（約 ${km} km）`;
+    }
+    document.getElementById('steps').addEventListener('input', updateDist);
+    updateDist();
+
+    // ====== シードボタン ======
+    document.querySelectorAll('.seed-btn').forEach(btn => {
+        btn.addEventListener('click', function () {
+            document.querySelectorAll('.seed-btn').forEach(b => b.classList.remove('active'));
+            this.classList.add('active');
+            currentSeed = parseInt(this.dataset.seed);
+        });
+    });
+
+    // ====== 出発地点モード切替 ======
+    function setLocMode(mode) {
+        locMode = mode;
+        ['gps','address','map'].forEach(m => {
+            document.getElementById('mode' + m.charAt(0).toUpperCase() + m.slice(1)).style.display = (m === mode) ? 'block' : 'none';
+            document.getElementById('tab' + (m === 'gps' ? 'Gps' : m === 'address' ? 'Addr' : 'Map')).classList.toggle('active', m === mode);
+        });
+        document.getElementById('mapHint').style.display = mode === 'map' ? 'block' : 'none';
+        mapClickMode = (mode === 'map');
+        if (map) {
+            document.getElementById('map').classList.toggle('picking', mapClickMode);
+        }
+        // 地図タップモードでは地図を展開して案内
+        if (mode === 'map' && panelOpen) {
+            setTimeout(() => {
+                if (map) map.invalidateSize();
+            }, 100);
+        }
+    }
+
+    // ====== パネル開閉 ======
+    function togglePanel() {
+        panelOpen = !panelOpen;
+        document.getElementById('panel').style.display = panelOpen ? 'block' : 'none';
+        document.getElementById('floatToggle').style.display = panelOpen ? 'none' : 'block';
+        if (map) setTimeout(() => map.invalidateSize(), 150);
+    }
+
+    // ====== UI状態 ======
+    function showErr(msg) {
+        const el = document.getElementById('errorMsg');
+        el.innerHTML = msg;
+        el.style.display = 'block';
+    }
+    function hideErr() { document.getElementById('errorMsg').style.display = 'none'; }
+
+    function setLoading(on) {
+        document.getElementById('loadingMsg').style.display = on ? 'block' : 'none';
+        document.getElementById('searchBtn').disabled = on;
+        document.getElementById('searchBtn').textContent = on ? '⏳ 検索中...' : '🗺️ ルートを検索';
+    }
+
+    function setSelectedLoc(lat, lng, label) {
+        selectedLat = lat;
+        selectedLng = lng;
+        selectedLabel = label;
+        const el = document.getElementById('selectedLoc');
+        el.innerHTML = `✅ 出発地点：<strong>${label}</strong><br><small style="color:#888">${lat.toFixed(5)}, ${lng.toFixed(5)}</small>`;
+        el.style.display = 'block';
+        hideErr();
+    }
+
+    // ====== ① GPS取得 ======
+    function tryGPS() {
+        hideErr();
+        if (!navigator.geolocation) {
+            showErr('このブラウザは位置情報に対応していません。「② 住所・地名」か「③ 地図をタップ」をお使いください。');
+            return;
+        }
+        const btn = document.getElementById('gpsBtn');
+        btn.textContent = '📡 取得中...';
+        btn.disabled = true;
+
+        navigator.geolocation.getCurrentPosition(
+            pos => {
+                btn.textContent = '📡 現在地を取得する';
+                btn.disabled = false;
+                setSelectedLoc(pos.coords.latitude, pos.coords.longitude, '現在地');
+            },
+            err => {
+                btn.textContent = '📡 現在地を取得する';
+                btn.disabled = false;
+                const msgs = {
+                    1: '位置情報の許可が拒否されました。<br>「② 住所・地名」か「③ 地図をタップ」で出発地点を設定してください。',
+                    2: '位置情報を取得できませんでした。<br>「② 住所・地名」か「③ 地図をタップ」をお試しください。',
+                    3: '位置情報の取得がタイムアウトしました。もう一度お試しください。'
+                };
+                showErr(msgs[err.code] || '位置情報エラー: ' + err.message);
+            },
+            { enableHighAccuracy: true, timeout: 15000, maximumAge: 30000 }
+        );
+    }
+
+    // ====== ② 住所・地名検索（Nominatim API） ======
+    async function searchAddress() {
+        const q = document.getElementById('addrInput').value.trim();
+        if (!q) { showErr('住所または地名を入力してください。'); return; }
+        hideErr();
+
+        const sugBox = document.getElementById('addrSuggestions');
+        sugBox.innerHTML = '<div class="suggestion-item" style="color:#888">🔍 検索中...</div>';
+        sugBox.style.display = 'block';
+
+        try {
+            const url = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(q)}&format=json&limit=5&accept-language=ja`;
+            const res = await fetch(url, {
+                headers: { 'User-Agent': 'WalkRouteApp/1.0' }
+            });
+            const results = await res.json();
+
+            if (!results.length) {
+                sugBox.innerHTML = '<div class="suggestion-item" style="color:#888">見つかりませんでした。別のキーワードをお試しください。</div>';
+                return;
+            }
+
+            sugBox.innerHTML = '';
+            results.forEach(r => {
+                const div = document.createElement('div');
+                div.className = 'suggestion-item';
+                div.textContent = r.display_name;
+                div.onclick = () => {
+                    setSelectedLoc(parseFloat(r.lat), parseFloat(r.lon), r.display_name.split(',')[0]);
+                    sugBox.style.display = 'none';
+                    document.getElementById('addrInput').value = r.display_name.split(',')[0];
+                };
+                sugBox.appendChild(div);
+            });
+        } catch (e) {
+            sugBox.innerHTML = '<div class="suggestion-item" style="color:#c62828">住所検索に失敗しました。インターネット接続を確認してください。</div>';
+        }
+    }
+
+    // Enterキーで住所検索
+    document.getElementById('addrInput').addEventListener('keydown', e => {
+        if (e.key === 'Enter') searchAddress();
+    });
+
+    // ====== 地図の初期化 ======
+    function initMap(lat, lng) {
+        if (!map) {
+            map = L.map('map').setView([lat, lng], 15);
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+                maxZoom: 19
+            }).addTo(map);
+
+            // ③ 地図タップで出発地点を設定
+            map.on('click', function(e) {
+                if (!mapClickMode) return;
+                const { lat, lng } = e.latlng;
+                setSelectedLoc(lat, lng, `地図上の地点`);
+                // 地図をタップしたらパネルを開いてルート検索しやすくする
+                if (!panelOpen) togglePanel();
+            });
+        } else {
+            map.setView([lat, lng], 15);
+        }
+        document.getElementById('map').classList.toggle('picking', mapClickMode);
+    }
+
+    // 起動時に日本全体が見えるデフォルト地図を表示
+    window.addEventListener('load', () => {
+        initMap(36.5, 138.0);
+        map.setZoom(5);
+    });
+
+    // ====== メイン：ルート検索 ======
+    async function searchRoute() {
+        hideErr();
+        document.getElementById('addrSuggestions').style.display = 'none';
+
+        const steps = parseInt(document.getElementById('steps').value);
+        const apiKey = document.getElementById('apiKey').value.trim();
+
+        if (!apiKey) {
+            showErr('OpenRouteService の APIキーを入力してください。<br>（openrouteservice.org で無料登録できます）');
+            return;
+        }
+        if (!steps || steps < 100) {
+            showErr('歩数を 100 以上で入力してください。');
+            return;
+        }
+        if (selectedLat === null) {
+            showErr('出発地点が設定されていません。<br>上の「① 現在地」「② 住所・地名」「③ 地図をタップ」のいずれかで設定してください。');
+            return;
+        }
+
+        setLoading(true);
+        await fetchRoute(selectedLat, selectedLng, Math.round(steps * STEP_M), apiKey);
+    }
+
+    async function fetchRoute(lat, lng, distM, apiKey) {
+        try {
+            initMap(lat, lng);
+
+            const res = await fetch('https://api.openrouteservice.org/v2/directions/foot-walking/json', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': apiKey
+                },
+                body: JSON.stringify({
+                    coordinates: [[lng, lat]],
+                    options: {
+                        round_trip: {
+                            length: distM,
+                            points: 5,
+                            seed: currentSeed
+                        }
+                    }
+                })
+            });
+
+            if (!res.ok) {
+                let errMsg = `APIエラー (${res.status})`;
+                try { const j = await res.json(); errMsg = j.error?.message || errMsg; } catch (_) {}
+                if (res.status === 403) errMsg = 'APIキーが無効または未認証です。キーを確認してください。';
+                if (res.status === 429) errMsg = 'APIの利用制限に達しました。しばらく待ってから再試行してください（無料枠：1日2000回）。';
+                throw new Error(errMsg);
+            }
+
+            const data = await res.json();
+            const route = data.routes[0];
+            const summary = route.summary;
+
+            if (routeLayer) map.removeLayer(routeLayer);
+            if (startMarker) map.removeLayer(startMarker);
+
+            const coords = decodePolyline(route.geometry);
+            routeLayer = L.polyline(coords, {
+                color: '#27ae60',
+                weight: 5,
+                opacity: 0.85,
+                lineCap: 'round',
+                lineJoin: 'round'
+            }).addTo(map);
+
+            const icon = L.divIcon({
+                html: `<div style="width:18px;height:18px;border-radius:50%;background:#e74c3c;border:3px solid white;box-shadow:0 2px 6px rgba(0,0,0,0.4)"></div>`,
+                iconSize: [18, 18], iconAnchor: [9, 9], className: ''
+            });
+            startMarker = L.marker([lat, lng], { icon })
+                .addTo(map)
+                .bindPopup(`<b>📍 出発点 / 到着点</b><br><small>${selectedLabel}</small>`)
+                .openPopup();
+
+            map.fitBounds(routeLayer.getBounds(), { padding: [30, 30] });
+
+            const actualM = summary.distance;
+            const actualSteps = Math.round(actualM / STEP_M);
+            const minutes = Math.round(summary.duration / 60);
+            const kcal = Math.round(actualSteps * 0.04);
+
+            document.getElementById('iDist').textContent =
+                actualM >= 1000 ? `${(actualM / 1000).toFixed(2)} km` : `${Math.round(actualM)} m`;
+            document.getElementById('iSteps').textContent = `${actualSteps.toLocaleString()} 歩`;
+            document.getElementById('iTime').textContent =
+                minutes >= 60 ? `${Math.floor(minutes/60)}h${minutes%60}m` : `${minutes} 分`;
+            document.getElementById('iCal').textContent = `≈${kcal} kcal`;
+
+            document.getElementById('infoBar').style.display = 'flex';
+
+        } catch (err) {
+            showErr('ルート取得に失敗しました：' + err.message);
+        } finally {
+            setLoading(false);
+        }
+    }
+
+    // ====== Google Encoded Polyline デコード ======
+    function decodePolyline(encoded) {
+        let i = 0, lat = 0, lng = 0;
+        const out = [];
+        while (i < encoded.length) {
+            let b, shift = 0, result = 0;
+            do { b = encoded.charCodeAt(i++) - 63; result |= (b & 0x1f) << shift; shift += 5; } while (b >= 0x20);
+            lat += (result & 1) ? ~(result >> 1) : (result >> 1);
+            shift = 0; result = 0;
+            do { b = encoded.charCodeAt(i++) - 63; result |= (b & 0x1f) << shift; shift += 5; } while (b >= 0x20);
+            lng += (result & 1) ? ~(result >> 1) : (result >> 1);
+            out.push([lat / 1e5, lng / 1e5]);
+        }
+        return out;
+    }
+</script>
+
+</body>
+</html>

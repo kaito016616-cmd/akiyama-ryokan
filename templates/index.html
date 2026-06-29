@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>FX エントリーポイント分析</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
+  <style>
+    :root {
+      --bg:      #0d1117;
+      --card:    #161b22;
+      --border:  #30363d;
+      --text:    #c9d1d9;
+      --muted:   #8b949e;
+      --green:   #3fb950;
+      --red:     #f85149;
+      --yellow:  #d29922;
+      --blue:    #58a6ff;
+    }
+
+    body            { background: var(--bg); color: var(--text); font-family: 'Segoe UI', sans-serif; }
+    .card-dark      { background: var(--card); border: 1px solid var(--border); border-radius: 8px; }
+    .form-select,
+    .form-control   { background: #21262d; border: 1px solid var(--border); color: var(--text); }
+    .form-select:focus,
+    .form-control:focus { box-shadow: none; border-color: var(--blue); background: #21262d; color: var(--text); }
+    .form-select option { background: #21262d; }
+
+    .signal-badge {
+      display: inline-block;
+      padding: 4px 14px;
+      border-radius: 20px;
+      font-weight: 700;
+      font-size: 0.85rem;
+      letter-spacing: .5px;
+    }
+    .signal-Buy     { background: rgba(63,185,80,.2);  color: var(--green);  border: 1px solid var(--green); }
+    .signal-Sell    { background: rgba(248,81,73,.2);  color: var(--red);    border: 1px solid var(--red); }
+    .signal-Neutral { background: rgba(210,153,34,.2); color: var(--yellow); border: 1px solid var(--yellow); }
+
+    .overall-box {
+      font-size: 2.2rem;
+      font-weight: 800;
+      letter-spacing: 2px;
+      padding: 18px 40px;
+      border-radius: 12px;
+    }
+    .overall-Buy     { background: rgba(63,185,80,.15);  color: var(--green);  border: 2px solid var(--green); }
+    .overall-Sell    { background: rgba(248,81,73,.15);  color: var(--red);    border: 2px solid var(--red); }
+    .overall-Neutral { background: rgba(210,153,34,.15); color: var(--yellow); border: 2px solid var(--yellow); }
+
+    .kpi-label { font-size: .72rem; color: var(--muted); text-transform: uppercase; letter-spacing: .8px; }
+    .kpi-value { font-size: 1.25rem; font-weight: 600; }
+
+    .spinner-wrapper { display: flex; align-items: center; gap: 10px; color: var(--muted); }
+
+    #chart { height: 520px; }
+    #chart-rsi  { height: 160px; }
+    #chart-macd { height: 160px; }
+
+    .disclaimer {
+      font-size: .75rem;
+      color: var(--muted);
+      background: rgba(210,153,34,.08);
+      border: 1px solid rgba(210,153,34,.3);
+      border-radius: 6px;
+      padding: 10px 14px;
+    }
+  </style>
+</head>
+<body>
+<div class="container-fluid py-4 px-4">
+
+  <!-- ヘッダー -->
+  <div class="d-flex align-items-center mb-4 gap-3">
+    <h4 class="mb-0 fw-bold" style="color:var(--blue)">&#128200; FX エントリーポイント分析</h4>
+    <span class="text-muted small">テクニカル指標 + 機械学習シグナル</span>
+  </div>
+
+  <!-- コントロールパネル -->
+  <div class="card-dark p-3 mb-4">
+    <div class="row g-3 align-items-end">
+      <div class="col-auto">
+        <label class="form-label kpi-label">通貨ペア</label>
+        <select id="sel-symbol" class="form-select">
+          {% for s in symbols %}
+          <option value="{{ s }}" {% if s == 'USD/JPY' %}selected{% endif %}>{{ s }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="col-auto">
+        <label class="form-label kpi-label">時間足</label>
+        <select id="sel-tf" class="form-select">
+          {% for tf in timeframes %}
+          <option value="{{ tf }}">{{ tf }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="col-auto">
+        <button id="btn-analyze" class="btn btn-primary fw-bold px-4">分析実行</button>
+      </div>
+      <div class="col-auto">
+        <div id="spinner" class="spinner-wrapper d-none">
+          <div class="spinner-border spinner-border-sm text-primary"></div>
+          <span>データ取得・分析中 (～15秒)…</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- エラー表示 -->
+  <div id="error-box" class="alert alert-danger d-none" role="alert"></div>
+
+  <!-- メインコンテンツ (初期は非表示) -->
+  <div id="result" class="d-none">
+
+    <!-- 総合シグナル + KPI -->
+    <div class="row g-3 mb-4">
+      <div class="col-auto">
+        <div class="card-dark p-3 text-center">
+          <div class="kpi-label mb-2">総合シグナル</div>
+          <div id="overall-box" class="overall-box">—</div>
+        </div>
+      </div>
+      <div class="col">
+        <div class="card-dark p-3 h-100">
+          <div class="kpi-label mb-3">現在値 / 主要指標</div>
+          <div class="row g-3" id="kpi-grid"></div>
+        </div>
+      </div>
+      <div class="col-auto">
+        <div class="card-dark p-3 h-100">
+          <div class="kpi-label mb-2">AI 予測 (機械学習)</div>
+          <div id="ml-box" class="text-center pt-2"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- チャート -->
+    <div class="card-dark p-3 mb-3">
+      <div class="kpi-label mb-2">ローソク足チャート（MA / ボリンジャーバンド）</div>
+      <div id="chart"></div>
+    </div>
+    <div class="row g-3 mb-4">
+      <div class="col-md-6">
+        <div class="card-dark p-3">
+          <div class="kpi-label mb-1">RSI (14)</div>
+          <div id="chart-rsi"></div>
+        </div>
+      </div>
+      <div class="col-md-6">
+        <div class="card-dark p-3">
+          <div class="kpi-label mb-1">MACD (12, 26, 9)</div>
+          <div id="chart-macd"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- シグナル詳細 -->
+    <div class="card-dark p-3 mb-4">
+      <div class="kpi-label mb-3">シグナル詳細</div>
+      <table class="table table-sm mb-0" style="color:var(--text)">
+        <thead style="color:var(--muted); border-color:var(--border)">
+          <tr><th>指標</th><th>シグナル</th><th>根拠</th></tr>
+        </thead>
+        <tbody id="signal-table" style="border-color:var(--border)"></tbody>
+      </table>
+    </div>
+
+    <!-- 免責事項 -->
+    <div class="disclaimer">
+      &#9888;&#65039; <strong>免責事項：</strong>
+      このシステムは教育・参考目的のみです。テクニカル分析・機械学習の予測は将来の値動きを保証するものではありません。
+      実際の投資判断は自己責任で行ってください。FX 取引にはリスクが伴います。
+    </div>
+
+  </div><!-- /result -->
+</div>
+
+<script>
+const PLOTLY_CONFIG = { responsive: true, displaylogo: false };
+const DARK_LAYOUT = {
+  paper_bgcolor: '#161b22',
+  plot_bgcolor:  '#0d1117',
+  font: { color: '#c9d1d9', size: 11 },
+  xaxis: { gridcolor: '#21262d', linecolor: '#30363d', showgrid: true, rangeslider: { visible: false } },
+  yaxis: { gridcolor: '#21262d', linecolor: '#30363d', showgrid: true },
+  margin: { t: 10, b: 40, l: 60, r: 20 },
+  legend: { bgcolor: 'rgba(0,0,0,0)', font: { color: '#8b949e', size: 10 } },
+};
+
+document.getElementById('btn-analyze').addEventListener('click', runAnalysis);
+runAnalysis();   // 起動時に USD/JPY 1h を自動実行
+
+async function runAnalysis() {
+  const symbol = document.getElementById('sel-symbol').value;
+  const tf     = document.getElementById('sel-tf').value;
+
+  document.getElementById('spinner').classList.remove('d-none');
+  document.getElementById('error-box').classList.add('d-none');
+  document.getElementById('result').classList.add('d-none');
+  document.getElementById('btn-analyze').disabled = true;
+
+  try {
+    const res  = await fetch(`/api/analyze?symbol=${encodeURIComponent(symbol)}&timeframe=${encodeURIComponent(tf)}`);
+    const data = await res.json();
+
+    if (!res.ok || data.error) {
+      showError(data.error || 'エラーが発生しました');
+      return;
+    }
+
+    renderAll(data);
+    document.getElementById('result').classList.remove('d-none');
+  } catch (e) {
+    showError('通信エラー: ' + e.message);
+  } finally {
+    document.getElementById('spinner').classList.add('d-none');
+    document.getElementById('btn-analyze').disabled = false;
+  }
+}
+
+function showError(msg) {
+  const box = document.getElementById('error-box');
+  box.textContent = msg;
+  box.classList.remove('d-none');
+}
+
+function signalBadge(dir) {
+  return `<span class="signal-badge signal-${dir}">${dir === 'Buy' ? '買い' : dir === 'Sell' ? '売り' : '中立'}</span>`;
+}
+
+function renderAll(data) {
+  // 総合シグナル
+  const ob = document.getElementById('overall-box');
+  ob.className = `overall-box overall-${data.overall}`;
+  ob.textContent = data.overall === 'Buy' ? '買い (BUY)' : data.overall === 'Sell' ? '売り (SELL)' : '中立 (NEUTRAL)';
+
+  // KPI グリッド
+  const ind = data.indicators;
+  const kpiItems = [
+    ['現在価格', data.price],
+    ['RSI (14)', ind.RSI],
+    ['MA20', ind.MA20],
+    ['MA50', ind.MA50],
+    ['BB 上限', ind.BB_upper],
+    ['BB 下限', ind.BB_lower],
+    ['ATR',    ind.ATR],
+  ];
+  document.getElementById('kpi-grid').innerHTML = kpiItems.map(([label, val]) =>
+    `<div class="col-6 col-md-3 col-lg-auto">
+       <div class="kpi-label">${label}</div>
+       <div class="kpi-value">${val}</div>
+     </div>`
+  ).join('');
+
+  // ML予測
+  const mlBox = document.getElementById('ml-box');
+  if (data.ml) {
+    const mlDir = data.ml.signal === 'Buy' ? '買い' : '売り';
+    const mlColor = data.ml.signal === 'Buy' ? 'var(--green)' : 'var(--red)';
+    mlBox.innerHTML = `
+      <div class="signal-badge signal-${data.ml.signal} mb-2" style="font-size:1.1rem;padding:6px 20px">${mlDir}</div>
+      <div class="kpi-label mt-1">確信度</div>
+      <div class="kpi-value" style="color:${mlColor}">${data.ml.confidence}%</div>
+      <div class="text-muted mt-2" style="font-size:.7rem">RandomForest (3本後予測)</div>`;
+  } else {
+    mlBox.innerHTML = '<span class="text-muted">データ不足</span>';
+  }
+
+  // シグナルテーブル
+  const tbody = document.getElementById('signal-table');
+  tbody.innerHTML = Object.entries(data.signals).map(([name, s]) =>
+    `<tr style="border-color:var(--border)">
+       <td class="fw-bold">${name}</td>
+       <td>${signalBadge(s.direction)}</td>
+       <td style="color:var(--muted);font-size:.85rem">${s.reason}</td>
+     </tr>`
+  ).join('');
+
+  // チャート描画
+  renderCandleChart(data.chart);
+  renderRSI(data.chart);
+  renderMACD(data.chart);
+}
+
+function renderCandleChart(c) {
+  const traces = [
+    {
+      type: 'candlestick',
+      x: c.dates, open: c.open, high: c.high, low: c.low, close: c.close,
+      name: 'ローソク足',
+      increasing: { line: { color: '#3fb950' }, fillcolor: '#3fb950' },
+      decreasing: { line: { color: '#f85149' }, fillcolor: '#f85149' },
+    },
+    {
+      type: 'scatter', x: c.dates, y: c.MA20,
+      name: 'MA20', line: { color: '#58a6ff', width: 1.5 }, hoverinfo: 'skip',
+    },
+    {
+      type: 'scatter', x: c.dates, y: c.MA50,
+      name: 'MA50', line: { color: '#d29922', width: 1.5 }, hoverinfo: 'skip',
+    },
+    {
+      type: 'scatter', x: c.dates, y: c.BB_upper,
+      name: 'BB上限', line: { color: '#8b949e', width: 1, dash: 'dot' }, hoverinfo: 'skip',
+    },
+    {
+      type: 'scatter', x: c.dates, y: c.BB_lower,
+      name: 'BB下限', line: { color: '#8b949e', width: 1, dash: 'dot' }, fill: 'tonexty',
+      fillcolor: 'rgba(88,166,255,0.05)', hoverinfo: 'skip',
+    },
+  ];
+
+  Plotly.newPlot('chart', traces, { ...DARK_LAYOUT }, PLOTLY_CONFIG);
+}
+
+function renderRSI(c) {
+  const traces = [
+    {
+      type: 'scatter', x: c.dates, y: c.RSI,
+      name: 'RSI', line: { color: '#bf91f3', width: 1.5 },
+    },
+    {
+      type: 'scatter', x: c.dates, y: Array(c.dates.length).fill(70),
+      name: '70', line: { color: '#f85149', width: 1, dash: 'dot' }, hoverinfo: 'skip',
+    },
+    {
+      type: 'scatter', x: c.dates, y: Array(c.dates.length).fill(30),
+      name: '30', line: { color: '#3fb950', width: 1, dash: 'dot' }, hoverinfo: 'skip',
+    },
+  ];
+
+  Plotly.newPlot('chart-rsi', traces, {
+    ...DARK_LAYOUT,
+    yaxis: { ...DARK_LAYOUT.yaxis, range: [0, 100] },
+    showlegend: false,
+  }, PLOTLY_CONFIG);
+}
+
+function renderMACD(c) {
+  const colors = c.MACD_hist.map(v =>
+    v === null ? 'rgba(0,0,0,0)' : v >= 0 ? 'rgba(63,185,80,0.7)' : 'rgba(248,81,73,0.7)'
+  );
+
+  const traces = [
+    {
+      type: 'bar', x: c.dates, y: c.MACD_hist,
+      name: 'ヒストグラム', marker: { color: colors },
+    },
+    {
+      type: 'scatter', x: c.dates, y: c.MACD,
+      name: 'MACD', line: { color: '#58a6ff', width: 1.5 },
+    },
+    {
+      type: 'scatter', x: c.dates, y: c.MACD_signal,
+      name: 'シグナル', line: { color: '#f0883e', width: 1.5 },
+    },
+  ];
+
+  Plotly.newPlot('chart-macd', traces, { ...DARK_LAYOUT }, PLOTLY_CONFIG);
+}
+</script>
+</body>
+</html>

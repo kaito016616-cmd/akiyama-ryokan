@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>管理ページ | あきやま旅館</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700&family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+        :root{
+            --bg:#f0f8ff;--bg2:#e2f1fb;--card:#fff;
+            --ocean:#0088cc;--teal:#00b4d8;
+            --grad:linear-gradient(135deg,#0088cc,#00b4d8);
+            --txt:#0d1b2a;--txt2:#3d5a73;--txt3:#8aabb8;
+            --border:rgba(0,136,204,0.15);
+            --shadow:0 4px 24px rgba(0,100,180,0.1);
+            --r:10px;--rl:16px;
+            --jp:'Noto Sans JP',sans-serif;--en:'Montserrat',sans-serif;
+        }
+        body{font-family:var(--jp);background:var(--bg);color:var(--txt);min-height:100vh;}
+
+        /* LOGIN */
+        .login-wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px;}
+        .login-box{background:#fff;border-radius:var(--rl);padding:48px 40px;width:100%;max-width:400px;box-shadow:var(--shadow);}
+        .login-logo{font-family:var(--en);font-size:11px;font-weight:700;letter-spacing:3px;color:var(--ocean);text-align:center;margin-bottom:8px;}
+        .login-title{font-size:22px;font-weight:700;text-align:center;margin-bottom:32px;}
+        .form-group{margin-bottom:18px;}
+        .form-group label{display:block;font-size:12px;font-weight:600;color:var(--txt2);margin-bottom:6px;}
+        .form-group input,.form-group textarea,.form-group select{width:100%;padding:12px 14px;border:1px solid var(--border);border-radius:var(--r);font-family:var(--jp);font-size:14px;color:var(--txt);background:#fff;outline:none;transition:border-color .2s;}
+        .form-group input:focus,.form-group textarea:focus{border-color:var(--ocean);}
+        .form-group textarea{resize:vertical;min-height:120px;line-height:1.7;}
+        .btn-primary{width:100%;background:var(--grad);color:#fff;border:none;border-radius:50px;padding:14px;font-family:var(--en);font-size:13px;font-weight:700;letter-spacing:1px;cursor:pointer;transition:opacity .2s;}
+        .btn-primary:hover{opacity:.85;}
+        .err-msg{color:#e53e3e;font-size:13px;margin-top:12px;text-align:center;min-height:20px;}
+
+        /* ADMIN NAV */
+        .admin-nav{background:#fff;border-bottom:1px solid var(--border);padding:0 32px;height:60px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;}
+        .admin-nav-logo{font-family:var(--en);font-size:13px;font-weight:700;letter-spacing:1px;color:var(--txt);}
+        .admin-nav-logo span{color:var(--ocean);}
+        .nav-actions{display:flex;gap:12px;align-items:center;}
+        .btn-sec{background:none;border:1px solid var(--border);color:var(--txt2);border-radius:50px;padding:8px 18px;font-family:var(--jp);font-size:13px;cursor:pointer;transition:all .2s;}
+        .btn-sec:hover{border-color:var(--ocean);color:var(--ocean);}
+        .btn-sm{background:none;border:none;cursor:pointer;font-size:13px;padding:6px 12px;border-radius:6px;transition:background .2s;}
+        .btn-del{color:#e53e3e;}
+        .btn-del:hover{background:rgba(229,62,62,0.08);}
+        .btn-edit{color:var(--ocean);}
+        .btn-edit:hover{background:rgba(0,136,204,0.08);}
+
+        /* ADMIN BODY */
+        .admin-body{max-width:860px;margin:0 auto;padding:36px 24px 60px;}
+
+        /* POST FORM */
+        .form-card{background:#fff;border-radius:var(--rl);padding:32px;box-shadow:var(--shadow);margin-bottom:36px;}
+        .form-card h2{font-size:17px;font-weight:700;margin-bottom:24px;padding-bottom:16px;border-bottom:1px solid var(--border);}
+        .form-row{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+        .checkbox-row{display:flex;align-items:center;gap:8px;margin-top:4px;}
+        .checkbox-row input[type=checkbox]{width:16px;height:16px;accent-color:var(--ocean);}
+        .checkbox-row label{font-size:14px;color:var(--txt2);cursor:pointer;}
+        .form-actions{display:flex;gap:12px;margin-top:24px;}
+        .btn-post{background:var(--grad);color:#fff;border:none;border-radius:50px;padding:13px 36px;font-family:var(--en);font-size:13px;font-weight:700;letter-spacing:1px;cursor:pointer;transition:opacity .2s;}
+        .btn-post:hover{opacity:.85;}
+        .btn-cancel{background:none;border:1px solid var(--border);color:var(--txt2);border-radius:50px;padding:13px 28px;font-family:var(--jp);font-size:13px;cursor:pointer;transition:all .2s;}
+        .btn-cancel:hover{border-color:var(--ocean);color:var(--ocean);}
+        .post-msg{font-size:13px;margin-top:12px;min-height:20px;}
+        .post-msg.ok{color:#38a169;}
+        .post-msg.ng{color:#e53e3e;}
+
+        /* POST LIST */
+        .list-card{background:#fff;border-radius:var(--rl);box-shadow:var(--shadow);overflow:hidden;}
+        .list-card h2{font-size:17px;font-weight:700;padding:24px 28px 16px;border-bottom:1px solid var(--border);}
+        .post-row{padding:18px 28px;border-bottom:1px solid var(--border);display:flex;align-items:flex-start;gap:16px;}
+        .post-row:last-child{border-bottom:none;}
+        .post-info{flex:1;min-width:0;}
+        .post-title-row{display:flex;align-items:center;gap:10px;margin-bottom:4px;}
+        .post-title{font-size:15px;font-weight:600;}
+        .post-date{font-family:var(--en);font-size:12px;color:var(--txt3);}
+        .post-preview{font-size:13px;color:var(--txt2);line-height:1.6;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;}
+        .badge-pub{display:inline-block;background:rgba(56,161,105,0.1);color:#38a169;font-size:10px;font-weight:700;padding:2px 10px;border-radius:50px;letter-spacing:0.5px;}
+        .badge-draft{display:inline-block;background:rgba(0,0,0,0.06);color:var(--txt3);font-size:10px;font-weight:700;padding:2px 10px;border-radius:50px;letter-spacing:0.5px;}
+        .post-btns{display:flex;gap:4px;flex-shrink:0;}
+        .list-empty{padding:48px 28px;text-align:center;color:var(--txt3);font-size:14px;}
+        .list-loading{padding:48px 28px;text-align:center;color:var(--txt3);font-size:14px;}
+
+        #screen-admin{display:none;}
+
+        @media(max-width:600px){
+            .login-box{padding:36px 24px;}
+            .admin-nav{padding:0 20px;}
+            .admin-body{padding:24px 16px 48px;}
+            .form-card,.list-card h2{padding:24px 20px;}
+            .post-row{padding:16px 20px;}
+            .form-row{grid-template-columns:1fr;}
+        }
+    </style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="screen-login" class="login-wrap">
+    <div class="login-box">
+        <p class="login-logo">AKIYAMA RYOKAN</p>
+        <h1 class="login-title">管理者ログイン</h1>
+        <div class="form-group">
+            <label for="l-email">メールアドレス</label>
+            <input type="email" id="l-email" placeholder="admin@example.com" autocomplete="email">
+        </div>
+        <div class="form-group">
+            <label for="l-pass">パスワード</label>
+            <input type="password" id="l-pass" placeholder="パスワード" autocomplete="current-password">
+        </div>
+        <button class="btn-primary" onclick="login()">ログイン</button>
+        <p class="err-msg" id="l-err"></p>
+    </div>
+</div>
+
+<!-- ADMIN -->
+<div id="screen-admin">
+    <nav class="admin-nav">
+        <span class="admin-nav-logo">AKIYAMA <span>ADMIN</span></span>
+        <div class="nav-actions">
+            <a href="index.html" target="_blank" class="btn-sec">サイトを確認</a>
+            <button class="btn-sec" onclick="logout()">ログアウト</button>
+        </div>
+    </nav>
+
+    <div class="admin-body">
+
+        <!-- POST FORM -->
+        <div class="form-card">
+            <h2 id="form-title">新しいお知らせを投稿</h2>
+            <input type="hidden" id="edit-id">
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="p-date">日付</label>
+                    <input type="date" id="p-date">
+                </div>
+                <div class="form-group">
+                    <div class="checkbox-row" style="margin-top:22px;">
+                        <input type="checkbox" id="p-pub" checked>
+                        <label for="p-pub">すぐに公開する</label>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="p-title">タイトル</label>
+                <input type="text" id="p-title" placeholder="例：夏季特別プランのお知らせ">
+            </div>
+            <div class="form-group">
+                <label for="p-content">内容</label>
+                <textarea id="p-content" placeholder="お知らせの詳細を入力してください。"></textarea>
+            </div>
+            <div class="form-actions">
+                <button class="btn-post" id="btn-save" onclick="savePost()">投稿する</button>
+                <button class="btn-cancel" id="btn-cancel" style="display:none" onclick="cancelEdit()">キャンセル</button>
+            </div>
+            <p class="post-msg" id="post-msg"></p>
+        </div>
+
+        <!-- POST LIST -->
+        <div class="list-card">
+            <h2>投稿一覧</h2>
+            <div id="post-list"><p class="list-loading">読み込み中...</p></div>
+        </div>
+
+    </div>
+</div>
+
+<script src="config.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<script>
+let sb, currentUser;
+
+// Init
+window.addEventListener('DOMContentLoaded', async () => {
+    if(typeof SUPABASE_URL==='undefined'||SUPABASE_URL.startsWith('YOUR_')){
+        document.getElementById('l-err').textContent='config.js に Supabase の設定を入力してください。';
+        return;
+    }
+    sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    const { data: { session } } = await sb.auth.getSession();
+    if(session){ showAdmin(session.user); }
+
+    // 今日の日付をデフォルト設定
+    document.getElementById('p-date').value = new Date().toISOString().slice(0,10);
+});
+
+async function login(){
+    const email = document.getElementById('l-email').value.trim();
+    const pass  = document.getElementById('l-pass').value;
+    const errEl = document.getElementById('l-err');
+    errEl.textContent = '';
+    if(!email||!pass){ errEl.textContent='メールアドレスとパスワードを入力してください。'; return; }
+    const { data, error } = await sb.auth.signInWithPassword({ email, password: pass });
+    if(error){ errEl.textContent='ログインに失敗しました。メールアドレスまたはパスワードが間違っています。'; return; }
+    showAdmin(data.user);
+}
+
+async function logout(){
+    await sb.auth.signOut();
+    document.getElementById('screen-login').style.display='flex';
+    document.getElementById('screen-admin').style.display='none';
+}
+
+function showAdmin(user){
+    currentUser = user;
+    document.getElementById('screen-login').style.display='none';
+    document.getElementById('screen-admin').style.display='block';
+    loadPosts();
+}
+
+async function savePost(){
+    const id      = document.getElementById('edit-id').value;
+    const title   = document.getElementById('p-title').value.trim();
+    const content = document.getElementById('p-content').value.trim();
+    const date    = document.getElementById('p-date').value;
+    const pub     = document.getElementById('p-pub').checked;
+    const msgEl   = document.getElementById('post-msg');
+
+    msgEl.className='post-msg'; msgEl.textContent='';
+    if(!title){ msgEl.className='post-msg ng'; msgEl.textContent='タイトルを入力してください。'; return; }
+    if(!content){ msgEl.className='post-msg ng'; msgEl.textContent='内容を入力してください。'; return; }
+
+    const payload = { title, content, published_at: date||new Date().toISOString().slice(0,10), is_published: pub };
+    let error;
+    if(id){
+        ({ error } = await sb.from('news').update(payload).eq('id', id));
+    } else {
+        ({ error } = await sb.from('news').insert(payload));
+    }
+    if(error){ msgEl.className='post-msg ng'; msgEl.textContent='エラーが発生しました: '+error.message; return; }
+
+    msgEl.className='post-msg ok'; msgEl.textContent= id ? '更新しました。' : '投稿しました！';
+    clearForm();
+    loadPosts();
+    setTimeout(()=>{ msgEl.textContent=''; }, 3000);
+}
+
+function clearForm(){
+    document.getElementById('edit-id').value='';
+    document.getElementById('p-title').value='';
+    document.getElementById('p-content').value='';
+    document.getElementById('p-date').value=new Date().toISOString().slice(0,10);
+    document.getElementById('p-pub').checked=true;
+    document.getElementById('form-title').textContent='新しいお知らせを投稿';
+    document.getElementById('btn-save').textContent='投稿する';
+    document.getElementById('btn-cancel').style.display='none';
+}
+
+function cancelEdit(){ clearForm(); document.getElementById('post-msg').textContent=''; }
+
+async function loadPosts(){
+    const listEl = document.getElementById('post-list');
+    const { data, error } = await sb.from('news').select('*').order('published_at',{ascending:false});
+    if(error||!data||data.length===0){
+        listEl.innerHTML='<p class="list-empty">投稿はまだありません。</p>'; return;
+    }
+    function fmt(d){ const dt=new Date(d); return`${dt.getFullYear()}年${dt.getMonth()+1}月${dt.getDate()}日`; }
+    function esc(s){ return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+    listEl.innerHTML = data.map(p=>`
+        <div class="post-row" id="row-${p.id}">
+            <div class="post-info">
+                <div class="post-title-row">
+                    <span class="post-title">${esc(p.title)}</span>
+                    <span class="${p.is_published?'badge-pub':'badge-draft'}">${p.is_published?'公開中':'下書き'}</span>
+                </div>
+                <p class="post-date">${fmt(p.published_at)}</p>
+                <p class="post-preview">${esc(p.content)}</p>
+            </div>
+            <div class="post-btns">
+                <button class="btn-sm btn-edit" onclick="editPost('${p.id}')">編集</button>
+                <button class="btn-sm btn-del" onclick="deletePost('${p.id}')">削除</button>
+            </div>
+        </div>
+    `).join('');
+}
+
+async function editPost(id){
+    const { data, error } = await sb.from('news').select('*').eq('id',id).single();
+    if(error||!data) return;
+    document.getElementById('edit-id').value     = data.id;
+    document.getElementById('p-title').value     = data.title;
+    document.getElementById('p-content').value   = data.content;
+    document.getElementById('p-date').value      = data.published_at;
+    document.getElementById('p-pub').checked     = data.is_published;
+    document.getElementById('form-title').textContent = '投稿を編集';
+    document.getElementById('btn-save').textContent   = '更新する';
+    document.getElementById('btn-cancel').style.display = 'inline-block';
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+async function deletePost(id){
+    if(!confirm('この投稿を削除しますか？')) return;
+    const { error } = await sb.from('news').delete().eq('id', id);
+    if(error){ alert('削除に失敗しました: '+error.message); return; }
+    loadPosts();
+}
+</script>
+</body>
+</html>

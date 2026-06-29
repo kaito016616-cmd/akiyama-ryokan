@@ -1,0 +1,660 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="あきやま旅館 - 静岡県伊東市赤沢、赤沢港の目の前に佇む海辺の宿。素泊まり5,000円〜。若者・合宿歓迎。">
+    <title>あきやま旅館 | 伊豆・赤沢の海辺の宿</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700&family=Montserrat:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg:     #f0f8ff;
+            --bg2:    #e2f1fb;
+            --card:   #ffffff;
+            --ocean:  #0088cc;
+            --teal:   #00b4d8;
+            --coral:  #ff6b6b;
+            --grad:   linear-gradient(135deg, #0088cc, #00b4d8);
+            --grad2:  linear-gradient(135deg, #00b4d8, #48cae4);
+            --txt:    #0d1b2a;
+            --txt2:   #3d5a73;
+            --txt3:   #8aabb8;
+            --border: rgba(0,136,204,0.15);
+            --shadow: 0 4px 24px rgba(0,100,180,0.1);
+            --shadow-h: 0 12px 40px rgba(0,100,180,0.18);
+            --jp: 'Noto Sans JP', sans-serif;
+            --en: 'Montserrat', sans-serif;
+            --nav: 68px;
+            --r: 14px;
+            --rl: 22px;
+        }
+        *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+        html { scroll-behavior:smooth; }
+        body { background:var(--bg); color:var(--txt); font-family:var(--jp); font-weight:300; line-height:1.8; overflow-x:hidden; }
+
+        /* UTIL */
+        .wrap { max-width:1100px; margin:0 auto; padding:0 24px; }
+        .sec { padding:96px 0; }
+        .sec-label { font-family:var(--en); font-size:11px; font-weight:700; letter-spacing:4px; color:var(--ocean); text-transform:uppercase; margin-bottom:12px; }
+        .sec-title { font-size:clamp(26px,4vw,40px); font-weight:700; line-height:1.3; margin-bottom:16px; color:var(--txt); }
+        .bar { width:40px; height:3px; background:var(--grad); border-radius:2px; margin-bottom:44px; }
+        .btn { display:inline-flex; align-items:center; gap:10px; background:var(--grad); color:#fff; text-decoration:none; font-family:var(--jp); font-weight:700; font-size:15px; padding:16px 40px; border-radius:50px; transition:all .3s; border:none; cursor:pointer; letter-spacing:1px; box-shadow:0 4px 20px rgba(0,136,204,0.35); }
+        .btn:hover { transform:translateY(-3px); box-shadow:0 10px 32px rgba(0,136,204,0.45); }
+        .btn-o { display:inline-flex; align-items:center; gap:10px; background:#fff; color:var(--ocean); text-decoration:none; font-family:var(--jp); font-weight:700; font-size:15px; padding:14px 36px; border-radius:50px; border:2px solid var(--ocean); transition:all .3s; cursor:pointer; letter-spacing:1px; }
+        .btn-o:hover { background:var(--ocean); color:#fff; transform:translateY(-3px); box-shadow:0 6px 20px rgba(0,136,204,0.3); }
+
+        /* PHOTO PLACEHOLDER */
+        .ph { background:linear-gradient(135deg,#d0e8f8,#b8d8f0); border:2px dashed rgba(0,136,204,0.3); border-radius:var(--r); display:flex; flex-direction:column; align-items:center; justify-content:center; gap:10px; color:var(--txt3); font-size:13px; text-align:center; padding:20px; }
+        .ph svg { opacity:.45; color:var(--ocean); }
+        .ph small { font-size:11px; letter-spacing:1px; }
+
+        /* NAV */
+        .nav { position:fixed; top:0; left:0; right:0; height:var(--nav); z-index:1000; transition:all .4s; }
+        .nav.on { background:rgba(240,248,255,0.95); backdrop-filter:blur(16px); border-bottom:1px solid var(--border); box-shadow:0 2px 16px rgba(0,100,180,0.08); }
+        .nav-in { max-width:1100px; margin:0 auto; padding:0 24px; height:100%; display:flex; align-items:center; justify-content:space-between; }
+        .logo { text-decoration:none; color:var(--txt); }
+        .logo-jp { font-size:16px; font-weight:700; letter-spacing:3px; display:block; line-height:1; }
+        .logo-en { font-family:var(--en); font-size:9px; font-weight:600; letter-spacing:4px; color:var(--ocean); text-transform:uppercase; }
+        .nav-ul { display:flex; align-items:center; gap:36px; list-style:none; }
+        .nav-ul a { color:var(--txt2); text-decoration:none; font-size:13px; font-weight:500; letter-spacing:1px; transition:color .3s; }
+        .nav-ul a:hover { color:var(--ocean); }
+        .nav-rsv { background:var(--grad) !important; color:#fff !important; padding:8px 22px; border-radius:50px; font-family:var(--en); font-size:12px !important; font-weight:700; letter-spacing:2px; box-shadow:0 3px 12px rgba(0,136,204,0.3); transition:all .3s !important; }
+        .nav-rsv:hover { transform:translateY(-2px); box-shadow:0 6px 20px rgba(0,136,204,0.4) !important; }
+        .hamburger { display:none; flex-direction:column; gap:5px; cursor:pointer; padding:8px; background:none; border:none; }
+        .hamburger span { display:block; width:24px; height:2px; background:var(--txt); border-radius:2px; transition:all .3s; }
+        .mob { display:none; position:fixed; top:var(--nav); left:0; right:0; background:rgba(240,248,255,0.97); backdrop-filter:blur(16px); padding:30px 24px; border-bottom:1px solid var(--border); box-shadow:0 8px 24px rgba(0,100,180,0.1); z-index:999; }
+        .mob.on { display:block; }
+        .mob ul { list-style:none; display:flex; flex-direction:column; gap:20px; }
+        .mob ul a { color:var(--txt2); text-decoration:none; font-size:16px; font-weight:500; letter-spacing:2px; }
+        .mob .btn { width:100%; justify-content:center; margin-top:20px; }
+
+        /* HERO */
+        .hero { position:relative; height:100vh; min-height:600px; display:flex; align-items:center; overflow:hidden; }
+        .hero-bg { position:absolute; inset:0; }
+        /*
+         * 【ヒーロー写真の差し込み方】
+         * .hero-ph を削除し、以下のタグを .hero-bg の中に入れてください:
+         * <img src="images/hero.jpg" alt="あきやま旅館" style="width:100%;height:100%;object-fit:cover;">
+         * 推奨サイズ: 1920×1080px 以上
+         */
+        .hero-ph { width:100%; height:100%; background:linear-gradient(160deg, #b8dff8 0%, #7bc8f0 30%, #4ab8e8 60%, #2aacd8 100%); display:flex; flex-direction:column; align-items:center; justify-content:center; gap:14px; color:rgba(255,255,255,0.5); font-size:13px; letter-spacing:3px; }
+        .hero-ov { position:absolute; inset:0; background:linear-gradient(to right, rgba(255,255,255,0.78) 0%, rgba(255,255,255,0.45) 55%, rgba(255,255,255,0.1) 100%); z-index:1; }
+        .hero-ct { position:relative; z-index:2; max-width:1100px; margin:0 auto; padding:0 24px; padding-top:var(--nav); width:100%; }
+        .h-label { font-family:var(--en); font-size:11px; font-weight:700; letter-spacing:5px; color:var(--ocean); text-transform:uppercase; margin-bottom:20px; opacity:0; animation:up .8s ease .2s forwards; }
+        .h-title { font-size:clamp(52px,9vw,90px); font-weight:800; letter-spacing:6px; line-height:1.1; margin-bottom:16px; color:var(--txt); opacity:0; animation:up .8s ease .4s forwards; }
+        .h-title span { background:var(--grad); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
+        .h-sub { font-size:clamp(14px,2vw,18px); font-weight:400; color:var(--txt2); letter-spacing:3px; margin-bottom:6px; opacity:0; animation:up .8s ease .6s forwards; }
+        .h-en { font-family:var(--en); font-size:12px; color:var(--txt3); letter-spacing:4px; text-transform:uppercase; margin-bottom:48px; opacity:0; animation:up .8s ease .7s forwards; }
+        .h-btns { display:flex; gap:16px; flex-wrap:wrap; opacity:0; animation:up .8s ease .9s forwards; }
+        .scroll-hint { position:absolute; bottom:36px; left:50%; transform:translateX(-50%); z-index:2; display:flex; flex-direction:column; align-items:center; gap:8px; color:var(--txt3); font-family:var(--en); font-size:10px; letter-spacing:3px; text-transform:uppercase; animation:bounce 2s infinite; }
+        .scroll-hint::after { content:''; display:block; width:1px; height:36px; background:linear-gradient(to bottom,var(--ocean),transparent); }
+
+        /* BADGE STRIP */
+        .badges { background:#fff; border-bottom:1px solid var(--border); padding:18px 0; }
+        .badge-list { display:flex; justify-content:center; gap:48px; flex-wrap:wrap; }
+        .badge { display:flex; align-items:center; gap:10px; font-size:14px; font-weight:500; color:var(--txt2); }
+        .badge em { font-style:normal; display:inline-flex; align-items:center; color:var(--ocean); }
+
+        /* NEWS */
+        .news-sec { background:#fff; }
+        .news-hd { display:flex; align-items:flex-end; justify-content:space-between; margin-bottom:28px; }
+        .news-all { font-family:var(--en); font-size:13px; font-weight:600; color:var(--ocean); border-bottom:1px solid rgba(0,136,204,0.3); padding-bottom:2px; transition:opacity .2s; flex-shrink:0; }
+        .news-all:hover { opacity:.7; }
+        .news-item {display:flex; gap:28px; align-items:baseline; padding:18px 0; border-bottom:1px solid var(--border); }
+        .news-item:first-child { border-top:1px solid var(--border); }
+        .news-dt { font-family:var(--en); font-size:12px; color:var(--txt3); white-space:nowrap; flex-shrink:0; min-width:96px; }
+        .news-ttl { font-size:15px; font-weight:600; color:var(--txt); margin-bottom:3px; }
+        .news-body { font-size:13px; color:var(--txt2); line-height:1.6; }
+        .news-empty { color:var(--txt3); font-size:14px; text-align:center; padding:36px 0; }
+
+        /* CONCEPT */
+        .concept { background:#fff; }
+        .concept-grid { display:grid; grid-template-columns:1fr 1fr; gap:72px; align-items:center; }
+        .concept-txt p { color:var(--txt2); font-size:15px; line-height:2; margin-bottom:16px; }
+        .concept-img { height:460px; border-radius:var(--rl); overflow:hidden; box-shadow:var(--shadow-h); }
+        /*
+         * 【写真の差し込み方】
+         * div.concept-img の中に以下を入れてください:
+         * <img src="images/concept.jpg" alt="旅館からの海の眺め" style="width:100%;height:100%;object-fit:cover;">
+         */
+        .feats { display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-top:36px; }
+        .feat { display:flex; align-items:flex-start; gap:12px; background:var(--bg); border-radius:var(--r); padding:16px; }
+        .feat-icon { width:38px; height:38px; background:var(--grad); border-radius:10px; display:flex; align-items:center; justify-content:center; flex-shrink:0; font-size:18px; box-shadow:0 3px 10px rgba(0,136,204,0.25); }
+        .feat-txt h4 { font-size:13px; font-weight:700; margin-bottom:2px; color:var(--txt); }
+        .feat-txt p { font-size:12px; color:var(--txt3); line-height:1.6; margin:0; }
+
+        /* ROOMS */
+        .rooms { background:var(--bg); }
+        .rooms-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:24px; }
+        .room-card { background:var(--card); border-radius:var(--rl); overflow:hidden; box-shadow:var(--shadow); transition:all .4s; }
+        .room-card:hover { transform:translateY(-6px); box-shadow:var(--shadow-h); }
+        .room-img { aspect-ratio:4/3; width:100%; overflow:hidden; }
+        .room-img img { width:100%; height:100%; object-fit:cover; display:block; }
+        .room-body { padding:28px; }
+        .room-tag { display:inline-block; font-family:var(--en); font-size:10px; font-weight:700; letter-spacing:2px; color:var(--ocean); background:rgba(0,136,204,0.1); padding:4px 12px; border-radius:50px; margin-bottom:12px; text-transform:uppercase; }
+        .room-name { font-size:20px; font-weight:700; letter-spacing:2px; margin-bottom:8px; color:var(--txt); }
+        .room-desc { color:var(--txt2); font-size:13px; margin-bottom:16px; }
+        .room-specs { display:flex; gap:20px; padding-top:16px; border-top:2px solid var(--bg); }
+        .spec { display:flex; flex-direction:column; gap:2px; }
+        .spec-l { font-size:10px; letter-spacing:1px; color:var(--txt3); text-transform:uppercase; font-family:var(--en); font-weight:600; }
+        .spec-v { font-size:14px; font-weight:700; color:var(--txt); }
+
+        .room-detail-btn { display:inline-block; margin-top:18px; color:var(--ocean); font-size:13px; font-weight:600; font-family:var(--en); letter-spacing:0.5px; border-bottom:1px solid rgba(0,136,204,0.3); padding-bottom:2px; transition:opacity .2s; }
+        .room-detail-btn:hover { opacity:.7; }
+
+        /* PRICE */
+        .price { background:#fff; }
+        .price-card { background:var(--bg); border-radius:var(--rl); padding:56px; text-align:center; max-width:600px; margin:0 auto; position:relative; overflow:hidden; box-shadow:var(--shadow); }
+        .price-card::before { content:''; position:absolute; top:0; left:0; right:0; height:4px; background:var(--grad); }
+        .price-plan { font-family:var(--en); font-size:11px; font-weight:700; letter-spacing:4px; color:var(--ocean); text-transform:uppercase; margin-bottom:24px; }
+        .price-row { display:flex; align-items:flex-end; justify-content:center; gap:4px; margin-bottom:8px; }
+        .price-yen { font-size:24px; font-weight:400; padding-bottom:8px; color:var(--txt2); }
+        .price-num { font-family:var(--en); font-size:72px; font-weight:800; line-height:1; background:var(--grad); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
+        .price-unit { font-size:16px; color:var(--txt2); padding-bottom:12px; }
+        .price-note { color:var(--txt3); font-size:13px; margin-bottom:32px; }
+        .price-list { display:flex; flex-direction:column; gap:12px; text-align:left; border-top:2px solid rgba(0,136,204,0.12); padding-top:28px; }
+        .price-item { display:flex; align-items:center; gap:12px; font-size:14px; color:var(--txt2); }
+        .price-item::before { content:''; width:7px; height:7px; background:var(--grad); border-radius:50%; flex-shrink:0; }
+
+        /* FACILITIES */
+        .fac-sec { background:var(--bg); }
+        .fac-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:18px; }
+        .fac { background:var(--card); border-radius:var(--r); padding:28px 20px; text-align:center; box-shadow:var(--shadow); transition:all .3s; }
+        .fac:hover { transform:translateY(-4px); box-shadow:var(--shadow-h); }
+        .fac em { margin-bottom:14px; display:flex; align-items:center; justify-content:center; font-style:normal; color:var(--ocean); }
+        .fac h4 { font-size:14px; font-weight:700; margin-bottom:4px; color:var(--txt); }
+        .fac p { font-size:12px; color:var(--txt3); }
+
+        /* ACCESS */
+        .access { background:#fff; }
+        .access-grid { display:grid; grid-template-columns:1fr 1fr; gap:56px; align-items:start; }
+        .map-wrap { border-radius:var(--rl); overflow:hidden; box-shadow:var(--shadow); height:400px; }
+        .map-wrap iframe { width:100%; height:100%; border:none; }
+        .access-info h3 { font-size:18px; font-weight:700; letter-spacing:2px; margin-bottom:24px; color:var(--txt); }
+        .a-row { display:flex; gap:16px; padding:16px 0; border-bottom:1px solid var(--border); }
+        .a-row:last-of-type { border-bottom:none; }
+        .a-icon { flex-shrink:0; width:26px; text-align:center; margin-top:3px; color:var(--ocean); display:flex; align-items:flex-start; justify-content:center; }
+        .a-label { font-size:11px; color:var(--ocean); letter-spacing:2px; text-transform:uppercase; font-family:var(--en); font-weight:700; margin-bottom:4px; }
+        .a-val { font-size:14px; font-weight:500; color:var(--txt); margin-bottom:2px; }
+        .a-note { font-size:12px; color:var(--txt3); }
+        .near-title { font-size:14px; font-weight:700; letter-spacing:2px; margin:28px 0 14px; color:var(--txt2); }
+        .near-table { width:100%; border-collapse:collapse; }
+        .near-table tr { border-bottom:1px solid var(--border); }
+        .near-table td { padding:11px 0; font-size:13px; color:var(--txt2); }
+        .near-table td:last-child { text-align:right; color:var(--txt3); }
+
+        /* FAQ */
+        .faq-sec { background:var(--bg); }
+        .faq-wrap { max-width:780px; margin:0 auto; }
+        .faq-item { background:var(--card); border-radius:var(--r); margin-bottom:10px; box-shadow:0 2px 10px rgba(0,100,180,0.06); overflow:hidden; }
+        .faq-q { width:100%; background:none; border:none; color:var(--txt); font-family:var(--jp); font-size:15px; font-weight:500; text-align:left; padding:22px 24px; cursor:pointer; display:flex; justify-content:space-between; align-items:center; gap:20px; letter-spacing:0.5px; transition:color .3s; }
+        .faq-q:hover { color:var(--ocean); }
+        .faq-ico { width:28px; height:28px; background:var(--bg); border-radius:50%; display:flex; align-items:center; justify-content:center; flex-shrink:0; transition:all .3s; font-size:18px; color:var(--ocean); font-weight:700; line-height:1; }
+        .faq-item.open .faq-ico { background:var(--grad); color:#fff; transform:rotate(45deg); }
+        .faq-a { max-height:0; overflow:hidden; transition:max-height .4s ease; }
+        .faq-item.open .faq-a { max-height:200px; }
+        .faq-a p { padding:0 24px 22px; color:var(--txt2); font-size:14px; line-height:2; border-top:1px solid var(--border); padding-top:16px; margin:0 24px; }
+
+        /* CTA */
+        .cta { background:var(--grad); text-align:center; position:relative; overflow:hidden; }
+        .cta::before { content:''; position:absolute; top:-60%; left:-20%; width:140%; height:220%; background:radial-gradient(ellipse, rgba(255,255,255,0.12) 0%, transparent 65%); pointer-events:none; }
+        .cta-ct { position:relative; z-index:1; }
+        .cta-title { font-size:clamp(26px,4vw,42px); font-weight:800; letter-spacing:3px; margin-bottom:14px; color:#fff; }
+        .cta-sub { color:rgba(255,255,255,0.82); font-size:15px; margin-bottom:44px; letter-spacing:2px; }
+        .btn-white { display:inline-flex; align-items:center; gap:10px; background:#fff; color:var(--ocean); text-decoration:none; font-family:var(--jp); font-weight:700; font-size:16px; padding:18px 48px; border-radius:50px; transition:all .3s; border:none; cursor:pointer; letter-spacing:1px; box-shadow:0 6px 24px rgba(0,0,0,0.15); }
+        .btn-white:hover { transform:translateY(-3px); box-shadow:0 12px 36px rgba(0,0,0,0.2); }
+
+        /* FOOTER */
+        footer { background:#0d1b2a; padding:60px 0 30px; }
+        .foot-grid { display:grid; grid-template-columns:2fr 1fr 1fr; gap:60px; margin-bottom:44px; }
+        .foot-jp { font-size:20px; font-weight:700; letter-spacing:4px; margin-bottom:4px; color:#fff; }
+        .foot-en { font-family:var(--en); font-size:9px; font-weight:700; letter-spacing:4px; color:var(--teal); text-transform:uppercase; margin-bottom:18px; }
+        .foot-desc { color:#7a95ad; font-size:13px; line-height:2; }
+        .foot-col-t { font-family:var(--en); font-size:10px; font-weight:700; letter-spacing:3px; color:var(--teal); text-transform:uppercase; margin-bottom:18px; }
+        .foot-ul { list-style:none; display:flex; flex-direction:column; gap:12px; }
+        .foot-ul a { color:#7a95ad; text-decoration:none; font-size:13px; transition:color .3s; }
+        .foot-ul a:hover { color:#fff; }
+        .foot-row { display:flex; gap:10px; margin-bottom:10px; font-size:13px; color:#7a95ad; }
+        .foot-bottom { border-top:1px solid rgba(255,255,255,0.08); padding-top:22px; display:flex; justify-content:space-between; align-items:center; }
+        .copy { font-family:var(--en); font-size:11px; color:#4a6580; letter-spacing:2px; }
+
+        /* ANIMATIONS */
+        @keyframes up { from { opacity:0; transform:translateY(28px); } to { opacity:1; transform:translateY(0); } }
+        @keyframes bounce { 0%,100% { transform:translateX(-50%) translateY(0); } 50% { transform:translateX(-50%) translateY(8px); } }
+        .fi { opacity:0; transform:translateY(28px); transition:opacity .65s ease, transform .65s ease; }
+        .fi.vis { opacity:1; transform:translateY(0); }
+
+        /* RESPONSIVE */
+        @media(max-width:768px) {
+            .sec { padding:68px 0; }
+            .nav-ul { display:none; }
+            .hamburger { display:flex; }
+            .concept-grid, .access-grid { grid-template-columns:1fr; gap:40px; }
+            .concept-img { height:280px; }
+            .rooms-grid { grid-template-columns:1fr 1fr; }
+        }
+        @media(max-width:560px) {
+            .rooms-grid { grid-template-columns:1fr; }
+            .fac-grid { grid-template-columns:repeat(2,1fr); }
+            .price-card { padding:36px 24px; }
+            .foot-grid { grid-template-columns:1fr; gap:36px; }
+            .foot-bottom { flex-direction:column; gap:10px; text-align:center; }
+            .h-btns { flex-direction:column; }
+            .feats { grid-template-columns:1fr; }
+            .price-num { font-size:58px; }
+            .badge-list { gap:24px; }
+        }
+        @media(max-width:480px) {
+            .h-title { letter-spacing:3px; }
+            .fac-grid { grid-template-columns:repeat(2,1fr); }
+        }
+    </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav class="nav" id="nav">
+    <div class="nav-in">
+        <a href="#" class="logo">
+            <span class="logo-jp">あきやま旅館</span>
+            <span class="logo-en">Akiyama Ryokan</span>
+        </a>
+        <ul class="nav-ul">
+            <li><a href="#concept">コンセプト</a></li>
+            <li><a href="#rooms">お部屋</a></li>
+            <li><a href="#price">料金</a></li>
+            <li><a href="#access">アクセス</a></li>
+            <li><a href="#faq">よくある質問</a></li>
+            <li><a href="https://reserva.be/akiyamaryokan" class="nav-rsv" target="_blank" rel="noopener">RESERVE</a></li>
+        </ul>
+        <button class="hamburger" id="ham" aria-label="メニュー">
+            <span></span><span></span><span></span>
+        </button>
+    </div>
+</nav>
+
+<!-- MOBILE MENU -->
+<div class="mob" id="mob">
+    <ul>
+        <li><a href="#concept" onclick="closeMob()">コンセプト</a></li>
+        <li><a href="#rooms" onclick="closeMob()">お部屋</a></li>
+        <li><a href="#price" onclick="closeMob()">料金</a></li>
+        <li><a href="#access" onclick="closeMob()">アクセス</a></li>
+        <li><a href="#faq" onclick="closeMob()">よくある質問</a></li>
+    </ul>
+    <a href="https://reserva.be/akiyamaryokan" class="btn" target="_blank" rel="noopener">今すぐ予約する</a>
+</div>
+
+<!-- HERO -->
+<section class="hero" id="top">
+    <div class="hero-bg">
+        <img src="images/全体写真.jpg" alt="あきやま旅館 外観" style="width:100%;height:100%;object-fit:cover;">
+    </div>
+    <div class="hero-ov"></div>
+    <div class="hero-ct">
+        <p class="h-label">Akazawa, Izu &mdash; Oceanfront Ryokan</p>
+        <h1 class="h-title">あきやま<br><span>旅館</span></h1>
+        <p class="h-sub">赤沢の海が、目の前にある。</p>
+        <p class="h-en">Shizuoka · Ito City · Akazawa</p>
+        <div class="h-btns">
+            <a href="https://reserva.be/akiyamaryokan" class="btn" target="_blank" rel="noopener">
+                今すぐ予約する
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+            </a>
+            <a href="#concept" class="btn-o">旅館について</a>
+        </div>
+    </div>
+    <div class="scroll-hint">SCROLL</div>
+</section>
+
+<!-- BADGE STRIP -->
+<div class="badges">
+    <div class="wrap">
+        <div class="badge-list">
+            <div class="badge"><em><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M2 10c2-3 4-3 6 0s4 3 6 0 4-3 6 0"/><path d="M2 16c2-3 4-3 6 0s4 3 6 0 4-3 6 0"/></svg></em> 赤沢港の目の前</div>
+            <div class="badge"><em><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></em> 最大26名・合宿歓迎</div>
+            <div class="badge"><em><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="2"/><path d="M6 12h.01M18 12h.01"/></svg></em> 素泊まり5,000円〜</div>
+            <div class="badge"><em><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M9 6h4a3 3 0 0 1 0 6H9V6z"/><line x1="9" y1="12" x2="9" y2="18"/></svg></em> 無料駐車場8台</div>
+            <div class="badge"><em><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 13a10 10 0 0 1 14 0"/><path d="M1.42 9a16 16 0 0 1 21.16 0"/><path d="M8.53 16.11a6 6 0 0 1 6.95 0"/><circle cx="12" cy="20" r="1" fill="currentColor" stroke="none"/></svg></em> Wi-Fi完備</div>
+        </div>
+    </div>
+</div>
+
+<!-- NEWS -->
+<section class="sec news-sec" id="news">
+    <div class="wrap">
+        <div class="news-hd fi">
+            <div>
+                <p class="sec-label">News</p>
+                <h2 class="sec-title">お知らせ</h2>
+                <div class="bar" style="margin-top:10px;"></div>
+            </div>
+            <a href="news.html" class="news-all">すべて見る →</a>
+        </div>
+        <div id="news-list"><p class="news-empty">読み込み中...</p></div>
+    </div>
+</section>
+
+<!-- CONCEPT -->
+<section class="sec concept" id="concept">
+    <div class="wrap">
+        <div class="concept-grid">
+            <div class="fi">
+                <p class="sec-label">Concept</p>
+                <h2 class="sec-title">海の目の前で、<br>仲間と過ごす時間。</h2>
+                <div class="bar"></div>
+                <p>あきやま旅館は、静岡県伊東市赤沢・赤沢港のすぐ目の前に佇む小さな和風旅館です。</p>
+                <p>波の音を聞きながら過ごす夜、早朝の海の静けさ。都会では味わえない、伊豆の自然を全身で感じてください。</p>
+                <p>部活の合宿、友人との旅行、ゆったりとした一人旅。どんなスタイルの滞在も、温かくお迎えします。</p>
+                <div class="feats">
+                    <div class="feat"><div class="feat-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round"><path d="M2 10c2-3 4-3 6 0s4 3 6 0 4-3 6 0"/><path d="M2 16c2-3 4-3 6 0s4 3 6 0 4-3 6 0"/></svg></div><div class="feat-txt"><h4>海の目の前</h4><p>赤沢港まで徒歩すぐ</p></div></div>
+                    <div class="feat"><div class="feat-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></div><div class="feat-txt"><h4>全室和室</h4><p>落ち着いた純和風空間</p></div></div>
+                    <div class="feat"><div class="feat-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></div><div class="feat-txt"><h4>合宿・グループ歓迎</h4><p>最大26名まで対応可</p></div></div>
+                    <div class="feat"><div class="feat-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round"><rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="2"/><path d="M6 12h.01M18 12h.01"/></svg></div><div class="feat-txt"><h4>リーズナブル</h4><p>素泊まり5,000円/人〜</p></div></div>
+                </div>
+            </div>
+            <div class="fi">
+                <div class="concept-img">
+                    <img src="images/全体写真.jpg" alt="あきやま旅館 外観" style="width:100%;height:100%;object-fit:cover;">
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ROOMS -->
+<section class="sec rooms" id="rooms">
+    <div class="wrap">
+        <p class="sec-label fi">Rooms</p>
+        <h2 class="sec-title fi">お部屋のご案内</h2>
+        <div class="bar fi"></div>
+        <div class="rooms-grid">
+            <!-- 和室6畳 -->
+            <div class="room-card fi">
+                <div class="room-img">
+                    <img src="images/101.jpg" alt="和室6畳">
+                </div>
+                <div class="room-body">
+                    <span class="room-tag">TYPE A</span>
+                    <h3 class="room-name">和室 六畳</h3>
+                    <p class="room-desc">ゆったりとした和の空間。グループや合宿での利用に最適です。</p>
+                    <div class="room-specs">
+                        <div class="spec"><span class="spec-l">定員</span><span class="spec-v">最大4名</span></div>
+                        <div class="spec"><span class="spec-l">部屋数</span><span class="spec-v">4部屋</span></div>
+                        <div class="spec"><span class="spec-l">料金</span><span class="spec-v">¥5,000/人</span></div>
+                    </div>
+                    <a href="room-6tatami.html" class="room-detail-btn">写真・詳細を見る →</a>
+                </div>
+            </div>
+            <!-- 和室4.5畳 -->
+            <div class="room-card fi">
+                <div class="room-img">
+                    <img src="images/201.jpg" alt="和室4.5畳">
+                </div>
+                <div class="room-body">
+                    <span class="room-tag">TYPE B</span>
+                    <h3 class="room-name">和室 四畳半</h3>
+                    <p class="room-desc">少人数でアットホームに過ごせるコンパクトな和室です。</p>
+                    <div class="room-specs">
+                        <div class="spec"><span class="spec-l">定員</span><span class="spec-v">最大3名</span></div>
+                        <div class="spec"><span class="spec-l">部屋数</span><span class="spec-v">1部屋</span></div>
+                        <div class="spec"><span class="spec-l">料金</span><span class="spec-v">¥5,000/人</span></div>
+                    </div>
+                    <a href="room-45tatami.html" class="room-detail-btn">写真・詳細を見る →</a>
+                </div>
+            </div>
+            <!-- 離れ -->
+            <div class="room-card fi">
+                <div class="room-img">
+                    <img src="images/離れ和室.jpg" alt="離れ">
+                </div>
+                <div class="room-body">
+                    <span class="room-tag" style="background:rgba(0,180,216,0.12);color:var(--teal);">TYPE C</span>
+                    <h3 class="room-name">離れ</h3>
+                    <p class="room-desc">母屋に隣接した独立棟。プライベート感たっぷりで大人数グループに最適です。</p>
+                    <div class="room-specs">
+                        <div class="spec"><span class="spec-l">定員</span><span class="spec-v">最大7名</span></div>
+                        <div class="spec"><span class="spec-l">部屋数</span><span class="spec-v">1棟</span></div>
+                        <div class="spec"><span class="spec-l">料金</span><span class="spec-v">¥5,000/人</span></div>
+                    </div>
+                    <a href="room-hanare.html" class="room-detail-btn">写真・詳細を見る →</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- PRICE -->
+<section class="sec price" id="price">
+    <div class="wrap">
+        <p class="sec-label fi">Price</p>
+        <h2 class="sec-title fi">ご料金</h2>
+        <div class="bar fi"></div>
+        <div class="price-card fi">
+            <p class="price-plan">素泊まりプラン / Accommodation Only</p>
+            <div class="price-row">
+                <span class="price-yen">¥</span>
+                <span class="price-num">5,000</span>
+                <span class="price-unit">/ 人 · 泊</span>
+            </div>
+            <p class="price-note">税込 · 現地払い（現金 / PayPay）</p>
+            <div class="price-list">
+                <div class="price-item">Wi-Fi 無料でご利用いただけます</div>
+                <div class="price-item">駐車場 無料（8台）</div>
+                <div class="price-item">チェックイン 15:00〜 / チェックアウト 〜10:00（要相談）</div>
+                <div class="price-item">最大26名まで同時利用可（合宿・グループ歓迎）</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- FACILITIES -->
+<section class="sec fac-sec" id="facilities">
+    <div class="wrap">
+        <p class="sec-label fi">Facilities</p>
+        <h2 class="sec-title fi">設備・サービス</h2>
+        <div class="bar fi"></div>
+        <div class="fac-grid">
+            <div class="fac fi"><em><svg width="38" height="38" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M5 13a10 10 0 0 1 14 0"/><path d="M1.42 9a16 16 0 0 1 21.16 0"/><path d="M8.53 16.11a6 6 0 0 1 6.95 0"/><circle cx="12" cy="20" r="1" fill="currentColor" stroke="none"/></svg></em><h4>Wi-Fi</h4><p>全館無料でご利用可</p></div>
+            <div class="fac fi"><em><svg width="38" height="38" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M9 6h4a3 3 0 0 1 0 6H9V6z"/><line x1="9" y1="12" x2="9" y2="18"/></svg></em><h4>駐車場</h4><p>無料 · 8台収容</p></div>
+            <div class="fac fi"><em><svg width="38" height="38" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M2 10c2-3 4-3 6 0s4 3 6 0 4-3 6 0"/><path d="M2 16c2-3 4-3 6 0s4 3 6 0 4-3 6 0"/></svg></em><h4>海の目の前</h4><p>赤沢港まで徒歩すぐ</p></div>
+            <div class="fac fi"><em><svg width="38" height="38" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></em><h4>全室和室</h4><p>純和風の落ち着いた空間</p></div>
+        </div>
+        <div class="fi" style="margin-top:32px;border-radius:var(--rl);overflow:hidden;position:relative;max-height:280px;">
+            <img src="images/駐車場.jpg" alt="無料駐車場" style="width:100%;height:280px;object-fit:cover;display:block;">
+            <div style="position:absolute;bottom:0;left:0;right:0;background:linear-gradient(to top,rgba(0,0,0,0.55),transparent);padding:18px 24px;color:#fff;">
+                <p style="font-family:var(--en);font-size:11px;font-weight:700;letter-spacing:2px;opacity:.85;">PARKING</p>
+                <p style="font-size:14px;font-weight:600;margin-top:2px;">無料駐車場 · 8台収容</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ACCESS -->
+<section class="sec access" id="access">
+    <div class="wrap">
+        <p class="sec-label fi">Access</p>
+        <h2 class="sec-title fi">アクセス</h2>
+        <div class="bar fi"></div>
+        <div class="access-grid">
+            <div class="fi">
+                <div class="map-wrap">
+                    <iframe
+                        src="https://maps.google.com/maps?q=静岡県伊東市赤沢163-2&t=&z=16&ie=UTF8&iwloc=&output=embed"
+                        allowfullscreen loading="lazy" title="あきやま旅館 地図">
+                    </iframe>
+                </div>
+            </div>
+            <div class="access-info fi">
+                <div class="a-row">
+                    <span class="a-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg></span>
+                    <div>
+                        <p class="a-label">Address</p>
+                        <p class="a-val">〒413-0233 静岡県伊東市赤沢163-2</p>
+                    </div>
+                </div>
+                <div class="a-row">
+                    <span class="a-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="2" width="16" height="16" rx="2"/><path d="M4 10h16"/><path d="M12 2v8"/><circle cx="8" cy="18" r="2"/><circle cx="16" cy="18" r="2"/><path d="M7 22l1-4h8l1 4"/></svg></span>
+                    <div>
+                        <p class="a-label">Train</p>
+                        <p class="a-val">伊豆高原駅</p>
+                        <p class="a-note">車で約6分 / 3.6km</p>
+                    </div>
+                </div>
+                <div class="a-row">
+                    <span class="a-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.62 3.35 2 2 0 0 1 3.62 1h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.6a16 16 0 0 0 6.5 6.5l.96-.96a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg></span>
+                    <div>
+                        <p class="a-label">Phone</p>
+                        <p class="a-val"><a href="tel:09063983964" style="color:inherit;text-decoration:none;">090-6398-3964</a></p>
+                    </div>
+                </div>
+                <p class="near-title">周辺施設</p>
+                <table class="near-table">
+                    <tr><td><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--ocean)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline;vertical-align:middle;margin-right:6px"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>ローソン</td><td>2.6km · 車5分</td></tr>
+                    <tr><td><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--ocean)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline;vertical-align:middle;margin-right:6px"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>セブンイレブン</td><td>3.3km · 車5分</td></tr>
+                    <tr><td><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--ocean)" stroke-width="2" stroke-linecap="round" style="display:inline;vertical-align:middle;margin-right:6px"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>マックスバリュー</td><td>3.3km · 車5分</td></tr>
+                    <tr><td><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--ocean)" stroke-width="2" stroke-linecap="round" style="display:inline;vertical-align:middle;margin-right:6px"><path d="m10.5 20.5 10-10a4.95 4.95 0 1 0-7-7l-10 10a4.95 4.95 0 1 0 7 7Z"/><path d="M8.5 8.5 16 16"/></svg>クリエイトSD薬局</td><td>3.8km · 車6分</td></tr>
+                </table>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- FAQ -->
+<section class="sec faq-sec" id="faq">
+    <div class="wrap">
+        <p class="sec-label fi">FAQ</p>
+        <h2 class="sec-title fi">よくある質問</h2>
+        <div class="bar fi"></div>
+        <div class="faq-wrap fi">
+            <div class="faq-item">
+                <button class="faq-q" onclick="toggleFaq(this)">チェックイン・チェックアウトの時間は？<span class="faq-ico">+</span></button>
+                <div class="faq-a"><p>チェックインは15:00〜、チェックアウトは〜10:00です。時間についてはご相談に応じますので、お気軽にお問い合わせください。</p></div>
+            </div>
+            <div class="faq-item">
+                <button class="faq-q" onclick="toggleFaq(this)">駐車場はありますか？<span class="faq-ico">+</span></button>
+                <div class="faq-a"><p>はい、無料の駐車場を8台分ご用意しています。合宿など複数台でお越しの際もご安心ください。</p></div>
+            </div>
+            <div class="faq-item">
+                <button class="faq-q" onclick="toggleFaq(this)">Wi-Fiは使えますか？<span class="faq-ico">+</span></button>
+                <div class="faq-a"><p>はい、全館でWi-Fiを無料でご利用いただけます。</p></div>
+            </div>
+            <div class="faq-item">
+                <button class="faq-q" onclick="toggleFaq(this)">食事はありますか？<span class="faq-ico">+</span></button>
+                <div class="faq-a"><p>現在は素泊まりプランのみのご提供です。近隣にコンビニ（車5分）やスーパー（車5分）がございますのでご活用ください。</p></div>
+            </div>
+            <div class="faq-item">
+                <button class="faq-q" onclick="toggleFaq(this)">グループ・合宿での利用は可能ですか？<span class="faq-ico">+</span></button>
+                <div class="faq-a"><p>はい、大歓迎です。全室利用で最大26名まで対応可能です。複数部屋のご予約はRESERVAから各部屋ごとにご予約いただくか、お電話でご相談ください。</p></div>
+            </div>
+            <div class="faq-item">
+                <button class="faq-q" onclick="toggleFaq(this)">支払い方法は？<span class="faq-ico">+</span></button>
+                <div class="faq-a"><p>チェックアウト時に現地でのお支払いとなります。現金・PayPayに対応しています。</p></div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- CTA -->
+<section class="sec cta" id="reserve">
+    <div class="wrap cta-ct fi">
+        <p class="sec-label" style="color:rgba(255,255,255,0.7);">Reservation</p>
+        <h2 class="cta-title">伊豆の海へ、今すぐ旅立とう。</h2>
+        <p class="cta-sub">オンラインで24時間いつでもご予約いただけます。</p>
+        <a href="https://reserva.be/akiyamaryokan" class="btn-white" target="_blank" rel="noopener">
+            予約ページへ
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </a>
+    </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+    <div class="wrap">
+        <div class="foot-grid">
+            <div>
+                <p class="foot-jp">あきやま旅館</p>
+                <p class="foot-en">Akiyama Ryokan</p>
+                <p class="foot-desc">静岡県伊東市赤沢、赤沢港の目の前に佇む海辺の和宿。<br>若者・グループ・合宿でのご利用歓迎。</p>
+            </div>
+            <div>
+                <p class="foot-col-t">Navigation</p>
+                <ul class="foot-ul">
+                    <li><a href="#concept">コンセプト</a></li>
+                    <li><a href="#rooms">お部屋</a></li>
+                    <li><a href="#price">料金</a></li>
+                    <li><a href="#access">アクセス</a></li>
+                    <li><a href="#faq">よくある質問</a></li>
+                </ul>
+            </div>
+            <div>
+                <p class="foot-col-t">Contact</p>
+                <div class="foot-row"><span style="flex-shrink:0;margin-top:3px"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#7a95ad" stroke-width="2" stroke-linecap="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg></span><span>〒413-0233<br>静岡県伊東市赤沢163-2</span></div>
+                <div class="foot-row"><span style="flex-shrink:0;margin-top:3px"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#7a95ad" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.62 3.35 2 2 0 0 1 3.62 1h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.6a16 16 0 0 0 6.5 6.5l.96-.96a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg></span><a href="tel:09063983964" style="color:inherit;text-decoration:none;">090-6398-3964</a></div>
+                <div style="margin-top:20px;">
+                    <a href="https://reserva.be/akiyamaryokan" class="btn" target="_blank" rel="noopener" style="font-size:13px;padding:12px 28px;">予約する</a>
+                </div>
+            </div>
+        </div>
+        <div class="foot-bottom">
+            <p class="copy">&copy; 2025 Akiyama Ryokan. All rights reserved.</p>
+            <p class="copy">Akazawa, Ito City, Shizuoka</p>
+        </div>
+    </div>
+</footer>
+
+<script>
+    const nav = document.getElementById('nav');
+    window.addEventListener('scroll', () => nav.classList.toggle('on', window.scrollY > 50));
+
+    const ham = document.getElementById('ham');
+    const mob = document.getElementById('mob');
+    ham.addEventListener('click', () => mob.classList.toggle('on'));
+    function closeMob() { mob.classList.remove('on'); }
+
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach((e, i) => {
+            if (e.isIntersecting) {
+                setTimeout(() => e.target.classList.add('vis'), i * 75);
+                observer.unobserve(e.target);
+            }
+        });
+    }, { threshold: 0.1 });
+    document.querySelectorAll('.fi').forEach(el => observer.observe(el));
+
+    function toggleFaq(btn) {
+        const item = btn.parentElement;
+        const wasOpen = item.classList.contains('open');
+        document.querySelectorAll('.faq-item').forEach(el => el.classList.remove('open'));
+        if (!wasOpen) item.classList.add('open');
+    }
+</script>
+
+<script src="config.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<script>
+(async function(){
+    const list = document.getElementById('news-list');
+    if(typeof SUPABASE_URL==='undefined'||SUPABASE_URL.startsWith('YOUR_')){
+        list.innerHTML='<p class="news-empty">現在お知らせはありません。</p>';return;
+    }
+    try{
+        const sb=supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY);
+        const{data,error}=await sb.from('news').select('title,content,published_at')
+            .eq('is_published',true).order('published_at',{ascending:false}).limit(3);
+        if(error||!data||data.length===0){
+            list.innerHTML='<p class="news-empty">現在お知らせはありません。</p>';return;
+        }
+        function fmt(d){const dt=new Date(d);return`${dt.getFullYear()}.${String(dt.getMonth()+1).padStart(2,'0')}.${String(dt.getDate()).padStart(2,'0')}`;}
+        function esc(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+        list.innerHTML=data.map(p=>`<div class="news-item">
+            <span class="news-dt">${fmt(p.published_at)}</span>
+            <div><p class="news-ttl">${esc(p.title)}</p><p class="news-body">${esc(p.content)}</p></div>
+        </div>`).join('');
+    }catch(e){list.innerHTML='<p class="news-empty">現在お知らせはありません。</p>';}
+})();
+</script>
+</body>
+</html>
