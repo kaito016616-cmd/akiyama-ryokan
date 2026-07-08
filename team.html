@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>スタッフ紹介 | あきやま旅館</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700&family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+        :root{
+            --bg:#f0f8ff;--bg2:#e2f1fb;--card:#ffffff;
+            --ocean:#0088cc;--teal:#00b4d8;
+            --grad:linear-gradient(135deg,#0088cc,#00b4d8);
+            --txt:#0d1b2a;--txt2:#3d5a73;--txt3:#8aabb8;
+            --border:rgba(0,136,204,0.15);
+            --shadow:0 4px 24px rgba(0,100,180,0.1);
+            --shadow-h:0 12px 40px rgba(0,100,180,0.18);
+            --r:12px;--rl:16px;
+            --jp:'Noto Sans JP',sans-serif;--en:'Montserrat',sans-serif;
+        }
+        body{font-family:var(--jp);background:var(--bg);color:var(--txt);}
+        a{color:inherit;text-decoration:none;}
+        img{max-width:100%;height:auto;}
+
+        .nav{position:sticky;top:0;z-index:100;background:rgba(255,255,255,0.96);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);padding:0 40px;height:64px;display:flex;align-items:center;justify-content:space-between;}
+        .nav-back{font-family:var(--en);font-size:13px;font-weight:600;color:var(--ocean);display:flex;align-items:center;gap:6px;transition:opacity .2s;}
+        .nav-back:hover{opacity:.7;}
+        .nav-logo{font-family:var(--en);font-size:14px;font-weight:700;color:var(--txt);letter-spacing:2px;}
+        .nav-reserve{background:var(--grad);color:#fff;font-family:var(--en);font-size:12px;font-weight:700;letter-spacing:1px;padding:10px 22px;border-radius:50px;transition:opacity .2s;}
+        .nav-reserve:hover{opacity:.85;}
+
+        .page-head{background:#fff;padding:64px 0 48px;border-bottom:1px solid var(--border);}
+        .wrap{max-width:860px;margin:0 auto;padding:0 40px;}
+        .sec-label{font-family:var(--en);font-size:11px;font-weight:700;letter-spacing:3px;color:var(--ocean);text-transform:uppercase;margin-bottom:8px;}
+        .sec-title{font-size:30px;font-weight:700;}
+        .bar{width:36px;height:3px;background:var(--grad);border-radius:2px;margin-top:14px;}
+        .page-desc{font-size:14px;color:var(--txt2);line-height:1.9;margin-top:18px;max-width:480px;}
+
+        /* Owner */
+        .owner-sec{padding:72px 0 56px;}
+        .owner-card{background:#fff;border-radius:var(--rl);box-shadow:var(--shadow-h);padding:48px;display:flex;gap:48px;align-items:center;}
+        .owner-photo{width:160px;height:160px;border-radius:50%;object-fit:cover;flex-shrink:0;box-shadow:0 8px 32px rgba(0,136,204,0.2);border:4px solid #fff;}
+        .owner-badge{font-family:var(--en);font-size:10px;font-weight:700;letter-spacing:3px;color:var(--ocean);background:rgba(0,136,204,0.08);border:1px solid rgba(0,136,204,0.2);padding:4px 14px;border-radius:50px;display:inline-block;margin-bottom:12px;}
+        .owner-name{font-size:26px;font-weight:700;letter-spacing:2px;margin-bottom:4px;}
+        .owner-name-en{font-family:var(--en);font-size:12px;color:var(--txt3);letter-spacing:2px;margin-bottom:20px;}
+        .owner-msg{font-size:14px;color:var(--txt2);line-height:2;}
+
+        /* Staff */
+        .staff-sec{padding:0 0 80px;}
+        .staff-head{margin-bottom:32px;}
+        .staff-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;}
+        .staff-card{background:#fff;border-radius:var(--rl);box-shadow:var(--shadow);padding:32px 20px;display:flex;flex-direction:column;align-items:center;text-align:center;}
+        .staff-photo{width:100px;height:100px;border-radius:50%;object-fit:cover;margin-bottom:16px;box-shadow:0 4px 16px rgba(0,136,204,0.15);border:3px solid #fff;}
+        .staff-photo-ph{width:100px;height:100px;border-radius:50%;background:var(--bg2);border:2px dashed rgba(0,136,204,0.25);display:flex;align-items:center;justify-content:center;margin-bottom:16px;}
+        .staff-photo-ph svg{opacity:.35;}
+        .staff-badge{font-family:var(--en);font-size:9px;font-weight:700;letter-spacing:2px;color:var(--teal);margin-bottom:6px;}
+        .staff-name{font-size:16px;font-weight:700;letter-spacing:1px;color:var(--txt);}
+        .staff-name-en{font-family:var(--en);font-size:11px;color:var(--txt3);letter-spacing:1px;margin-top:3px;}
+
+        .foot{background:#0d1b2a;color:#7a95ad;padding:32px 40px;text-align:center;font-size:13px;line-height:1.8;margin-top:0;}
+        .foot a{color:#7a95ad;transition:color .2s;}
+        .foot a:hover{color:#fff;}
+
+        @media(max-width:768px){
+            .nav{padding:0 20px;}
+            .wrap{padding:0 20px;}
+            .owner-card{flex-direction:column;text-align:center;padding:32px 24px;gap:24px;}
+            .staff-grid{grid-template-columns:1fr 1fr;}
+        }
+        @media(max-width:480px){
+            .staff-grid{grid-template-columns:1fr;}
+            .sec-title{font-size:24px;}
+        }
+    </style>
+</head>
+<body>
+
+<nav class="nav">
+    <a href="index.html" class="nav-back">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M19 12H5"/><path d="M12 5l-7 7 7 7"/></svg>
+        TOP に戻る
+    </a>
+    <span class="nav-logo">AKIYAMA RYOKAN</span>
+    <a href="https://reserva.be/akiyamaryokan" target="_blank" class="nav-reserve">予約する</a>
+</nav>
+
+<div class="page-head">
+    <div class="wrap">
+        <p class="sec-label">Our Team</p>
+        <h1 class="sec-title">スタッフ紹介</h1>
+        <div class="bar"></div>
+        <p class="page-desc">あきやま旅館を支えるスタッフをご紹介します。<br>皆様の滞在が心地よいものになるよう、精一杯おもてなしいたします。</p>
+    </div>
+</div>
+
+<!-- Owner -->
+<section class="owner-sec">
+    <div class="wrap">
+        <div class="owner-card">
+            <img src="images/owner.jpg" alt="秋山 慎太朗" class="owner-photo">
+            <div>
+                <span class="owner-badge">Owner</span>
+                <p class="owner-name">秋山 慎太朗</p>
+                <p class="owner-name-en">Shintaro Akiyama</p>
+                <p class="owner-msg">皆様のお越しを心よりお待ちしております。<br>赤沢の海と自然を存分に楽しんでいただけるよう、温かくお迎えします。<br>お気軽にお問い合わせください。</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Staff -->
+<section class="staff-sec">
+    <div class="wrap">
+        <div class="staff-head">
+            <p class="sec-label">Staff</p>
+            <h2 style="font-size:20px;font-weight:700;">スタッフ</h2>
+            <div class="bar"></div>
+        </div>
+        <div class="staff-grid">
+            <div class="staff-card">
+                <div class="staff-photo-ph">
+                    <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+                </div>
+                <p class="staff-badge">Staff</p>
+                <p class="staff-name">安達 海都</p>
+                <p class="staff-name-en">Kaito Adachi</p>
+            </div>
+            <div class="staff-card">
+                <div class="staff-photo-ph">
+                    <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+                </div>
+                <p class="staff-badge">Staff</p>
+                <p class="staff-name">中村 真雫</p>
+                <p class="staff-name-en">Manami Nakamura</p>
+            </div>
+            <div class="staff-card">
+                <div class="staff-photo-ph">
+                    <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+                </div>
+                <p class="staff-badge">Staff</p>
+                <p class="staff-name">宮嶋 海音</p>
+                <p class="staff-name-en">Kaito Miyajima</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<footer class="foot">
+    <p>〒413-0233 静岡県伊東市赤沢163-2 &nbsp;|&nbsp; TEL: 090-6398-3964</p>
+    <p style="margin-top:6px;">&copy; 2025 あきやま旅館 &nbsp;·&nbsp; <a href="index.html">トップページ</a></p>
+</footer>
+
+</body>
+</html>
