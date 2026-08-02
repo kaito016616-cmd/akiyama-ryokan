@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% block title %}個人の立て替えの編集 - 秋山旅館 経理{% endblock %}
+{% block content %}
+<h1>個人の立て替えの編集</h1>
+
+{% set amounts = {} %}
+{% for line in pe.lines %}
+    {% set _ = amounts.update({line.user_id: line.amount}) %}
+{% endfor %}
+
+<form method="post" class="form-grid">
+    <div class="field">
+        <label>日付</label>
+        <input type="date" name="date" value="{{ pe.expense.date }}" required>
+    </div>
+    <div class="field">
+        <label>支払った人</label>
+        <select name="payer_id" required>
+            {% for u in users %}
+            <option value="{{ u.id }}" {{ 'selected' if u.id == pe.expense.payer_id }}>{{ u.name }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    <div class="field field-wide">
+        <label>メモ</label>
+        <input type="text" name="memo" value="{{ pe.expense.memo or '' }}">
+    </div>
+    <div class="field field-wide">
+        <label>各自の負担額</label>
+        <div class="item-grid">
+        {% for u in users %}
+            <div class="item-row">
+                <span>{{ u.name }}</span>
+                <input type="number" name="item_{{ u.id }}" min="0" value="{{ amounts.get(u.id, '') }}" placeholder="0">
+            </div>
+        {% endfor %}
+        </div>
+    </div>
+    <div class="field">
+        <button type="submit" class="button">更新する</button>
+        <a href="{{ url_for('transactions') }}" class="button-small">キャンセル</a>
+    </div>
+</form>
+{% endblock %}

@@ -262,6 +262,42 @@ def list_personal_expenses(limit=100):
     return result
 
 
+def get_personal_expense(expense_id):
+    db = get_db()
+    expense = db.execute(
+        "SELECT * FROM personal_expenses WHERE id = ?", (expense_id,)
+    ).fetchone()
+    if expense is None:
+        return None
+    items = db.execute(
+        "SELECT * FROM personal_expense_items WHERE personal_expense_id = ? ORDER BY id",
+        (expense_id,),
+    ).fetchall()
+    return {"expense": expense, "lines": items}
+
+
+def update_personal_expense(expense_id, date, payer_id, memo, items):
+    """items: [(user_id, amount), ...]。既存の内訳はいったん削除して入れ直す。"""
+    db = get_db()
+    db.execute(
+        "UPDATE personal_expenses SET date = ?, payer_id = ?, memo = ? WHERE id = ?",
+        (date, payer_id, memo, expense_id),
+    )
+    db.execute("DELETE FROM personal_expense_items WHERE personal_expense_id = ?", (expense_id,))
+    db.executemany(
+        "INSERT INTO personal_expense_items (personal_expense_id, user_id, amount) VALUES (?, ?, ?)",
+        [(expense_id, uid, amount) for uid, amount in items],
+    )
+    db.commit()
+
+
+def delete_personal_expense(expense_id):
+    db = get_db()
+    db.execute("DELETE FROM personal_expense_items WHERE personal_expense_id = ?", (expense_id,))
+    db.execute("DELETE FROM personal_expenses WHERE id = ?", (expense_id,))
+    db.commit()
+
+
 def unsettled_personal_items():
     db = get_db()
     return db.execute(

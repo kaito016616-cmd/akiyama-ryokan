@@ -148,9 +148,11 @@
 
 <h2>個人の立て替え履歴</h2>
 <table class="table">
-    <thead><tr><th>日付</th><th>支払った人</th><th>合計</th><th>内訳</th><th>メモ</th></tr></thead>
+    <thead><tr><th>日付</th><th>支払った人</th><th>合計</th><th>内訳</th><th>メモ</th><th></th></tr></thead>
     <tbody>
     {% for pe in personal_expenses %}
+        {% set any_settled = pe.lines | selectattr('is_settled') | list | length > 0 %}
+        {% set editable = current_user.role == 'admin' or (not any_settled and pe.expense.created_by == current_user.id) %}
         <tr>
             <td>{{ pe.expense.date }}</td>
             <td>{{ pe.expense.payer_name }}</td>
@@ -161,6 +163,16 @@
                 {% endfor %}
             </td>
             <td>{{ pe.expense.memo or '' }}</td>
+            <td>
+                {% if editable %}
+                <a class="button-small" href="{{ url_for('edit_personal_expense', expense_id=pe.expense.id) }}">編集</a>
+                <form method="post" action="{{ url_for('delete_personal_expense', expense_id=pe.expense.id) }}" style="display:inline" onsubmit="return confirm('この個人の立て替えを削除します。よろしいですか？');">
+                    <button type="submit" class="button-small">削除</button>
+                </form>
+                {% elif any_settled %}
+                <span class="muted">精算済み</span>
+                {% endif %}
+            </td>
         </tr>
     {% endfor %}
     </tbody>

@@ -190,6 +190,59 @@ def execute_personal_settlement():
     return redirect(url_for("transactions"))
 
 
+def _can_edit_personal(pe):
+    """全項目が未精算なら入力者本人 or admin、1件でも精算済みならadminのみ。"""
+    if g.user["role"] == "admin":
+        return True
+    if any(line["is_settled"] for line in pe["lines"]):
+        return False
+    return pe["expense"]["created_by"] == g.user["id"]
+
+
+@app.route("/personal-expenses/<int:expense_id>/edit", methods=["GET", "POST"])
+def edit_personal_expense(expense_id):
+    pe = models.get_personal_expense(expense_id)
+    if pe is None:
+        abort(404)
+    if not _can_edit_personal(pe):
+        abort(403)
+
+    active_users = models.list_users(active_only=True)
+
+    if request.method == "POST":
+        items = []
+        for u in active_users:
+            raw = request.form.get(f"item_{u['id']}", "").strip()
+            if raw:
+                items.append((u["id"], int(raw)))
+        if not items:
+            flash("誰か1人以上の金額を入力してください。", "error")
+            return redirect(url_for("edit_personal_expense", expense_id=expense_id))
+        models.update_personal_expense(
+            expense_id,
+            date=request.form["date"],
+            payer_id=int(request.form["payer_id"]),
+            memo=request.form.get("memo", ""),
+            items=items,
+        )
+        flash("個人の立て替えを更新しました。", "success")
+        return redirect(url_for("transactions"))
+
+    return render_template("personal_expense_edit.html", pe=pe, users=active_users)
+
+
+@app.route("/personal-expenses/<int:expense_id>/delete", methods=["POST"])
+def delete_personal_expense(expense_id):
+    pe = models.get_personal_expense(expense_id)
+    if pe is None:
+        abort(404)
+    if not _can_edit_personal(pe):
+        abort(403)
+    models.delete_personal_expense(expense_id)
+    flash("個人の立て替えを削除しました。", "success")
+    return redirect(url_for("transactions"))
+
+
 def _can_edit(tx):
     """締め済みの月は誰も編集不可。精算済みの取引は他メンバーの精算履歴に影響するためadminのみ。
     それ以外は入力した本人 or admin のみ編集・削除可。"""
