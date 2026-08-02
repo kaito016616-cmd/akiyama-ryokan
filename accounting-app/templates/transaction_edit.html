@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+{% block title %}取引の編集 - 秋山旅館 経理{% endblock %}
+{% block content %}
+<h1>取引の編集</h1>
+
+<form method="post" enctype="multipart/form-data" class="form-grid">
+    <div class="field">
+        <label>種別</label>
+        <select name="type" id="type-select" required>
+            <option value="expense" {{ 'selected' if tx.type == 'expense' }}>経費</option>
+            <option value="income" {{ 'selected' if tx.type == 'income' }}>売上</option>
+        </select>
+    </div>
+    <div class="field">
+        <label>日付</label>
+        <input type="date" name="date" value="{{ tx.date }}" required>
+    </div>
+    <div class="field">
+        <label>金額（円）</label>
+        <input type="number" name="amount" min="1" value="{{ tx.amount }}" required>
+    </div>
+    <div class="field">
+        <label>カテゴリ</label>
+        <select name="category_id" id="category-select" required>
+            {% for c in categories %}
+            <option value="{{ c.id }}" data-type="{{ c.type }}" {{ 'selected' if c.id == tx.category_id }}>{{ c.name }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    <div class="field" id="paid-by-field">
+        <label>支払者（立て替えた人）</label>
+        <select name="paid_by">
+            <option value="">（旅館口座から直接支払い）</option>
+            {% for u in users %}
+            <option value="{{ u.id }}" {{ 'selected' if u.id == tx.paid_by }}>{{ u.name }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    <div class="field field-wide">
+        <label>メモ</label>
+        <input type="text" name="memo" value="{{ tx.memo or '' }}">
+    </div>
+    <div class="field">
+        <label>レシート画像（差し替える場合のみ選択）</label>
+        <input type="file" name="receipt" accept="image/*">
+        {% if tx.receipt_path %}
+        <span class="muted">現在: {{ tx.receipt_path }}</span>
+        {% endif %}
+    </div>
+    <div class="field">
+        <button type="submit" class="button">更新する</button>
+        <a href="{{ url_for('transactions') }}" class="button-small">キャンセル</a>
+    </div>
+</form>
+
+<script>
+const typeSelect = document.getElementById('type-select');
+const categorySelect = document.getElementById('category-select');
+const paidByField = document.getElementById('paid-by-field');
+
+function filterCategories() {
+    const type = typeSelect.value;
+    for (const opt of categorySelect.options) {
+        opt.hidden = opt.dataset.type !== type;
+    }
+    paidByField.style.display = type === 'expense' ? '' : 'none';
+}
+typeSelect.addEventListener('change', filterCategories);
+filterCategories();
+</script>
+{% endblock %}

@@ -14,11 +14,27 @@
                 <td>{{ u.role }}</td>
                 <td>{{ '有効' if u.active else '無効' }}</td>
                 <td>
+                    <button type="button" class="button-small" onclick="document.getElementById('edit-user-{{ u.id }}').classList.toggle('hidden')">編集</button>
                     <form method="post" style="display:inline">
                         <input type="hidden" name="form_type" value="toggle_user">
                         <input type="hidden" name="user_id" value="{{ u.id }}">
                         <input type="hidden" name="active" value="{{ 0 if u.active else 1 }}">
                         <button type="submit" class="button-small">{{ '無効化' if u.active else '有効化' }}</button>
+                    </form>
+                </td>
+            </tr>
+            <tr id="edit-user-{{ u.id }}" class="hidden">
+                <td colspan="4">
+                    <form method="post" class="form-inline">
+                        <input type="hidden" name="form_type" value="edit_user">
+                        <input type="hidden" name="user_id" value="{{ u.id }}">
+                        <input type="text" name="name" value="{{ u.name }}" required>
+                        <select name="role">
+                            <option value="member" {{ 'selected' if u.role == 'member' }}>member</option>
+                            <option value="admin" {{ 'selected' if u.role == 'admin' }}>admin</option>
+                        </select>
+                        <input type="password" name="pin_code" placeholder="新しいPIN（変更する場合のみ）" inputmode="numeric" maxlength="8">
+                        <button type="submit" class="button-small">保存</button>
                     </form>
                 </td>
             </tr>
@@ -32,6 +48,7 @@
             <option value="member">member</option>
             <option value="admin">admin</option>
         </select>
+        <input type="password" name="pin_code" placeholder="PIN（4桁程度）" inputmode="numeric" maxlength="8" required>
         <button type="submit" class="button">メンバー追加</button>
     </form>
 </section>

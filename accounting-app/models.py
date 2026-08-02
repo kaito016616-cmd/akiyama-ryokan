@@ -27,6 +27,20 @@ def init_db():
     conn.executescript(SCHEMA_PATH.read_text(encoding="utf-8"))
     conn.commit()
     conn.close()
+    migrate()
+
+
+def migrate():
+    """既存DBに後から追加したカラムを反映する（SQLiteはADD COLUMN IF NOT EXISTSが無いため個別チェック）"""
+    conn = sqlite3.connect(DB_PATH)
+    user_cols = {row[1] for row in conn.execute("PRAGMA table_info(users)")}
+    if "pin_code" not in user_cols:
+        conn.execute("ALTER TABLE users ADD COLUMN pin_code TEXT NOT NULL DEFAULT '0000'")
+    tx_cols = {row[1] for row in conn.execute("PRAGMA table_info(transactions)")}
+    if "created_by" not in tx_cols:
+        conn.execute("ALTER TABLE transactions ADD COLUMN created_by INTEGER REFERENCES users(id)")
+    conn.commit()
+    conn.close()
 
 
 def now_iso():
@@ -44,9 +58,37 @@ def list_users(active_only=False):
     return db.execute(q).fetchall()
 
 
-def add_user(name, role="member"):
+def add_user(name, role="member", pin_code="0000"):
     db = get_db()
-    db.execute("INSERT INTO users (name, role, active) VALUES (?, ?, 1)", (name, role))
+    db.execute(
+        "INSERT INTO users (name, role, active, pin_code) VALUES (?, ?, 1, ?)",
+        (name, role, pin_code),
+    )
+    db.commit()
+
+
+def get_user(user_id):
+    db = get_db()
+    return db.execute("SELECT * FROM users WHERE id = ?", (user_id,)).fetchone()
+
+
+def find_user_by_pin(user_id, pin_code):
+    db = get_db()
+    return db.execute(
+        "SELECT * FROM users WHERE id = ? AND pin_code = ? AND active = 1",
+        (user_id, pin_code),
+    ).fetchone()
+
+
+def update_user(user_id, name, role):
+    db = get_db()
+    db.execute("UPDATE users SET name = ?, role = ? WHERE id = ?", (name, role, user_id))
+    db.commit()
+
+
+def set_user_pin(user_id, pin_code):
+    db = get_db()
+    db.execute("UPDATE users SET pin_code = ? WHERE id = ?", (pin_code, user_id))
     db.commit()
 
 
@@ -78,14 +120,46 @@ def add_category(name, type_, tax_rate):
 
 # ---------- transactions ----------
 
-def add_transaction(type_, amount, category_id, paid_by, date, memo, receipt_path):
+def add_transaction(type_, amount, category_id, paid_by, date, memo, receipt_path, created_by):
     db = get_db()
     db.execute(
         """INSERT INTO transactions
-           (type, amount, category_id, paid_by, date, memo, receipt_path, created_at)
-           VALUES (?, ?, ?, ?, ?, ?, ?, ?)""",
-        (type_, amount, category_id, paid_by, date, memo, receipt_path, now_iso()),
+           (type, amount, category_id, paid_by, date, memo, receipt_path, created_at, created_by)
+           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+        (type_, amount, category_id, paid_by, date, memo, receipt_path, now_iso(), created_by),
     )
+    db.commit()
+
+
+def get_transaction(transaction_id):
+    db = get_db()
+    return db.execute(
+        "SELECT * FROM transactions WHERE id = ?", (transaction_id,)
+    ).fetchone()
+
+
+def update_transaction(transaction_id, type_, amount, category_id, paid_by, date, memo, receipt_path=None):
+    db = get_db()
+    if receipt_path is not None:
+        db.execute(
+            """UPDATE transactions
+               SET type = ?, amount = ?, category_id = ?, paid_by = ?, date = ?, memo = ?, receipt_path = ?
+               WHERE id = ?""",
+            (type_, amount, category_id, paid_by, date, memo, receipt_path, transaction_id),
+        )
+    else:
+        db.execute(
+            """UPDATE transactions
+               SET type = ?, amount = ?, category_id = ?, paid_by = ?, date = ?, memo = ?
+               WHERE id = ?""",
+            (type_, amount, category_id, paid_by, date, memo, transaction_id),
+        )
+    db.commit()
+
+
+def delete_transaction(transaction_id):
+    db = get_db()
+    db.execute("DELETE FROM transactions WHERE id = ?", (transaction_id,))
     db.commit()
 
 

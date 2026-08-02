@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ログイン - 秋山旅館 経理</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+<main class="container login-container">
+    <h1>秋山旅館 経理 ログイン</h1>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="flash flash-{{ category }}">{{ message }}</div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
+    <form method="post" class="form-grid">
+        <div class="field">
+            <label>名前</label>
+            <select name="user_id" required>
+                {% for u in users %}
+                <option value="{{ u.id }}">{{ u.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="field">
+            <label>PINコード</label>
+            <input type="password" name="pin_code" inputmode="numeric" maxlength="8" required autofocus>
+        </div>
+        <div class="field">
+            <button type="submit" class="button">ログイン</button>
+        </div>
+    </form>
+</main>
+</body>
+</html>

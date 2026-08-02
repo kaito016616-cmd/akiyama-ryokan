@@ -7,13 +7,6 @@
 <form method="post" class="form-inline" onsubmit="return confirm('この月を締めます。締めた後は編集できません。よろしいですか？');">
     <label>対象月</label>
     <input type="month" name="year_month" value="{{ current_ym }}" required>
-    <label>締め担当者</label>
-    <select name="closed_by">
-        <option value="">-</option>
-        {% for u in users %}
-        <option value="{{ u.id }}">{{ u.name }}</option>
-        {% endfor %}
-    </select>
     <button type="submit" class="button">この月を締める</button>
 </form>
 

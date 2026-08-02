@@ -138,6 +138,37 @@ h2 { font-size: 1.1rem; margin-top: 2rem; }
 .flash-error { background: #fbe6e4; color: #c0392b; }
 
 .muted { color: var(--muted); font-size: 0.9rem; }
+.hidden { display: none; }
+
+.login-container {
+    max-width: 360px;
+    margin-top: 4rem;
+}
+
+.userbar {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    color: #cdd6e2;
+    font-size: 0.85rem;
+}
+.userbar form { display: inline; }
+.userbar button {
+    background: none;
+    border: none;
+    color: #cdd6e2;
+    text-decoration: underline;
+    cursor: pointer;
+    font-size: 0.85rem;
+    padding: 0;
+}
+.role-badge {
+    background: #2b5fad;
+    color: #fff;
+    border-radius: 4px;
+    padding: 0.1rem 0.4rem;
+    font-size: 0.75rem;
+}
 
 .report-grid {
     display: grid;

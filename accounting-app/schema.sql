@@ -4,7 +4,8 @@ CREATE TABLE IF NOT EXISTS users (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     name TEXT NOT NULL,
     role TEXT NOT NULL DEFAULT 'member',   -- 'admin' or 'member'
-    active INTEGER NOT NULL DEFAULT 1
+    active INTEGER NOT NULL DEFAULT 1,
+    pin_code TEXT NOT NULL DEFAULT '0000'  -- ログイン用の簡易PIN（4桁）
 );
 
 CREATE TABLE IF NOT EXISTS categories (
@@ -35,7 +36,8 @@ CREATE TABLE IF NOT EXISTS transactions (
     is_settled INTEGER NOT NULL DEFAULT 0,
     settlement_id INTEGER REFERENCES settlements(id),
     created_at TEXT NOT NULL,
-    locked INTEGER NOT NULL DEFAULT 0      -- 月次締め後は1（編集不可）
+    locked INTEGER NOT NULL DEFAULT 0,     -- 月次締め後は1（編集不可）
+    created_by INTEGER REFERENCES users(id)  -- 入力した人（編集権限の判定に使用）
 );
 
 CREATE TABLE IF NOT EXISTS closings (
