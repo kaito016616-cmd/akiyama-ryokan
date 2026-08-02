@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% block title %}レポート - 秋山旅館 経理{% endblock %}
+{% block content %}
+<h1>レポート</h1>
+
+<form method="get" class="form-inline">
+    <label>対象月</label>
+    <input type="month" name="ym" value="{{ ym }}" onchange="this.form.submit()">
+</form>
+
+<div class="report-grid">
+    <div>
+        <h2>経費カテゴリ別（{{ ym }}）</h2>
+        <canvas id="expenseChart"></canvas>
+    </div>
+    <div>
+        <h2>売上カテゴリ別（{{ ym }}）</h2>
+        <canvas id="incomeChart"></canvas>
+    </div>
+</div>
+
+<h2>直近の月次推移</h2>
+<canvas id="trendChart"></canvas>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
+<script>
+const expenseData = {{ expense_breakdown | map(attribute='category') | list | tojson }};
+const expenseValues = {{ expense_breakdown | map(attribute='total') | list | tojson }};
+const incomeData = {{ income_breakdown | map(attribute='category') | list | tojson }};
+const incomeValues = {{ income_breakdown | map(attribute='total') | list | tojson }};
+const trendLabels = {{ trend | map(attribute='ym') | list | tojson }};
+const trendIncome = {{ trend | map(attribute='income') | list | tojson }};
+const trendExpense = {{ trend | map(attribute='expense') | list | tojson }};
+
+new Chart(document.getElementById('expenseChart'), {
+    type: 'pie',
+    data: { labels: expenseData, datasets: [{ data: expenseValues }] }
+});
+new Chart(document.getElementById('incomeChart'), {
+    type: 'pie',
+    data: { labels: incomeData, datasets: [{ data: incomeValues }] }
+});
+new Chart(document.getElementById('trendChart'), {
+    type: 'bar',
+    data: {
+        labels: trendLabels,
+        datasets: [
+            { label: '売上', data: trendIncome },
+            { label: '経費', data: trendExpense }
+        ]
+    }
+});
+</script>
+{% endblock %}

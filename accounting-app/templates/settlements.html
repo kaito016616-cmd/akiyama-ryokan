@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+{% block title %}精算 - 秋山旅館 経理{% endblock %}
+{% block content %}
+<h1>立て替え精算</h1>
+
+<section>
+    <h2>今回精算すべき送金</h2>
+    {% if balances %}
+    <table class="table">
+        <thead><tr><th>支払う人</th><th></th><th>受け取る人</th><th>金額</th></tr></thead>
+        <tbody>
+        {% for b in balances %}
+            <tr>
+                <td>{{ b.from_name }}</td>
+                <td>→</td>
+                <td>{{ b.to_name }}</td>
+                <td>¥{{ "{:,}".format(b.amount) }}</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    <form method="post" onsubmit="return confirm('実際に送金・精算が完了した後に押してください。よろしいですか？');">
+        <button type="submit" class="button">精算済みにする</button>
+    </form>
+    {% else %}
+    <p class="muted">未精算の立て替えはありません。</p>
+    {% endif %}
+</section>
+
+<section>
+    <h2>未精算の経費一覧（内訳）</h2>
+    <table class="table">
+        <thead><tr><th>日付</th><th>金額</th><th>立て替えた人</th><th>メモ</th></tr></thead>
+        <tbody>
+        {% for t in unsettled %}
+            <tr>
+                <td>{{ t.date }}</td>
+                <td>¥{{ "{:,}".format(t.amount) }}</td>
+                <td>{{ t.paid_by }}</td>
+                <td>{{ t.memo or '' }}</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</section>
+
+<section>
+    <h2>精算履歴</h2>
+    <table class="table">
+        <thead><tr><th>日時</th><th>支払う人</th><th>受け取る人</th><th>金額</th></tr></thead>
+        <tbody>
+        {% for h in history %}
+            <tr>
+                <td>{{ h.settled_at[:16].replace('T', ' ') }}</td>
+                <td>{{ h.from_name }}</td>
+                <td>{{ h.to_name }}</td>
+                <td>¥{{ "{:,}".format(h.amount) }}</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</section>
+{% endblock %}

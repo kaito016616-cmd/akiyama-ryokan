@@ -1,0 +1,5 @@
+accounting.db
+__pycache__/
+*.pyc
+static/receipts/*
+!static/receipts/.gitkeep

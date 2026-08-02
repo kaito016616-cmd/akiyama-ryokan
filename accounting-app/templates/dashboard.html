@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% block title %}ダッシュボード - 秋山旅館 経理{% endblock %}
+{% block content %}
+<h1>ダッシュボード <span class="ym-label">{{ ym }}</span></h1>
+
+{% if is_closed %}
+<div class="flash flash-error">この月は締め済みです（編集不可）</div>
+{% endif %}
+
+<div class="cards">
+    <div class="card">
+        <div class="card-label">売上</div>
+        <div class="card-value income">¥{{ "{:,}".format(summary.income) }}</div>
+    </div>
+    <div class="card">
+        <div class="card-label">経費</div>
+        <div class="card-value expense">¥{{ "{:,}".format(summary.expense) }}</div>
+    </div>
+    <div class="card">
+        <div class="card-label">純利益</div>
+        <div class="card-value {{ 'income' if summary.net >= 0 else 'expense' }}">
+            ¥{{ "{:,}".format(summary.net) }}
+        </div>
+    </div>
+</div>
+
+<section>
+    <h2>未精算の立て替え（{{ unsettled_count }}件）</h2>
+    {% if balances %}
+    <table class="table">
+        <thead><tr><th>支払う人</th><th></th><th>受け取る人</th><th>金額</th></tr></thead>
+        <tbody>
+        {% for b in balances %}
+            <tr>
+                <td>{{ b.from_name }}</td>
+                <td>→</td>
+                <td>{{ b.to_name }}</td>
+                <td>¥{{ "{:,}".format(b.amount) }}</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    <p><a class="button" href="{{ url_for('settlements_view') }}">精算画面へ</a></p>
+    {% else %}
+    <p class="muted">未精算の立て替えはありません。</p>
+    {% endif %}
+</section>
+{% endblock %}

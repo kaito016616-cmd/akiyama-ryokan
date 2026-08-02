@@ -1,0 +1,149 @@
+:root {
+    --bg: #f5f6f8;
+    --card-bg: #ffffff;
+    --border: #e0e2e6;
+    --text: #222;
+    --muted: #777;
+    --income: #1a7f37;
+    --expense: #c0392b;
+    --accent: #2b5fad;
+}
+
+* { box-sizing: border-box; }
+
+body {
+    margin: 0;
+    font-family: "Hiragino Kaku Gothic ProN", "Yu Gothic", sans-serif;
+    background: var(--bg);
+    color: var(--text);
+}
+
+.topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: #1e2a3a;
+    color: #fff;
+    padding: 0.75rem 1.5rem;
+    flex-wrap: wrap;
+}
+
+.brand { font-weight: bold; font-size: 1.1rem; }
+
+.topbar nav a {
+    color: #cdd6e2;
+    text-decoration: none;
+    margin-left: 1.2rem;
+    font-size: 0.9rem;
+}
+.topbar nav a:hover { color: #fff; }
+
+.container {
+    max-width: 960px;
+    margin: 1.5rem auto;
+    padding: 0 1rem 3rem;
+}
+
+h1 { font-size: 1.4rem; margin-bottom: 1rem; }
+h2 { font-size: 1.1rem; margin-top: 2rem; }
+
+.ym-label { color: var(--muted); font-size: 0.9rem; font-weight: normal; }
+
+.cards {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+    margin-bottom: 1.5rem;
+}
+
+.card {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 1rem 1.5rem;
+    flex: 1 1 150px;
+}
+
+.card-label { color: var(--muted); font-size: 0.85rem; }
+.card-value { font-size: 1.6rem; font-weight: bold; margin-top: 0.3rem; }
+.card-value.income { color: var(--income); }
+.card-value.expense { color: var(--expense); }
+
+.table {
+    width: 100%;
+    border-collapse: collapse;
+    background: var(--card-bg);
+    margin-top: 0.5rem;
+}
+.table th, .table td {
+    border-bottom: 1px solid var(--border);
+    padding: 0.5rem 0.6rem;
+    text-align: left;
+    font-size: 0.9rem;
+}
+.table th { color: var(--muted); font-weight: 600; }
+
+.form-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 0.8rem;
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 1rem;
+}
+.field { display: flex; flex-direction: column; gap: 0.3rem; }
+.field-wide { grid-column: 1 / -1; }
+.field label { font-size: 0.8rem; color: var(--muted); }
+.field input, .field select {
+    padding: 0.4rem;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+}
+
+.form-inline {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    margin: 0.6rem 0;
+}
+.form-inline input, .form-inline select {
+    padding: 0.4rem;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+}
+
+.button, .button-small {
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    padding: 0.5rem 1rem;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 0.9rem;
+}
+.button-small { padding: 0.25rem 0.6rem; font-size: 0.8rem; }
+.button:hover, .button-small:hover { opacity: 0.9; }
+
+.flash {
+    padding: 0.6rem 1rem;
+    border-radius: 6px;
+    margin-bottom: 1rem;
+    font-size: 0.9rem;
+}
+.flash-success { background: #e3f5e6; color: #1a7f37; }
+.flash-error { background: #fbe6e4; color: #c0392b; }
+
+.muted { color: var(--muted); font-size: 0.9rem; }
+
+.report-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+}
+@media (max-width: 700px) {
+    .report-grid { grid-template-columns: 1fr; }
+}

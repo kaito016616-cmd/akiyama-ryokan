@@ -1,0 +1,93 @@
+{% extends "base.html" %}
+{% block title %}収支入力 - 秋山旅館 経理{% endblock %}
+{% block content %}
+<h1>収支入力</h1>
+
+<form method="post" enctype="multipart/form-data" class="form-grid" id="tx-form">
+    <div class="field">
+        <label>種別</label>
+        <select name="type" id="type-select" required>
+            <option value="expense">経費</option>
+            <option value="income">売上</option>
+        </select>
+    </div>
+    <div class="field">
+        <label>日付</label>
+        <input type="date" name="date" value="{{ today }}" required>
+    </div>
+    <div class="field">
+        <label>金額（円）</label>
+        <input type="number" name="amount" min="1" required>
+    </div>
+    <div class="field">
+        <label>カテゴリ</label>
+        <select name="category_id" id="category-select" required>
+            {% for c in categories %}
+            <option value="{{ c.id }}" data-type="{{ c.type }}">{{ c.name }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    <div class="field" id="paid-by-field">
+        <label>支払者（立て替えた人）</label>
+        <select name="paid_by">
+            <option value="">（旅館口座から直接支払い）</option>
+            {% for u in users %}
+            <option value="{{ u.id }}">{{ u.name }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    <div class="field field-wide">
+        <label>メモ</label>
+        <input type="text" name="memo" placeholder="任意">
+    </div>
+    <div class="field">
+        <label>レシート画像</label>
+        <input type="file" name="receipt" accept="image/*">
+    </div>
+    <div class="field">
+        <button type="submit" class="button">登録</button>
+    </div>
+</form>
+
+<h2>取引履歴</h2>
+<table class="table">
+    <thead>
+        <tr><th>日付</th><th>種別</th><th>カテゴリ</th><th>金額</th><th>支払者</th><th>精算</th><th>メモ</th></tr>
+    </thead>
+    <tbody>
+    {% for t in transactions %}
+        <tr>
+            <td>{{ t.date }}</td>
+            <td>{{ '経費' if t.type == 'expense' else '売上' }}</td>
+            <td>{{ t.category_name }}</td>
+            <td>¥{{ "{:,}".format(t.amount) }}</td>
+            <td>{{ t.paid_by_name or '-' }}</td>
+            <td>
+                {% if t.paid_by %}
+                    {{ '済' if t.is_settled else '未' }}
+                {% else %}-{% endif %}
+            </td>
+            <td>{{ t.memo or '' }}</td>
+        </tr>
+    {% endfor %}
+    </tbody>
+</table>
+
+<script>
+const typeSelect = document.getElementById('type-select');
+const categorySelect = document.getElementById('category-select');
+const paidByField = document.getElementById('paid-by-field');
+
+function filterCategories() {
+    const type = typeSelect.value;
+    for (const opt of categorySelect.options) {
+        opt.hidden = opt.dataset.type !== type;
+    }
+    const firstVisible = [...categorySelect.options].find(o => !o.hidden);
+    if (firstVisible) categorySelect.value = firstVisible.value;
+    paidByField.style.display = type === 'expense' ? '' : 'none';
+}
+typeSelect.addEventListener('change', filterCategories);
+filterCategories();
+</script>
+{% endblock %}

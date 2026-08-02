@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+{% block title %}設定 - 秋山旅館 経理{% endblock %}
+{% block content %}
+<h1>設定</h1>
+
+<section>
+    <h2>メンバー</h2>
+    <table class="table">
+        <thead><tr><th>名前</th><th>役割</th><th>状態</th><th></th></tr></thead>
+        <tbody>
+        {% for u in users %}
+            <tr>
+                <td>{{ u.name }}</td>
+                <td>{{ u.role }}</td>
+                <td>{{ '有効' if u.active else '無効' }}</td>
+                <td>
+                    <form method="post" style="display:inline">
+                        <input type="hidden" name="form_type" value="toggle_user">
+                        <input type="hidden" name="user_id" value="{{ u.id }}">
+                        <input type="hidden" name="active" value="{{ 0 if u.active else 1 }}">
+                        <button type="submit" class="button-small">{{ '無効化' if u.active else '有効化' }}</button>
+                    </form>
+                </td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    <form method="post" class="form-inline">
+        <input type="hidden" name="form_type" value="user">
+        <input type="text" name="name" placeholder="名前" required>
+        <select name="role">
+            <option value="member">member</option>
+            <option value="admin">admin</option>
+        </select>
+        <button type="submit" class="button">メンバー追加</button>
+    </form>
+</section>
+
+<section>
+    <h2>カテゴリ</h2>
+    <table class="table">
+        <thead><tr><th>名前</th><th>種別</th><th>税率</th></tr></thead>
+        <tbody>
+        {% for c in categories %}
+            <tr>
+                <td>{{ c.name }}</td>
+                <td>{{ '売上' if c.type == 'income' else '経費' }}</td>
+                <td>{{ (c.tax_rate * 100) | round | int }}%</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    <form method="post" class="form-inline">
+        <input type="hidden" name="form_type" value="category">
+        <input type="text" name="name" placeholder="カテゴリ名" required>
+        <select name="type">
+            <option value="expense">経費</option>
+            <option value="income">売上</option>
+        </select>
+        <select name="tax_rate">
+            <option value="0.10">10%</option>
+            <option value="0.08">8%（軽減税率）</option>
+            <option value="0.00">0%</option>
+        </select>
+        <button type="submit" class="button">カテゴリ追加</button>
+    </form>
+</section>
+{% endblock %}

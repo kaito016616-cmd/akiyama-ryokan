@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block title %}月次締め - 秋山旅館 経理{% endblock %}
+{% block content %}
+<h1>月次締め</h1>
+<p class="muted">締めた月の取引は編集不可になります。締める前に内容を必ず確認してください。</p>
+
+<form method="post" class="form-inline" onsubmit="return confirm('この月を締めます。締めた後は編集できません。よろしいですか？');">
+    <label>対象月</label>
+    <input type="month" name="year_month" value="{{ current_ym }}" required>
+    <label>締め担当者</label>
+    <select name="closed_by">
+        <option value="">-</option>
+        {% for u in users %}
+        <option value="{{ u.id }}">{{ u.name }}</option>
+        {% endfor %}
+    </select>
+    <button type="submit" class="button">この月を締める</button>
+</form>
+
+<h2>締め履歴</h2>
+<table class="table">
+    <thead><tr><th>対象月</th><th>担当者</th><th>締め日時</th></tr></thead>
+    <tbody>
+    {% for c in closings %}
+        <tr>
+            <td>{{ c.year_month }}</td>
+            <td>{{ c.closed_by_name or '-' }}</td>
+            <td>{{ c.closed_at[:16].replace('T', ' ') }}</td>
+        </tr>
+    {% endfor %}
+    </tbody>
+</table>
+{% endblock %}
