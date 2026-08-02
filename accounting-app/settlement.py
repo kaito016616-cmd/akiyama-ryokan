@@ -47,54 +47,52 @@ def calc_settlements(unsettled_transactions, active_users):
 
 
 def calc_personal_balances(unsettled_items, active_users):
-    """個人の割り勘（食費など）用。特定の1人が肩代わりするのではなく、
-    立て替えた人と実際に消費した人との間で貸し借りが発生するため、
-    最小回数の送金で解消できる組み合わせを算出する。
+    """個人の割り勘（食費など）用。
+
+    無関係な第三者に肩代わりさせる「全員分の最小送金」は行わず、
+    実際に貸し借りが発生した「同じ2人同士」の債権債務だけを相殺する。
+    例）安達が宮嶋に2000円分、宮嶋が安達に880円分の借りがあれば、
+        両者の間の差額（安達→宮嶋 1120円）だけを算出する。
 
     unsettled_items: models.unsettled_personal_items() の結果
                       （各行に payer_id・user_id・amount・id を持つ）
     """
     user_by_id = {u["id"]: u for u in active_users}
-    balance = {uid: 0.0 for uid in user_by_id}
+    # debt[消費した人][立て替えた人] = 金額
+    debt = {}
     all_item_ids = []
 
     for it in unsettled_items:
         payer_id, consumer_id = it["payer_id"], it["user_id"]
-        if payer_id not in balance or consumer_id not in balance:
+        if payer_id not in user_by_id or consumer_id not in user_by_id:
             continue
         all_item_ids.append(it["id"])
-        balance[payer_id] += it["amount"]
-        balance[consumer_id] -= it["amount"]
-
-    creditors = sorted(
-        [[uid, bal] for uid, bal in balance.items() if bal > 0.5],
-        key=lambda x: -x[1],
-    )
-    debtors = sorted(
-        [[uid, bal] for uid, bal in balance.items() if bal < -0.5],
-        key=lambda x: x[1],
-    )
+        if payer_id == consumer_id:
+            continue  # 自分の分は貸し借りなし
+        debt.setdefault(consumer_id, {})
+        debt[consumer_id][payer_id] = debt[consumer_id].get(payer_id, 0) + it["amount"]
 
     result = []
-    i = j = 0
-    while i < len(debtors) and j < len(creditors):
-        d_id, d_bal = debtors[i]
-        c_id, c_bal = creditors[j]
-        pay = min(-d_bal, c_bal)
-        result.append(
-            {
-                "from_id": d_id,
-                "from_name": user_by_id[d_id]["name"],
-                "to_id": c_id,
-                "to_name": user_by_id[c_id]["name"],
-                "amount": round(pay),
-            }
-        )
-        debtors[i][1] += pay
-        creditors[j][1] -= pay
-        if abs(debtors[i][1]) < 0.5:
-            i += 1
-        if abs(creditors[j][1]) < 0.5:
-            j += 1
+    seen_pairs = set()
+    for a, owed_by_a in debt.items():
+        for b in owed_by_a:
+            pair = tuple(sorted((a, b)))
+            if pair in seen_pairs:
+                continue
+            seen_pairs.add(pair)
+            a_owes_b = debt.get(a, {}).get(b, 0)
+            b_owes_a = debt.get(b, {}).get(a, 0)
+            net = a_owes_b - b_owes_a
+            if net > 0.5:
+                result.append(
+                    {"from_id": a, "from_name": user_by_id[a]["name"],
+                     "to_id": b, "to_name": user_by_id[b]["name"], "amount": round(net)}
+                )
+            elif net < -0.5:
+                result.append(
+                    {"from_id": b, "from_name": user_by_id[b]["name"],
+                     "to_id": a, "to_name": user_by_id[a]["name"], "amount": round(-net)}
+                )
 
+    result.sort(key=lambda r: -r["amount"])
     return result, all_item_ids
