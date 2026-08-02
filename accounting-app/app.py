@@ -1,3 +1,4 @@
+import os
 from datetime import date
 from pathlib import Path
 
@@ -8,7 +9,7 @@ import models
 import settlement
 
 app = Flask(__name__)
-app.secret_key = "akiyama-ryokan-accounting-dev-key"  # ローカル運用前提の簡易キー
+app.secret_key = os.environ.get("SECRET_KEY", "akiyama-ryokan-accounting-dev-key")
 
 RECEIPT_DIR = Path(__file__).parent / "static" / "receipts"
 RECEIPT_DIR.mkdir(parents=True, exist_ok=True)
@@ -170,4 +171,4 @@ if __name__ == "__main__":
     else:
         # 既存DBにも新しいカテゴリのデフォルト値を反映
         models.init_db()
-    app.run(debug=True, port=5001, host="0.0.0.0")
+    app.run(debug=os.environ.get("FLASK_DEBUG") == "1", port=5001, host="0.0.0.0")
