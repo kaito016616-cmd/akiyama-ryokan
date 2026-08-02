@@ -1,8 +1,8 @@
 """立て替え精算の計算ロジック。
 
-未精算の経費（誰かが個人の財布から立て替えたもの）を、
-旅館の運営メンバー全員で均等負担する前提でならし、
-最小回数の送金で解消できる組み合わせを算出する。
+旅館の経費はオーナー（admin）の負担という前提のもと、
+社員が個人の財布から立て替えた経費は、全額オーナーが本人に払い戻す。
+オーナー自身が立て替えた分は払い戻し不要（自分の経費として扱う）。
 """
 
 
@@ -11,60 +11,36 @@ def calc_settlements(unsettled_transactions, active_users):
     unsettled_transactions: models.unsettled_expenses() の結果（sqlite3.Row のリスト）
     active_users: models.list_users(active_only=True) の結果
 
-    戻り値: [{'from_id', 'from_name', 'to_id', 'to_name', 'amount', 'transaction_ids'}]
+    戻り値: (balances, all_transaction_ids)
+      balances: [{'from_id', 'from_name', 'to_id', 'to_name', 'amount'}]（from = オーナー）
+      all_transaction_ids: 今回の精算で処理対象になる取引IDの一覧
     """
-    if not active_users:
+    owner = next((u for u in active_users if u["role"] == "admin"), None)
+    if owner is None:
         return [], []
 
     user_by_id = {u["id"]: u for u in active_users}
-    n = len(active_users)
-
-    # balance[uid] > 0 : 受け取るべき人（立て替えた分だけ他人の負担も肩代わりした）
-    # balance[uid] < 0 : 支払うべき人
-    balance = {u["id"]: 0.0 for u in active_users}
-    tx_by_user = {u["id"]: [] for u in active_users}
+    totals = {}
+    all_transaction_ids = []
 
     for t in unsettled_transactions:
         paid_by = t["paid_by"]
-        if paid_by not in balance:
-            # 精算対象メンバーが非アクティブ化されている場合はスキップ
+        if paid_by not in user_by_id:
+            # 非アクティブ化されたメンバーが立て替えたものは精算対象外
             continue
-        per_head = t["amount"] / n
-        for uid in balance:
-            balance[uid] -= per_head
-        balance[paid_by] += t["amount"]
-        tx_by_user[paid_by].append(t["id"])
+        all_transaction_ids.append(t["id"])
+        if paid_by == owner["id"]:
+            continue
+        totals[paid_by] = totals.get(paid_by, 0) + t["amount"]
 
-    creditors = sorted(
-        [[uid, bal] for uid, bal in balance.items() if bal > 0.5],
-        key=lambda x: -x[1],
-    )
-    debtors = sorted(
-        [[uid, bal] for uid, bal in balance.items() if bal < -0.5],
-        key=lambda x: x[1],
-    )
-
-    result = []
-    i = j = 0
-    while i < len(debtors) and j < len(creditors):
-        d_id, d_bal = debtors[i]
-        c_id, c_bal = creditors[j]
-        pay = min(-d_bal, c_bal)
-        result.append(
-            {
-                "from_id": d_id,
-                "from_name": user_by_id[d_id]["name"],
-                "to_id": c_id,
-                "to_name": user_by_id[c_id]["name"],
-                "amount": round(pay),
-            }
-        )
-        debtors[i][1] += pay
-        creditors[j][1] -= pay
-        if abs(debtors[i][1]) < 0.5:
-            i += 1
-        if abs(creditors[j][1]) < 0.5:
-            j += 1
-
-    all_transaction_ids = [t["id"] for t in unsettled_transactions if t["paid_by"] in balance]
-    return result, all_transaction_ids
+    balances = [
+        {
+            "from_id": owner["id"],
+            "from_name": owner["name"],
+            "to_id": uid,
+            "to_name": user_by_id[uid]["name"],
+            "amount": round(amount),
+        }
+        for uid, amount in sorted(totals.items(), key=lambda kv: -kv[1])
+    ]
+    return balances, all_transaction_ids
