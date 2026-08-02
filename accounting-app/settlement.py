@@ -44,3 +44,57 @@ def calc_settlements(unsettled_transactions, active_users):
         for uid, amount in sorted(totals.items(), key=lambda kv: -kv[1])
     ]
     return balances, all_transaction_ids
+
+
+def calc_personal_balances(unsettled_items, active_users):
+    """個人の割り勘（食費など）用。特定の1人が肩代わりするのではなく、
+    立て替えた人と実際に消費した人との間で貸し借りが発生するため、
+    最小回数の送金で解消できる組み合わせを算出する。
+
+    unsettled_items: models.unsettled_personal_items() の結果
+                      （各行に payer_id・user_id・amount・id を持つ）
+    """
+    user_by_id = {u["id"]: u for u in active_users}
+    balance = {uid: 0.0 for uid in user_by_id}
+    all_item_ids = []
+
+    for it in unsettled_items:
+        payer_id, consumer_id = it["payer_id"], it["user_id"]
+        if payer_id not in balance or consumer_id not in balance:
+            continue
+        all_item_ids.append(it["id"])
+        balance[payer_id] += it["amount"]
+        balance[consumer_id] -= it["amount"]
+
+    creditors = sorted(
+        [[uid, bal] for uid, bal in balance.items() if bal > 0.5],
+        key=lambda x: -x[1],
+    )
+    debtors = sorted(
+        [[uid, bal] for uid, bal in balance.items() if bal < -0.5],
+        key=lambda x: x[1],
+    )
+
+    result = []
+    i = j = 0
+    while i < len(debtors) and j < len(creditors):
+        d_id, d_bal = debtors[i]
+        c_id, c_bal = creditors[j]
+        pay = min(-d_bal, c_bal)
+        result.append(
+            {
+                "from_id": d_id,
+                "from_name": user_by_id[d_id]["name"],
+                "to_id": c_id,
+                "to_name": user_by_id[c_id]["name"],
+                "amount": round(pay),
+            }
+        )
+        debtors[i][1] += pay
+        creditors[j][1] -= pay
+        if abs(debtors[i][1]) < 0.5:
+            i += 1
+        if abs(creditors[j][1]) < 0.5:
+            j += 1
+
+    return result, all_item_ids

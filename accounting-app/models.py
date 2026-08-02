@@ -219,6 +219,92 @@ def list_settlements(limit=100):
     ).fetchall()
 
 
+# ---------- personal expenses（個人の割り勘、旅館の収支には計上しない） ----------
+
+def add_personal_expense(date, payer_id, memo, items, created_by):
+    """items: [(user_id, amount), ...]"""
+    db = get_db()
+    cur = db.execute(
+        """INSERT INTO personal_expenses (date, payer_id, memo, created_by, created_at)
+           VALUES (?, ?, ?, ?, ?)""",
+        (date, payer_id, memo, created_by, now_iso()),
+    )
+    expense_id = cur.lastrowid
+    db.executemany(
+        "INSERT INTO personal_expense_items (personal_expense_id, user_id, amount) VALUES (?, ?, ?)",
+        [(expense_id, uid, amount) for uid, amount in items],
+    )
+    db.commit()
+    return expense_id
+
+
+def list_personal_expenses(limit=100):
+    db = get_db()
+    expenses = db.execute(
+        """SELECT pe.*, u.name AS payer_name
+           FROM personal_expenses pe
+           JOIN users u ON u.id = pe.payer_id
+           ORDER BY pe.date DESC, pe.id DESC
+           LIMIT ?""",
+        (limit,),
+    ).fetchall()
+    result = []
+    for e in expenses:
+        items = db.execute(
+            """SELECT pei.*, u.name AS user_name
+               FROM personal_expense_items pei
+               JOIN users u ON u.id = pei.user_id
+               WHERE pei.personal_expense_id = ?
+               ORDER BY pei.id""",
+            (e["id"],),
+        ).fetchall()
+        result.append({"expense": e, "lines": items, "total": sum(i["amount"] for i in items)})
+    return result
+
+
+def unsettled_personal_items():
+    db = get_db()
+    return db.execute(
+        """SELECT pei.*, pe.payer_id AS payer_id
+           FROM personal_expense_items pei
+           JOIN personal_expenses pe ON pe.id = pei.personal_expense_id
+           WHERE pei.is_settled = 0"""
+    ).fetchall()
+
+
+def mark_personal_settled(item_ids, settlement_id):
+    db = get_db()
+    db.executemany(
+        "UPDATE personal_expense_items SET is_settled = 1, settlement_id = ? WHERE id = ?",
+        [(settlement_id, iid) for iid in item_ids],
+    )
+    db.commit()
+
+
+def create_personal_settlement(from_user, to_user, amount):
+    db = get_db()
+    cur = db.execute(
+        """INSERT INTO personal_settlements (from_user, to_user, amount, settled_at)
+           VALUES (?, ?, ?, ?)""",
+        (from_user, to_user, amount, now_iso()),
+    )
+    db.commit()
+    return cur.lastrowid
+
+
+def list_personal_settlements(limit=100):
+    db = get_db()
+    return db.execute(
+        """SELECT s.*, fu.name AS from_name, tu.name AS to_name
+           FROM personal_settlements s
+           JOIN users fu ON fu.id = s.from_user
+           JOIN users tu ON tu.id = s.to_user
+           ORDER BY s.id DESC
+           LIMIT ?""",
+        (limit,),
+    ).fetchall()
+
+
 # ---------- dashboard / reports ----------
 
 def month_summary(year_month):

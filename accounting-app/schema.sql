@@ -63,3 +63,30 @@ INSERT INTO categories (name, type, tax_rate) SELECT '備品', 'expense', 0.10
     WHERE NOT EXISTS (SELECT 1 FROM categories WHERE name = '備品');
 INSERT INTO categories (name, type, tax_rate) SELECT '交通費', 'expense', 0.10
     WHERE NOT EXISTS (SELECT 1 FROM categories WHERE name = '交通費');
+
+-- 個人の立て替え（食費など、旅館の収支には計上しない社員同士の割り勘）
+CREATE TABLE IF NOT EXISTS personal_expenses (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    date TEXT NOT NULL,
+    payer_id INTEGER NOT NULL REFERENCES users(id),
+    memo TEXT,
+    created_by INTEGER REFERENCES users(id),
+    created_at TEXT NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS personal_settlements (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    from_user INTEGER NOT NULL REFERENCES users(id),
+    to_user INTEGER NOT NULL REFERENCES users(id),
+    amount INTEGER NOT NULL,
+    settled_at TEXT NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS personal_expense_items (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    personal_expense_id INTEGER NOT NULL REFERENCES personal_expenses(id),
+    user_id INTEGER NOT NULL REFERENCES users(id),
+    amount INTEGER NOT NULL,
+    is_settled INTEGER NOT NULL DEFAULT 0,
+    settlement_id INTEGER REFERENCES personal_settlements(id)
+);

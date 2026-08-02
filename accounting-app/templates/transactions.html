@@ -4,6 +4,7 @@
 <h1>収支入力</h1>
 
 <form method="post" enctype="multipart/form-data" class="form-grid" id="tx-form">
+    <input type="hidden" name="form_type" value="business">
     <div class="field">
         <label>種別</label>
         <select name="type" id="type-select" required>
@@ -79,6 +80,102 @@
                 <span class="muted">締め済み</span>
                 {% endif %}
             </td>
+        </tr>
+    {% endfor %}
+    </tbody>
+</table>
+
+<hr class="section-divider">
+
+<h1>個人の立て替え（食費など）</h1>
+<p class="muted">旅館の収支には計上されません。私用の食事などを誰かが代表して支払った際に、各自の負担額を記録するための機能です。</p>
+
+<form method="post" class="form-grid">
+    <input type="hidden" name="form_type" value="personal">
+    <div class="field">
+        <label>日付</label>
+        <input type="date" name="date" value="{{ today }}" required>
+    </div>
+    <div class="field">
+        <label>支払った人</label>
+        <select name="payer_id" required>
+            {% for u in users %}
+            <option value="{{ u.id }}">{{ u.name }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    <div class="field field-wide">
+        <label>メモ</label>
+        <input type="text" name="memo" placeholder="例: ランチ代">
+    </div>
+    <div class="field field-wide">
+        <label>各自の負担額（食べなかった人・払い戻し不要な人は空欄でOK）</label>
+        <div class="item-grid">
+        {% for u in users %}
+            <div class="item-row">
+                <span>{{ u.name }}</span>
+                <input type="number" name="item_{{ u.id }}" min="0" placeholder="0">
+            </div>
+        {% endfor %}
+        </div>
+    </div>
+    <div class="field">
+        <button type="submit" class="button">個人の立て替えを登録</button>
+    </div>
+</form>
+
+<h2>未精算の個人間バランス</h2>
+{% if personal_balances %}
+<table class="table">
+    <thead><tr><th>支払う人</th><th></th><th>受け取る人</th><th>金額</th></tr></thead>
+    <tbody>
+    {% for b in personal_balances %}
+        <tr>
+            <td>{{ b.from_name }}</td>
+            <td>→</td>
+            <td>{{ b.to_name }}</td>
+            <td>¥{{ "{:,}".format(b.amount) }}</td>
+        </tr>
+    {% endfor %}
+    </tbody>
+</table>
+<form method="post" action="{{ url_for('execute_personal_settlement') }}" onsubmit="return confirm('実際に個人間で精算が完了した後に押してください。よろしいですか？');">
+    <button type="submit" class="button">個人精算を完了にする</button>
+</form>
+{% else %}
+<p class="muted">未精算の個人間の立て替えはありません。</p>
+{% endif %}
+
+<h2>個人の立て替え履歴</h2>
+<table class="table">
+    <thead><tr><th>日付</th><th>支払った人</th><th>合計</th><th>内訳</th><th>メモ</th></tr></thead>
+    <tbody>
+    {% for pe in personal_expenses %}
+        <tr>
+            <td>{{ pe.expense.date }}</td>
+            <td>{{ pe.expense.payer_name }}</td>
+            <td>¥{{ "{:,}".format(pe.total) }}</td>
+            <td>
+                {% for item in pe.lines %}
+                {{ item.user_name }}: ¥{{ "{:,}".format(item.amount) }}{{ '（精算済）' if item.is_settled else '' }}{{ ', ' if not loop.last }}
+                {% endfor %}
+            </td>
+            <td>{{ pe.expense.memo or '' }}</td>
+        </tr>
+    {% endfor %}
+    </tbody>
+</table>
+
+<h2>個人精算の履歴</h2>
+<table class="table">
+    <thead><tr><th>日時</th><th>支払う人</th><th>受け取る人</th><th>金額</th></tr></thead>
+    <tbody>
+    {% for h in personal_settlements %}
+        <tr>
+            <td>{{ h.settled_at[:16].replace('T', ' ') }}</td>
+            <td>{{ h.from_name }}</td>
+            <td>{{ h.to_name }}</td>
+            <td>¥{{ "{:,}".format(h.amount) }}</td>
         </tr>
     {% endfor %}
     </tbody>

@@ -109,6 +109,28 @@ def dashboard():
 @app.route("/transactions", methods=["GET", "POST"])
 def transactions():
     if request.method == "POST":
+        form_type = request.form.get("form_type", "business")
+
+        if form_type == "personal":
+            active_users = models.list_users(active_only=True)
+            items = []
+            for u in active_users:
+                raw = request.form.get(f"item_{u['id']}", "").strip()
+                if raw:
+                    items.append((u["id"], int(raw)))
+            if not items:
+                flash("誰か1人以上の金額を入力してください。", "error")
+                return redirect(url_for("transactions"))
+            models.add_personal_expense(
+                date=request.form["date"],
+                payer_id=int(request.form["payer_id"]),
+                memo=request.form.get("memo", ""),
+                items=items,
+                created_by=g.user["id"],
+            )
+            flash("個人の立て替えを登録しました。", "success")
+            return redirect(url_for("transactions"))
+
         ym = request.form["date"][:7]
         if models.is_closed(ym):
             flash(f"{ym} は月次締め済みのため登録できません。", "error")
@@ -136,13 +158,36 @@ def transactions():
         flash("登録しました。", "success")
         return redirect(url_for("transactions"))
 
+    active_users = models.list_users(active_only=True)
+    personal_unsettled = models.unsettled_personal_items()
+    personal_balances, _ = settlement.calc_personal_balances(personal_unsettled, active_users)
+
     return render_template(
         "transactions.html",
         transactions=models.list_transactions(),
         categories=models.list_categories(),
-        users=models.list_users(active_only=True),
+        users=active_users,
         today=date.today().isoformat(),
+        personal_expenses=models.list_personal_expenses(limit=30),
+        personal_balances=personal_balances,
+        personal_settlements=models.list_personal_settlements(limit=20),
     )
+
+
+@app.route("/personal-settlements", methods=["POST"])
+def execute_personal_settlement():
+    active_users = models.list_users(active_only=True)
+    unsettled_items = models.unsettled_personal_items()
+    balances, item_ids = settlement.calc_personal_balances(unsettled_items, active_users)
+    if not balances:
+        flash("個人精算の対象がありません。", "error")
+        return redirect(url_for("transactions"))
+    for b in balances:
+        models.create_personal_settlement(b["from_id"], b["to_id"], b["amount"])
+    settlement_id = models.list_personal_settlements(limit=1)[0]["id"]
+    models.mark_personal_settled(item_ids, settlement_id)
+    flash("個人精算を実行しました。", "success")
+    return redirect(url_for("transactions"))
 
 
 def _can_edit(tx):

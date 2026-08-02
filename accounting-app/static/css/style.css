@@ -140,6 +140,30 @@ h2 { font-size: 1.1rem; margin-top: 2rem; }
 .muted { color: var(--muted); font-size: 0.9rem; }
 .hidden { display: none; }
 
+.section-divider {
+    border: none;
+    border-top: 1px solid var(--border);
+    margin: 2.5rem 0;
+}
+
+.item-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 0.5rem;
+    background: #fafafa;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 0.6rem;
+}
+.item-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.4rem;
+}
+.item-row span { font-size: 0.85rem; }
+.item-row input { width: 80px; padding: 0.3rem; border: 1px solid var(--border); border-radius: 4px; }
+
 .login-container {
     max-width: 360px;
     margin-top: 4rem;
