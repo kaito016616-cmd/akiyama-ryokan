@@ -127,6 +127,8 @@
         .owner-nm { font-size:24px; font-weight:700; letter-spacing:2px; margin-bottom:3px; }
         .owner-nm-en { font-family:var(--en); font-size:11px; color:var(--txt3); letter-spacing:2px; margin-bottom:16px; }
         .owner-msg { font-size:14px; color:var(--txt2); line-height:2; }
+        .mascot-row { display:flex; justify-content:center; gap:20px; margin-bottom:20px; }
+        .mascot-row .staff-card { width:calc(33.33% - 10px); }
         .staff-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:20px; }
         .staff-card { background:#fff; border-radius:var(--rl); box-shadow:var(--shadow); padding:28px 16px; display:flex; flex-direction:column; align-items:center; text-align:center; }
         .staff-photo-ph { width:88px; height:88px; border-radius:50%; background:var(--bg2); border:2px dashed rgba(0,136,204,0.25); display:flex; align-items:center; justify-content:center; margin-bottom:14px; }
@@ -500,6 +502,18 @@
                 <p class="owner-msg">皆様のお越しを心よりお待ちしております。<br>赤沢の海と自然を存分に楽しんでいただけるよう、温かくお迎えします。<br>お気軽にお問い合わせください。</p>
             </div>
         </div>
+        <div class="mascot-row">
+            <div class="staff-card fi">
+                <img src="images/sankaku.png" alt="さんかく" style="width:88px;height:88px;border-radius:50%;object-fit:cover;margin-bottom:14px;border:2px solid var(--bg2);">
+                <p class="staff-badge">Mascot</p>
+                <p class="staff-nm">さんかく</p>
+            </div>
+            <div class="staff-card fi">
+                <img src="images/shikaku.png" alt="しかく" style="width:88px;height:88px;border-radius:50%;object-fit:cover;margin-bottom:14px;border:2px solid var(--bg2);">
+                <p class="staff-badge">Mascot</p>
+                <p class="staff-nm">しかく</p>
+            </div>
+        </div>
         <div class="staff-grid">
             <div class="staff-card fi">
                 <div class="staff-photo-ph"><svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg></div>
@@ -515,16 +529,6 @@
                 <div class="staff-photo-ph"><svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg></div>
                 <p class="staff-badge">Staff</p>
                 <p class="staff-nm">宮嶋 海音</p>
-            </div>
-            <div class="staff-card fi">
-                <img src="images/sankaku.png" alt="さんかく" style="width:88px;height:88px;border-radius:50%;object-fit:cover;margin-bottom:14px;border:2px solid var(--bg2);">
-                <p class="staff-badge">Mascot</p>
-                <p class="staff-nm">さんかく</p>
-            </div>
-            <div class="staff-card fi">
-                <img src="images/shikaku.png" alt="しかく" style="width:88px;height:88px;border-radius:50%;object-fit:cover;margin-bottom:14px;border:2px solid var(--bg2);">
-                <p class="staff-badge">Mascot</p>
-                <p class="staff-nm">しかく</p>
             </div>
         </div>
     </div>
