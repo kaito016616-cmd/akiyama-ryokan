@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>空き状況カレンダー | あきやま旅館</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700&family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+    :root{
+        --bg:#f0f8ff;--bg2:#e2f1fb;--card:#fff;
+        --ocean:#0088cc;--teal:#00b4d8;
+        --grad:linear-gradient(135deg,#0088cc,#00b4d8);
+        --txt:#0d1b2a;--txt2:#3d5a73;--txt3:#8aabb8;
+        --border:rgba(0,136,204,0.15);
+        --shadow:0 4px 24px rgba(0,100,180,0.1);
+        --r:12px;--rl:16px;
+        --jp:'Noto Sans JP',sans-serif;--en:'Montserrat',sans-serif;
+    }
+    body{font-family:var(--jp);background:var(--bg);color:var(--txt);min-height:100vh;}
+    a{color:inherit;text-decoration:none;}
+
+    .nav{position:sticky;top:0;z-index:100;background:rgba(255,255,255,0.96);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);padding:0 40px;height:64px;display:flex;align-items:center;justify-content:space-between;}
+    .nav-back{font-family:var(--en);font-size:13px;font-weight:600;color:var(--ocean);display:flex;align-items:center;gap:6px;transition:opacity .2s;}
+    .nav-back:hover{opacity:.7;}
+    .nav-logo{font-family:var(--en);font-size:14px;font-weight:700;color:var(--txt);letter-spacing:2px;}
+    .nav-reserve{background:var(--grad);color:#fff;font-family:var(--en);font-size:12px;font-weight:700;letter-spacing:1px;padding:10px 22px;border-radius:50px;transition:opacity .2s;}
+    .nav-reserve:hover{opacity:.85;}
+
+    .main{max-width:980px;margin:0 auto;padding:48px 24px 80px;}
+    .page-head{margin-bottom:32px;}
+    .page-label{font-family:var(--en);font-size:11px;font-weight:700;letter-spacing:3px;color:var(--ocean);text-transform:uppercase;margin-bottom:8px;}
+    .page-title{font-size:28px;font-weight:700;color:var(--txt);margin-bottom:10px;}
+    .page-sub{font-size:14px;color:var(--txt2);line-height:1.8;}
+
+    /* LEGEND */
+    .legend{display:flex;gap:16px;flex-wrap:wrap;margin-bottom:24px;padding:16px 20px;background:#fff;border-radius:var(--r);box-shadow:var(--shadow);}
+    .leg{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--txt2);}
+    .leg-dot{width:16px;height:16px;border-radius:5px;flex-shrink:0;}
+    .leg-avail{background:#fff;border:1px solid var(--border);}
+    .leg-limited{background:rgba(246,166,35,0.25);border:1px solid rgba(246,166,35,0.5);}
+    .leg-full{background:rgba(229,82,82,0.15);border:1px solid rgba(229,82,82,0.4);}
+    .leg-group{background:rgba(180,0,0,0.15);border:1px solid rgba(180,0,0,0.4);}
+
+    /* CAL NAV */
+    .cal-nav{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;background:#fff;border-radius:var(--rl);padding:16px 24px;box-shadow:var(--shadow);}
+    .cal-month-label{font-family:var(--en);font-size:22px;font-weight:700;color:var(--txt);}
+    .cal-arrow{background:none;border:1px solid var(--border);border-radius:8px;width:40px;height:40px;cursor:pointer;color:var(--ocean);display:flex;align-items:center;justify-content:center;transition:all .2s;}
+    .cal-arrow:hover{background:var(--ocean);color:#fff;border-color:var(--ocean);}
+
+    /* GRID */
+    .cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:5px;margin-bottom:28px;}
+    .cal-hd{text-align:center;font-family:var(--en);font-size:11px;font-weight:700;color:var(--txt3);padding:10px 0;letter-spacing:1px;}
+    .cal-hd.sun{color:#e05252;}
+    .cal-hd.sat{color:var(--ocean);}
+
+    /* DAY */
+    .cal-day{border-radius:10px;padding:9px 7px;min-height:96px;display:flex;flex-direction:column;background:#fff;box-shadow:0 1px 4px rgba(0,0,0,0.06);transition:transform .15s,box-shadow .15s;}
+    .cal-day:hover:not(.empty):not(.past-day){transform:translateY(-2px);box-shadow:0 4px 12px rgba(0,100,180,0.15);}
+    .cal-day.empty{background:transparent;box-shadow:none;}
+    .cal-day.past-day{background:rgba(0,0,0,0.03);box-shadow:none;opacity:.55;}
+    .cal-day.is-today{outline:2px solid var(--ocean);outline-offset:-2px;}
+    .cal-day.is-limited{background:rgba(246,166,35,0.12);}
+    .cal-day.is-full{background:rgba(229,82,82,0.12);}
+    .cal-day.is-group{background:rgba(180,0,0,0.1);}
+
+    .day-num{font-family:var(--en);font-size:15px;font-weight:700;color:var(--txt);margin-bottom:7px;line-height:1;}
+    .cal-day.sun .day-num{color:#e05252;}
+    .cal-day.sat .day-num{color:var(--ocean);}
+    .cal-day.is-today .day-num{color:var(--ocean);}
+    .cal-day.is-group .day-num,.cal-day.is-full .day-num{color:#c53030;}
+
+    .room-row{display:flex;align-items:center;gap:4px;margin-bottom:4px;}
+    .room-lbl{font-size:10px;color:var(--txt3);flex-shrink:0;width:28px;line-height:1;}
+    .room-bar-bg{flex:1;height:5px;background:rgba(0,0,0,0.08);border-radius:3px;overflow:hidden;}
+    .room-bar{height:100%;border-radius:3px;}
+    .rb-ok{background:var(--grad);}
+    .rb-warn{background:#f6a623;}
+    .rb-none{background:#e05252;}
+    .room-cnt{font-size:11px;font-weight:700;flex-shrink:0;min-width:26px;text-align:right;}
+    .rc-ok{color:var(--ocean);}
+    .rc-warn{color:#d97706;}
+    .rc-none{color:#c53030;}
+
+    .group-badge{margin-top:auto;text-align:center;font-size:10px;font-weight:700;color:#b30000;letter-spacing:.5px;background:rgba(180,0,0,0.1);border-radius:4px;padding:3px 4px;}
+
+    /* RESERVE */
+    .reserve-box{text-align:center;background:#fff;border-radius:var(--rl);padding:40px 24px;box-shadow:var(--shadow);}
+    .reserve-title{font-size:20px;font-weight:700;margin-bottom:8px;}
+    .reserve-sub{font-size:14px;color:var(--txt2);margin-bottom:24px;line-height:1.7;}
+    .btn-rsv{display:inline-flex;align-items:center;gap:10px;background:var(--grad);color:#fff;font-family:var(--en);font-size:14px;font-weight:700;letter-spacing:1px;padding:16px 44px;border-radius:50px;transition:all .2s;box-shadow:0 4px 20px rgba(0,136,204,0.3);}
+    .btn-rsv:hover{opacity:.9;transform:translateY(-2px);}
+    .tel-note{margin-top:16px;font-size:13px;color:var(--txt3);}
+    .tel-note a{color:var(--ocean);font-weight:600;}
+
+    @media(max-width:768px){
+        .nav{padding:0 20px;}
+        .main{padding:32px 16px 60px;}
+        .cal-grid{gap:3px;}
+        .cal-day{min-height:78px;padding:7px 5px;}
+        .day-num{font-size:13px;}
+        .room-lbl{width:24px;}
+    }
+    @media(max-width:480px){
+        .cal-day{min-height:64px;padding:5px 4px;}
+        .room-bar-bg{display:none;}
+        .room-cnt{min-width:auto;}
+        .cal-month-label{font-size:17px;}
+    }
+</style>
+</head>
+<body>
+
+<nav class="nav">
+    <a href="index.html" class="nav-back">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M19 12H5"/><path d="M12 5l-7 7 7 7"/></svg>
+        TOP に戻る
+    </a>
+    <span class="nav-logo">AKIYAMA RYOKAN</span>
+    <a href="https://reserva.be/akiyamaryokan" target="_blank" class="nav-reserve">予約する</a>
+</nav>
+
+<main class="main">
+    <div class="page-head">
+        <p class="page-label">Availability Calendar</p>
+        <h1 class="page-title">空き状況カレンダー</h1>
+        <p class="page-sub">6畳（全5室）・4畳半（全3室）の空き状況です。<br>赤の日程は団体様の御利用または満室のため個人のご予約をお受けできない場合があります。</p>
+    </div>
+
+    <div class="legend">
+        <div class="leg"><div class="leg-dot leg-avail"></div>空きあり</div>
+        <div class="leg"><div class="leg-dot leg-limited"></div>残りわずか（1室）</div>
+        <div class="leg"><div class="leg-dot leg-full"></div>満室</div>
+        <div class="leg"><div class="leg-dot leg-group"></div>団体予約あり</div>
+    </div>
+
+    <div class="cal-nav">
+        <button class="cal-arrow" id="cal-prev">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M15 18l-6-6 6-6"/></svg>
+        </button>
+        <span class="cal-month-label" id="cal-label"></span>
+        <button class="cal-arrow" id="cal-next">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M9 18l6-6-6-6"/></svg>
+        </button>
+    </div>
+
+    <div class="cal-grid" id="cal-grid"></div>
+
+    <div class="reserve-box">
+        <p class="reserve-title">ご予約はこちら</p>
+        <p class="reserve-sub">空きのある日程でのご予約をお願いします。<br>不明な点はお電話にてご確認ください。</p>
+        <a href="https://reserva.be/akiyamaryokan" target="_blank" class="btn-rsv">
+            reserva.be で予約する
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </a>
+        <p class="tel-note">お電話でのご予約・お問い合わせ：<a href="tel:09063983964">090-6398-3964</a></p>
+    </div>
+</main>
+
+<script src="config.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<script>
+(async function(){
+    const TOTAL={'6jo':5,'4jo':3};
+    const DAY=['日','月','火','水','木','金','土'];
+    const today=new Date();
+    const todayStr=today.toISOString().slice(0,10);
+    let cY=today.getFullYear(),cM=today.getMonth();
+    let groupRanges=[],roomBookings=[];
+
+    try{
+        if(typeof SUPABASE_URL!=='undefined'&&!SUPABASE_URL.startsWith('YOUR_')){
+            const sb=supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY);
+            const[g,r]=await Promise.all([
+                sb.from('group_bookings').select('start_date,end_date'),
+                sb.from('room_bookings').select('room_type,start_date,end_date,rooms_booked')
+            ]);
+            if(g.data) groupRanges=g.data;
+            if(r.data) roomBookings=r.data;
+        }
+    }catch(e){}
+
+    function isGroup(ds){return groupRanges.some(r=>ds>=r.start_date&&ds<=r.end_date);}
+
+    function getBooked(ds){
+        const res={'6jo':0,'4jo':0};
+        roomBookings.forEach(b=>{
+            if(ds>=b.start_date&&ds<=b.end_date){
+                res[b.room_type]=(res[b.room_type]||0)+(b.rooms_booked||1);
+            }
+        });
+        return res;
+    }
+
+    function renderCal(){
+        document.getElementById('cal-label').textContent=`${cY}年 ${cM+1}月`;
+        const grid=document.getElementById('cal-grid');
+        let html='';
+        DAY.forEach((d,i)=>{
+            html+=`<div class="cal-hd${i===0?' sun':i===6?' sat':''}">${d}</div>`;
+        });
+        const firstDow=new Date(cY,cM,1).getDay();
+        const dim=new Date(cY,cM+1,0).getDate();
+        for(let i=0;i<firstDow;i++) html+='<div class="cal-day empty"></div>';
+        for(let d=1;d<=dim;d++){
+            const ds=`${cY}-${String(cM+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+            const dow=new Date(cY,cM,d).getDay();
+            const isPast=ds<todayStr;
+            const isToday=ds===todayStr;
+            const grp=isGroup(ds);
+            const booked=getBooked(ds);
+            const a6=Math.max(0,TOTAL['6jo']-booked['6jo']);
+            const a4=Math.max(0,TOTAL['4jo']-booked['4jo']);
+            const isFull=a6===0&&a4===0;
+            const isLim=(a6<=1||a4<=1)&&!isFull;
+
+            const cls=['cal-day'];
+            if(isPast) cls.push('past-day');
+            if(isToday) cls.push('is-today');
+            if(dow===0) cls.push('sun');
+            if(dow===6) cls.push('sat');
+            if(!isPast){
+                if(grp) cls.push('is-group');
+                else if(isFull) cls.push('is-full');
+                else if(isLim) cls.push('is-limited');
+            }
+
+            function bc(a,t){return a===0?'rb-none':a/t<=0.4?'rb-warn':'rb-ok';}
+            function cc(a){return a===0?'rc-none':a===1?'rc-warn':'rc-ok';}
+            const p6=((a6/TOTAL['6jo'])*100).toFixed(0);
+            const p4=((a4/TOTAL['4jo'])*100).toFixed(0);
+
+            if(grp){
+                html+=`<div class="${cls.join(' ')}">
+                    <span class="day-num">${d}</span>
+                    <div class="group-badge">団体予約あり</div>
+                </div>`;
+            }else{
+                html+=`<div class="${cls.join(' ')}">
+                    <span class="day-num">${d}</span>
+                    <div class="room-row">
+                        <span class="room-lbl">6畳</span>
+                        <div class="room-bar-bg"><div class="room-bar ${bc(a6,TOTAL['6jo'])}" style="width:${p6}%"></div></div>
+                        <span class="room-cnt ${cc(a6)}">${a6}/${TOTAL['6jo']}</span>
+                    </div>
+                    <div class="room-row">
+                        <span class="room-lbl">4畳半</span>
+                        <div class="room-bar-bg"><div class="room-bar ${bc(a4,TOTAL['4jo'])}" style="width:${p4}%"></div></div>
+                        <span class="room-cnt ${cc(a4)}">${a4}/${TOTAL['4jo']}</span>
+                    </div>
+                </div>`;
+            }
+        }
+        grid.innerHTML=html;
+    }
+
+    document.getElementById('cal-prev').addEventListener('click',()=>{cM--;if(cM<0){cM=11;cY--;}renderCal();});
+    document.getElementById('cal-next').addEventListener('click',()=>{cM++;if(cM>11){cM=0;cY++;}renderCal();});
+    renderCal();
+})();
+</script>
+</body>
+</html>

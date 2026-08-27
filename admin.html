@@ -165,6 +165,55 @@
             <div id="post-list"><p class="list-loading">読み込み中...</p></div>
         </div>
 
+        <!-- ROOM BOOKING FORM -->
+        <div class="form-card" style="margin-top:48px;">
+            <h2>個室予約管理（空き状況カレンダー用）</h2>
+            <p style="font-size:13px;color:var(--txt3);margin:-8px 0 20px;">reserva.beで受けた予約をここに入力すると、空き状況カレンダーに残室数が反映されます。</p>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>部屋タイプ</label>
+                    <select id="rb-type" style="width:100%;padding:12px 14px;border:1px solid var(--border);border-radius:var(--r);font-family:var(--jp);font-size:14px;color:var(--txt);background:#fff;outline:none;">
+                        <option value="6jo">6畳（全5室）</option>
+                        <option value="4jo">4畳半（全3室）</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>予約室数</label>
+                    <input type="number" id="rb-cnt" value="1" min="1" max="5" style="width:100%;padding:12px 14px;border:1px solid var(--border);border-radius:var(--r);font-family:var(--jp);font-size:14px;color:var(--txt);background:#fff;outline:none;">
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>チェックイン日</label>
+                    <input type="date" id="rb-start">
+                </div>
+                <div class="form-group">
+                    <label>チェックアウト日</label>
+                    <input type="date" id="rb-end">
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>お客様名（任意）</label>
+                    <input type="text" id="rb-guest" placeholder="例：田中様">
+                </div>
+                <div class="form-group">
+                    <label>メモ（任意）</label>
+                    <input type="text" id="rb-notes" placeholder="例：素泊まり">
+                </div>
+            </div>
+            <div class="form-actions">
+                <button class="btn-post" onclick="addRoomBooking()">予約を追加</button>
+            </div>
+            <p class="post-msg" id="rb-msg"></p>
+        </div>
+
+        <!-- ROOM BOOKING LIST -->
+        <div class="list-card">
+            <h2>個室予約一覧</h2>
+            <div id="rb-list"><p class="list-loading">読み込み中...</p></div>
+        </div>
+
         <!-- GROUP BOOKING FORM -->
         <div class="form-card" style="margin-top:48px;">
             <h2>団体予約カレンダー管理</h2>
@@ -246,6 +295,7 @@ function showAdmin(user){
     document.getElementById('screen-admin').style.display='block';
     loadPosts();
     loadGroupBookings();
+    loadRoomBookings();
 }
 
 async function savePost(){
@@ -372,6 +422,59 @@ async function loadGroupBookings(){
             </div>
         </div>
     `).join('');
+}
+
+async function addRoomBooking(){
+    const type=document.getElementById('rb-type').value;
+    const start=document.getElementById('rb-start').value;
+    const end=document.getElementById('rb-end').value;
+    const cnt=parseInt(document.getElementById('rb-cnt').value)||1;
+    const guest=document.getElementById('rb-guest').value.trim();
+    const notes=document.getElementById('rb-notes').value.trim();
+    const msgEl=document.getElementById('rb-msg');
+    msgEl.className='post-msg';msgEl.textContent='';
+    if(!start||!end){msgEl.className='post-msg ng';msgEl.textContent='日程を入力してください。';return;}
+    if(end<start){msgEl.className='post-msg ng';msgEl.textContent='チェックアウト日はチェックイン日以降にしてください。';return;}
+    const{error}=await sb.from('room_bookings').insert({room_type:type,start_date:start,end_date:end,rooms_booked:cnt,guest_name:guest||null,notes:notes||null});
+    if(error){msgEl.className='post-msg ng';msgEl.textContent='エラー: '+error.message;return;}
+    msgEl.className='post-msg ok';msgEl.textContent='追加しました！';
+    document.getElementById('rb-start').value='';
+    document.getElementById('rb-end').value='';
+    document.getElementById('rb-cnt').value='1';
+    document.getElementById('rb-guest').value='';
+    document.getElementById('rb-notes').value='';
+    loadRoomBookings();
+    setTimeout(()=>{msgEl.textContent='';},3000);
+}
+
+async function loadRoomBookings(){
+    const listEl=document.getElementById('rb-list');
+    const{data,error}=await sb.from('room_bookings').select('*').order('start_date',{ascending:true});
+    if(error||!data||data.length===0){listEl.innerHTML='<p class="list-empty">個室予約はまだありません。</p>';return;}
+    function fd(d){const[y,m,day]=d.split('-');return`${y}年${parseInt(m)}月${parseInt(day)}日`;}
+    function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+    const typeLabel={'6jo':'6畳','4jo':'4畳半'};
+    listEl.innerHTML=data.map(b=>`
+        <div class="post-row">
+            <div class="post-info">
+                <div class="post-title-row">
+                    <span class="post-title">${typeLabel[b.room_type]||b.room_type} &nbsp;×${b.rooms_booked}室</span>
+                </div>
+                <p class="post-date">${fd(b.start_date)} 〜 ${fd(b.end_date)}${b.guest_name?' · '+esc(b.guest_name):''}</p>
+                ${b.notes?`<p class="post-preview">${esc(b.notes)}</p>`:''}
+            </div>
+            <div class="post-btns">
+                <button class="btn-sm btn-del" onclick="deleteRoomBooking('${b.id}')">削除</button>
+            </div>
+        </div>
+    `).join('');
+}
+
+async function deleteRoomBooking(id){
+    if(!confirm('この個室予約を削除しますか？'))return;
+    const{error}=await sb.from('room_bookings').delete().eq('id',id);
+    if(error){alert('削除に失敗しました: '+error.message);return;}
+    loadRoomBookings();
 }
 
 async function deleteGroupBooking(id){
