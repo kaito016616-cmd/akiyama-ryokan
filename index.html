@@ -816,7 +816,7 @@
     }catch(e){}
 
     function isBlocked(ds){
-        return blockedRanges.some(r=>ds>=r.start_date&&ds<=r.end_date);
+        return blockedRanges.some(r=>ds>=r.start_date&&ds<r.end_date);
     }
 
     function renderCal(){

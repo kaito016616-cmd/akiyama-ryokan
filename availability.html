@@ -182,12 +182,12 @@
         }
     }catch(e){}
 
-    function isGroup(ds){return groupRanges.some(r=>ds>=r.start_date&&ds<=r.end_date);}
+    function isGroup(ds){return groupRanges.some(r=>ds>=r.start_date&&ds<r.end_date);}
 
     function getBooked(ds){
         const res={'6jo':0,'4jo':0};
         roomBookings.forEach(b=>{
-            if(ds>=b.start_date&&ds<=b.end_date){
+            if(ds>=b.start_date&&ds<b.end_date){
                 res[b.room_type]=(res[b.room_type]||0)+(b.rooms_booked||1);
             }
         });
