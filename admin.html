@@ -84,6 +84,7 @@
         .list-loading{padding:48px 28px;text-align:center;color:var(--txt3);font-size:14px;}
 
         #screen-admin{display:none;}
+        .gb-dates{font-size:14px;font-weight:600;color:var(--txt);}
 
         @media(max-width:600px){
             .login-box{padding:36px 24px;}
@@ -164,6 +165,42 @@
             <div id="post-list"><p class="list-loading">読み込み中...</p></div>
         </div>
 
+        <!-- GROUP BOOKING FORM -->
+        <div class="form-card" style="margin-top:48px;">
+            <h2>団体予約カレンダー管理</h2>
+            <p style="font-size:13px;color:var(--txt3);margin:-8px 0 20px;">追加した日程はトップページのカレンダーに「団体予約あり」として表示されます。</p>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>チェックイン日</label>
+                    <input type="date" id="gb-start">
+                </div>
+                <div class="form-group">
+                    <label>チェックアウト日</label>
+                    <input type="date" id="gb-end">
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>グループ名（任意）</label>
+                    <input type="text" id="gb-name" placeholder="例：〇〇大学サークル">
+                </div>
+                <div class="form-group">
+                    <label>メモ（任意）</label>
+                    <input type="text" id="gb-notes" placeholder="例：7名・素泊まり">
+                </div>
+            </div>
+            <div class="form-actions">
+                <button class="btn-post" onclick="addGroupBooking()">カレンダーに追加</button>
+            </div>
+            <p class="post-msg" id="gb-msg"></p>
+        </div>
+
+        <!-- GROUP BOOKING LIST -->
+        <div class="list-card">
+            <h2>団体予約一覧</h2>
+            <div id="gb-list"><p class="list-loading">読み込み中...</p></div>
+        </div>
+
     </div>
 </div>
 
@@ -208,6 +245,7 @@ function showAdmin(user){
     document.getElementById('screen-login').style.display='none';
     document.getElementById('screen-admin').style.display='block';
     loadPosts();
+    loadGroupBookings();
 }
 
 async function savePost(){
@@ -295,6 +333,52 @@ async function deletePost(id){
     const { error } = await sb.from('news').delete().eq('id', id);
     if(error){ alert('削除に失敗しました: '+error.message); return; }
     loadPosts();
+}
+
+async function addGroupBooking(){
+    const start=document.getElementById('gb-start').value;
+    const end=document.getElementById('gb-end').value;
+    const name=document.getElementById('gb-name').value.trim()||'団体予約';
+    const notes=document.getElementById('gb-notes').value.trim();
+    const msgEl=document.getElementById('gb-msg');
+    msgEl.className='post-msg';msgEl.textContent='';
+    if(!start||!end){msgEl.className='post-msg ng';msgEl.textContent='日程を入力してください。';return;}
+    if(end<start){msgEl.className='post-msg ng';msgEl.textContent='チェックアウト日はチェックイン日以降にしてください。';return;}
+    const{error}=await sb.from('group_bookings').insert({start_date:start,end_date:end,group_name:name,notes:notes||null});
+    if(error){msgEl.className='post-msg ng';msgEl.textContent='エラー: '+error.message;return;}
+    msgEl.className='post-msg ok';msgEl.textContent='追加しました！';
+    document.getElementById('gb-start').value='';
+    document.getElementById('gb-end').value='';
+    document.getElementById('gb-name').value='';
+    document.getElementById('gb-notes').value='';
+    loadGroupBookings();
+    setTimeout(()=>{msgEl.textContent='';},3000);
+}
+
+async function loadGroupBookings(){
+    const listEl=document.getElementById('gb-list');
+    const{data,error}=await sb.from('group_bookings').select('*').order('start_date',{ascending:true});
+    if(error||!data||data.length===0){listEl.innerHTML='<p class="list-empty">団体予約はまだありません。</p>';return;}
+    function fd(d){const[y,m,day]=d.split('-');return`${y}年${parseInt(m)}月${parseInt(day)}日`;}
+    function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+    listEl.innerHTML=data.map(b=>`
+        <div class="post-row">
+            <div class="post-info">
+                <p class="gb-dates">${fd(b.start_date)} 〜 ${fd(b.end_date)}</p>
+                <p class="post-date">${esc(b.group_name)}${b.notes?' · '+esc(b.notes):''}</p>
+            </div>
+            <div class="post-btns">
+                <button class="btn-sm btn-del" onclick="deleteGroupBooking('${b.id}')">削除</button>
+            </div>
+        </div>
+    `).join('');
+}
+
+async function deleteGroupBooking(id){
+    if(!confirm('この団体予約をカレンダーから削除しますか？'))return;
+    const{error}=await sb.from('group_bookings').delete().eq('id',id);
+    if(error){alert('削除に失敗しました: '+error.message);return;}
+    loadGroupBookings();
 }
 </script>
 </body>

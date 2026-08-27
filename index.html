@@ -246,6 +246,34 @@
         .fi { opacity:0; transform:translateY(28px); transition:opacity .65s ease, transform .65s ease; }
         .fi.vis { opacity:1; transform:translateY(0); }
 
+        /* CALENDAR */
+        .cal-sec{background:var(--bg2);}
+        .cal-wrap{max-width:700px;margin:0 auto;}
+        .cal-nav{display:flex;align-items:center;justify-content:space-between;margin-bottom:28px;}
+        .cal-month-label{font-family:var(--en);font-size:20px;font-weight:700;color:var(--txt);}
+        .cal-arrow{background:none;border:1px solid var(--border);border-radius:8px;width:38px;height:38px;cursor:pointer;color:var(--ocean);display:flex;align-items:center;justify-content:center;transition:all .2s;}
+        .cal-arrow:hover{background:var(--ocean);color:#fff;border-color:var(--ocean);}
+        .cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-bottom:20px;}
+        .cal-hd{text-align:center;font-family:var(--en);font-size:11px;font-weight:700;color:var(--txt3);padding:8px 2px;letter-spacing:1px;}
+        .cal-hd.sun{color:#e05252;}
+        .cal-hd.sat{color:var(--ocean);}
+        .cal-day{min-height:44px;border-radius:8px;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:14px;font-weight:500;color:var(--txt);background:#fff;}
+        .cal-day.empty{background:transparent;}
+        .cal-day.past{color:var(--txt3);background:rgba(0,0,0,0.04);}
+        .cal-day.today{background:var(--grad);color:#fff;font-weight:700;}
+        .cal-day.blocked{background:rgba(229,82,82,0.13);color:#c53030;}
+        .cal-x{font-size:9px;line-height:1.2;color:#c53030;}
+        .cal-day.sun:not(.today){color:#e05252;}
+        .cal-day.sat:not(.today){color:var(--ocean);}
+        .cal-day.blocked.sun,.cal-day.blocked.sat{color:#c53030;}
+        .cal-legend{display:flex;gap:20px;justify-content:center;flex-wrap:wrap;margin-bottom:16px;}
+        .cal-leg{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--txt2);}
+        .cal-leg-dot{width:14px;height:14px;border-radius:4px;flex-shrink:0;}
+        .leg-avail{background:#fff;border:1px solid var(--border);}
+        .leg-blocked{background:rgba(229,82,82,0.2);border:1px solid rgba(229,82,82,0.4);}
+        .leg-today{background:var(--grad);}
+        .cal-note{text-align:center;font-size:13px;color:var(--txt3);line-height:1.7;}
+
         /* RESPONSIVE */
         @media(max-width:768px) {
             .sec { padding:68px 0; }
@@ -633,6 +661,35 @@
     </div>
 </section>
 
+<!-- CALENDAR -->
+<section class="sec cal-sec" id="calendar">
+    <div class="wrap">
+        <div class="fi">
+            <p class="sec-label">Availability</p>
+            <h2 class="sec-title">予約カレンダー</h2>
+            <div class="bar"></div>
+        </div>
+        <div class="cal-wrap fi">
+            <div class="cal-nav">
+                <button class="cal-arrow" id="cal-prev">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M15 18l-6-6 6-6"/></svg>
+                </button>
+                <span class="cal-month-label" id="cal-label"></span>
+                <button class="cal-arrow" id="cal-next">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M9 18l6-6-6-6"/></svg>
+                </button>
+            </div>
+            <div class="cal-grid" id="cal-grid"></div>
+            <div class="cal-legend">
+                <div class="cal-leg"><div class="cal-leg-dot leg-avail"></div>空きあり</div>
+                <div class="cal-leg"><div class="cal-leg-dot leg-blocked"></div>団体予約あり（個人不可）</div>
+                <div class="cal-leg"><div class="cal-leg-dot leg-today"></div>今日</div>
+            </div>
+            <p class="cal-note">赤い日程は団体のお客様の御利用のため、個人のご予約をお受けできない場合があります。<br>ご不明な点はお電話（090-6398-3964）にてお問い合わせください。</p>
+        </div>
+    </div>
+</section>
+
 <!-- CTA -->
 <section class="sec cta" id="reserve">
     <div class="wrap cta-ct fi">
@@ -661,6 +718,7 @@
                     <li><a href="#concept">コンセプト</a></li>
                     <li><a href="#rooms">お部屋</a></li>
                     <li><a href="#price">料金</a></li>
+                    <li><a href="#calendar">予約カレンダー</a></li>
                     <li><a href="#access">アクセス</a></li>
                     <li><a href="#faq">よくある質問</a></li>
                 </ul>
@@ -731,6 +789,62 @@
             <div><p class="news-ttl">${esc(p.title)}</p><p class="news-body">${esc(p.content)}</p></div>
         </div>`).join('');
     }catch(e){list.innerHTML='<p class="news-empty">現在お知らせはありません。</p>';}
+})();
+</script>
+
+<script>
+(async function(){
+    const DAY=['日','月','火','水','木','金','土'];
+    let blockedRanges=[];
+    const today=new Date();
+    const todayStr=today.toISOString().slice(0,10);
+    let cY=today.getFullYear(), cM=today.getMonth();
+
+    try{
+        if(typeof SUPABASE_URL!=='undefined'&&!SUPABASE_URL.startsWith('YOUR_')){
+            const sb=supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY);
+            const{data}=await sb.from('group_bookings').select('start_date,end_date');
+            if(data) blockedRanges=data;
+        }
+    }catch(e){}
+
+    function isBlocked(ds){
+        return blockedRanges.some(r=>ds>=r.start_date&&ds<=r.end_date);
+    }
+
+    function renderCal(){
+        document.getElementById('cal-label').textContent=`${cY}年 ${cM+1}月`;
+        const grid=document.getElementById('cal-grid');
+        let html='';
+        DAY.forEach((d,i)=>{
+            html+=`<div class="cal-hd${i===0?' sun':i===6?' sat':''}">${d}</div>`;
+        });
+        const firstDow=new Date(cY,cM,1).getDay();
+        const dim=new Date(cY,cM+1,0).getDate();
+        for(let i=0;i<firstDow;i++) html+='<div class="cal-day empty"></div>';
+        for(let d=1;d<=dim;d++){
+            const ds=`${cY}-${String(cM+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+            const dow=new Date(cY,cM,d).getDay();
+            const cls=['cal-day'];
+            if(ds===todayStr) cls.push('today');
+            else if(ds<todayStr) cls.push('past');
+            const blk=isBlocked(ds);
+            if(blk) cls.push('blocked');
+            if(dow===0) cls.push('sun');
+            if(dow===6) cls.push('sat');
+            html+=`<div class="${cls.join(' ')}">${d}${blk?'<span class="cal-x">×</span>':''}</div>`;
+        }
+        grid.innerHTML=html;
+    }
+
+    document.getElementById('cal-prev').addEventListener('click',()=>{
+        cM--;if(cM<0){cM=11;cY--;}renderCal();
+    });
+    document.getElementById('cal-next').addEventListener('click',()=>{
+        cM++;if(cM>11){cM=0;cY++;}renderCal();
+    });
+
+    renderCal();
 })();
 </script>
 </body>
