@@ -250,6 +250,42 @@
             <div id="gb-list"><p class="list-loading">読み込み中...</p></div>
         </div>
 
+        <!-- CLOSED DAYS FORM -->
+        <div class="form-card" style="margin-top:48px;">
+            <h2>休館日・メンテナンス日管理</h2>
+            <p style="font-size:13px;color:var(--txt3);margin:-8px 0 20px;">設定した日程はカレンダーにグレーで「休館日」などと表示され、予約不可であることをお客様に伝えます。</p>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>開始日</label>
+                    <input type="date" id="cd-start">
+                </div>
+                <div class="form-group">
+                    <label>終了日</label>
+                    <input type="date" id="cd-end">
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>理由・表示ラベル</label>
+                    <input type="text" id="cd-reason" placeholder="例：休館日 / メンテナンス / 年末年始" value="休館日">
+                </div>
+                <div class="form-group">
+                    <label>メモ（任意）</label>
+                    <input type="text" id="cd-notes" placeholder="例：設備点検のため">
+                </div>
+            </div>
+            <div class="form-actions">
+                <button class="btn-post" onclick="addClosedDay()">カレンダーに追加</button>
+            </div>
+            <p class="post-msg" id="cd-msg"></p>
+        </div>
+
+        <!-- CLOSED DAYS LIST -->
+        <div class="list-card">
+            <h2>休館日一覧</h2>
+            <div id="cd-list"><p class="list-loading">読み込み中...</p></div>
+        </div>
+
     </div>
 </div>
 
@@ -296,6 +332,7 @@ function showAdmin(user){
     loadPosts();
     loadGroupBookings();
     loadRoomBookings();
+    loadClosedDays();
 }
 
 async function savePost(){
@@ -482,6 +519,52 @@ async function deleteGroupBooking(id){
     const{error}=await sb.from('group_bookings').delete().eq('id',id);
     if(error){alert('削除に失敗しました: '+error.message);return;}
     loadGroupBookings();
+}
+
+async function addClosedDay(){
+    const start=document.getElementById('cd-start').value;
+    const end=document.getElementById('cd-end').value;
+    const reason=document.getElementById('cd-reason').value.trim()||'休館日';
+    const notes=document.getElementById('cd-notes').value.trim();
+    const msgEl=document.getElementById('cd-msg');
+    msgEl.className='post-msg';msgEl.textContent='';
+    if(!start||!end){msgEl.className='post-msg ng';msgEl.textContent='日程を入力してください。';return;}
+    if(end<start){msgEl.className='post-msg ng';msgEl.textContent='終了日は開始日以降にしてください。';return;}
+    const{error}=await sb.from('closed_days').insert({start_date:start,end_date:end,reason,notes:notes||null});
+    if(error){msgEl.className='post-msg ng';msgEl.textContent='エラー: '+error.message;return;}
+    msgEl.className='post-msg ok';msgEl.textContent='追加しました！';
+    document.getElementById('cd-start').value='';
+    document.getElementById('cd-end').value='';
+    document.getElementById('cd-reason').value='休館日';
+    document.getElementById('cd-notes').value='';
+    loadClosedDays();
+    setTimeout(()=>{msgEl.textContent='';},3000);
+}
+
+async function loadClosedDays(){
+    const listEl=document.getElementById('cd-list');
+    const{data,error}=await sb.from('closed_days').select('*').order('start_date',{ascending:true});
+    if(error||!data||data.length===0){listEl.innerHTML='<p class="list-empty">休館日の登録はまだありません。</p>';return;}
+    function fd(d){const[y,m,day]=d.split('-');return`${y}年${parseInt(m)}月${parseInt(day)}日`;}
+    function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+    listEl.innerHTML=data.map(b=>`
+        <div class="post-row">
+            <div class="post-info">
+                <p class="gb-dates">${fd(b.start_date)}${b.start_date!==b.end_date?' 〜 '+fd(b.end_date):''}</p>
+                <p class="post-date">${esc(b.reason)}${b.notes?' · '+esc(b.notes):''}</p>
+            </div>
+            <div class="post-btns">
+                <button class="btn-sm btn-del" onclick="deleteClosedDay('${b.id}')">削除</button>
+            </div>
+        </div>
+    `).join('');
+}
+
+async function deleteClosedDay(id){
+    if(!confirm('この休館日をカレンダーから削除しますか？'))return;
+    const{error}=await sb.from('closed_days').delete().eq('id',id);
+    if(error){alert('削除に失敗しました: '+error.message);return;}
+    loadClosedDays();
 }
 </script>
 </body>

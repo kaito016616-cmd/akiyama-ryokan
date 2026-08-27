@@ -43,6 +43,7 @@
     .leg-limited{background:rgba(246,166,35,0.25);border:1px solid rgba(246,166,35,0.5);}
     .leg-full{background:rgba(229,82,82,0.15);border:1px solid rgba(229,82,82,0.4);}
     .leg-group{background:rgba(180,0,0,0.15);border:1px solid rgba(180,0,0,0.4);}
+    .leg-closed{background:rgba(80,80,80,0.2);border:1px solid rgba(80,80,80,0.4);}
 
     /* CAL NAV */
     .cal-nav{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;background:#fff;border-radius:var(--rl);padding:16px 24px;box-shadow:var(--shadow);}
@@ -65,12 +66,15 @@
     .cal-day.is-limited{background:rgba(246,166,35,0.12);}
     .cal-day.is-full{background:rgba(229,82,82,0.12);}
     .cal-day.is-group{background:rgba(180,0,0,0.1);}
+    .cal-day.is-closed{background:rgba(80,80,80,0.12);}
 
     .day-num{font-family:var(--en);font-size:15px;font-weight:700;color:var(--txt);margin-bottom:7px;line-height:1;}
     .cal-day.sun .day-num{color:#e05252;}
     .cal-day.sat .day-num{color:var(--ocean);}
     .cal-day.is-today .day-num{color:var(--ocean);}
     .cal-day.is-group .day-num,.cal-day.is-full .day-num{color:#c53030;}
+    .cal-day.is-closed .day-num{color:#555;}
+    .closed-badge{margin-top:auto;text-align:center;font-size:10px;font-weight:700;color:#555;letter-spacing:.5px;background:rgba(80,80,80,0.12);border-radius:4px;padding:3px 4px;}
 
     .room-row{display:flex;align-items:center;gap:4px;margin-bottom:4px;}
     .room-lbl{font-size:10px;color:var(--txt3);flex-shrink:0;width:28px;line-height:1;}
@@ -134,6 +138,7 @@
         <div class="leg"><div class="leg-dot leg-limited"></div>残りわずか（1室）</div>
         <div class="leg"><div class="leg-dot leg-full"></div>満室</div>
         <div class="leg"><div class="leg-dot leg-group"></div>団体予約あり</div>
+        <div class="leg"><div class="leg-dot leg-closed"></div>休館日・メンテナンス</div>
     </div>
 
     <div class="cal-nav">
@@ -168,20 +173,23 @@
     const today=new Date();
     const todayStr=today.toISOString().slice(0,10);
     let cY=today.getFullYear(),cM=today.getMonth();
-    let groupRanges=[],roomBookings=[];
+    let groupRanges=[],roomBookings=[],closedRanges=[];
 
     try{
         if(typeof SUPABASE_URL!=='undefined'&&!SUPABASE_URL.startsWith('YOUR_')){
             const sb=supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY);
-            const[g,r]=await Promise.all([
+            const[g,r,c]=await Promise.all([
                 sb.from('group_bookings').select('start_date,end_date'),
-                sb.from('room_bookings').select('room_type,start_date,end_date,rooms_booked')
+                sb.from('room_bookings').select('room_type,start_date,end_date,rooms_booked'),
+                sb.from('closed_days').select('start_date,end_date,reason')
             ]);
             if(g.data) groupRanges=g.data;
             if(r.data) roomBookings=r.data;
+            if(c.data) closedRanges=c.data;
         }
     }catch(e){}
 
+    function getClosed(ds){return closedRanges.find(r=>ds>=r.start_date&&ds<=r.end_date)||null;}
     function isGroup(ds){return groupRanges.some(r=>ds>=r.start_date&&ds<r.end_date);}
 
     function getBooked(ds){
@@ -216,13 +224,15 @@
             const isFull=a6===0&&a4===0;
             const isLim=(a6<=1||a4<=1)&&!isFull;
 
+            const closed=getClosed(ds);
             const cls=['cal-day'];
             if(isPast) cls.push('past-day');
             if(isToday) cls.push('is-today');
             if(dow===0) cls.push('sun');
             if(dow===6) cls.push('sat');
             if(!isPast){
-                if(grp) cls.push('is-group');
+                if(closed) cls.push('is-closed');
+                else if(grp) cls.push('is-group');
                 else if(isFull) cls.push('is-full');
                 else if(isLim) cls.push('is-limited');
             }
@@ -232,7 +242,12 @@
             const p6=((a6/TOTAL['6jo'])*100).toFixed(0);
             const p4=((a4/TOTAL['4jo'])*100).toFixed(0);
 
-            if(grp){
+            if(closed){
+                html+=`<div class="${cls.join(' ')}">
+                    <span class="day-num">${d}</span>
+                    <div class="closed-badge">${closed.reason||'休館日'}</div>
+                </div>`;
+            }else if(grp){
                 html+=`<div class="${cls.join(' ')}">
                     <span class="day-num">${d}</span>
                     <div class="group-badge">団体予約あり</div>
