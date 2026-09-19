@@ -99,6 +99,24 @@
 </head>
 <body>
 
+<!-- PASSWORD RESET -->
+<div id="screen-reset" class="login-wrap" style="display:none;">
+    <div class="login-box">
+        <p class="login-logo">AKIYAMA RYOKAN</p>
+        <h1 class="login-title">新しいパスワードを設定</h1>
+        <div class="form-group">
+            <label for="r-pass">新しいパスワード</label>
+            <input type="password" id="r-pass" placeholder="8文字以上" autocomplete="new-password">
+        </div>
+        <div class="form-group">
+            <label for="r-pass2">パスワード（確認）</label>
+            <input type="password" id="r-pass2" placeholder="もう一度入力" autocomplete="new-password">
+        </div>
+        <button class="btn-primary" onclick="doReset()">パスワードを更新</button>
+        <p class="err-msg" id="r-err"></p>
+    </div>
+</div>
+
 <!-- LOGIN -->
 <div id="screen-login" class="login-wrap">
     <div class="login-box">
@@ -311,12 +329,35 @@ window.addEventListener('DOMContentLoaded', async () => {
         return;
     }
     sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    sb.auth.onAuthStateChange((event, session) => {
+        if(event === 'PASSWORD_RECOVERY'){
+            document.getElementById('screen-login').style.display = 'none';
+            document.getElementById('screen-reset').style.display = 'flex';
+        }
+    });
+
     const { data: { session } } = await sb.auth.getSession();
-    if(session){ showAdmin(session.user); }
+    if(session && session.user){ showAdmin(session.user); }
 
     // 今日の日付をデフォルト設定
     document.getElementById('p-date').value = new Date().toISOString().slice(0,10);
 });
+
+async function doReset(){
+    const pass  = document.getElementById('r-pass').value;
+    const pass2 = document.getElementById('r-pass2').value;
+    const errEl = document.getElementById('r-err');
+    errEl.textContent = '';
+    if(pass.length < 8){ errEl.textContent='パスワードは8文字以上にしてください。'; return; }
+    if(pass !== pass2){ errEl.textContent='パスワードが一致しません。'; return; }
+    const { error } = await sb.auth.updateUser({ password: pass });
+    if(error){ errEl.textContent='エラー: '+error.message; return; }
+    document.getElementById('screen-reset').style.display='none';
+    document.getElementById('screen-login').style.display='flex';
+    document.getElementById('l-err').style.color='#38a169';
+    document.getElementById('l-err').textContent='パスワードを更新しました。新しいパスワードでログインしてください。';
+}
 
 async function login(){
     const email = document.getElementById('l-email').value.trim();
