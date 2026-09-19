@@ -266,6 +266,21 @@
                 </div>
             </div>
 
+            <!-- お車情報 -->
+            <div class="form-card">
+                <h2><span class="icon">🚗</span>お車でお越しの方（任意）</h2>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="f-car-type">車種</label>
+                        <input type="text" id="f-car-type" placeholder="例：トヨタ プリウス">
+                    </div>
+                    <div class="form-group">
+                        <label for="f-car-plate">ナンバー</label>
+                        <input type="text" id="f-car-plate" placeholder="例：伊豆 500 あ 1234">
+                    </div>
+                </div>
+            </div>
+
             <!-- 備考 -->
             <div class="form-card">
                 <h2><span class="icon">📝</span>備考・ご要望（任意）</h2>
@@ -458,6 +473,8 @@ async function submitCheckin(){
     const occ      = document.getElementById('f-occupation').value.trim();
     const prevLoc  = document.getElementById('f-prev-loc').value.trim();
     const nextDest = document.getElementById('f-next-dest').value.trim();
+    const carType  = document.getElementById('f-car-type').value.trim();
+    const carPlate = document.getElementById('f-car-plate').value.trim();
     const notes    = document.getElementById('f-notes').value.trim();
     const agreed   = document.getElementById('f-agree').checked;
 
@@ -492,6 +509,8 @@ async function submitCheckin(){
             num_guests:   parseInt(guests)||1,
             prev_location:prevLoc,
             next_destination:nextDest,
+            car_type:     carType||null,
+            car_plate:    carPlate||null,
             notes:        notes||null,
             agreed_to_terms:true
         });
@@ -516,6 +535,7 @@ async function submitCheckin(){
             <div class="success-detail-row"><span class="success-detail-label">宿泊人数</span><span class="success-detail-value">${guests}名</span></div>
             <div class="success-detail-row"><span class="success-detail-label">前泊地</span><span class="success-detail-value">${esc(prevLoc)}</span></div>
             <div class="success-detail-row"><span class="success-detail-label">行先</span><span class="success-detail-value">${esc(nextDest)}</span></div>
+            ${carType||carPlate?`<div class="success-detail-row"><span class="success-detail-label">お車</span><span class="success-detail-value">${esc(carType)}${carType&&carPlate?' / ':''}${esc(carPlate)}</span></div>`:''}
         `;
         document.getElementById('screen-form').style.display='none';
         document.getElementById('screen-success').style.display='block';

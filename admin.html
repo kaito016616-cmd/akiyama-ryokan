@@ -701,6 +701,7 @@ function renderCheckins(data){
                 <p class="post-preview" style="-webkit-line-clamp:1;">${esc(c.address)} &nbsp;·&nbsp; ${esc(c.phone)}</p>
                 ${c.occupation?`<p class="post-preview" style="-webkit-line-clamp:1;margin-top:1px;">職業：${esc(c.occupation)}</p>`:''}
                 ${c.prev_location||c.next_destination?`<p class="post-preview" style="-webkit-line-clamp:1;margin-top:1px;">前泊：${esc(c.prev_location||'')} → 行先：${esc(c.next_destination||'')}</p>`:''}
+                ${c.car_type||c.car_plate?`<p class="post-preview" style="-webkit-line-clamp:1;margin-top:1px;">🚗 ${esc(c.car_type||'')}${c.car_type&&c.car_plate?' / ':''}${esc(c.car_plate||'')}</p>`:''}
                 ${c.notes?`<p class="post-preview" style="-webkit-line-clamp:2;margin-top:2px;">備考：${esc(c.notes)}</p>`:''}
                 <p style="font-size:11px;color:var(--txt3);margin-top:4px;">受付：${fdt(c.submitted_at)}</p>
             </div>
