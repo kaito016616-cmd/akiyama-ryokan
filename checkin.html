@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>オンラインチェックイン | あきやま旅館</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700&family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+        :root{
+            --bg:#f0f8ff;--bg2:#e2f1fb;--card:#ffffff;
+            --ocean:#0088cc;--teal:#00b4d8;
+            --grad:linear-gradient(135deg,#0088cc,#00b4d8);
+            --txt:#0d1b2a;--txt2:#3d5a73;--txt3:#8aabb8;
+            --border:rgba(0,136,204,0.15);
+            --shadow:0 4px 24px rgba(0,100,180,0.1);
+            --r:10px;--rl:16px;
+            --jp:'Noto Sans JP',sans-serif;--en:'Montserrat',sans-serif;
+        }
+        body{font-family:var(--jp);background:var(--bg);color:var(--txt);min-height:100vh;}
+
+        /* HEADER */
+        .header{background:var(--grad);padding:28px 24px 24px;text-align:center;color:#fff;}
+        .header-en{font-family:var(--en);font-size:11px;font-weight:700;letter-spacing:3px;opacity:.85;margin-bottom:6px;}
+        .header-title{font-size:22px;font-weight:700;letter-spacing:2px;}
+        .header-sub{font-size:13px;opacity:.85;margin-top:6px;line-height:1.6;}
+
+        /* MAIN */
+        .main{max-width:520px;margin:0 auto;padding:28px 20px 60px;}
+
+        /* NOTICE BOX */
+        .notice{background:#fff;border-radius:var(--rl);padding:18px 20px;margin-bottom:24px;border-left:4px solid var(--ocean);box-shadow:var(--shadow);}
+        .notice p{font-size:13px;color:var(--txt2);line-height:1.75;}
+        .notice strong{color:var(--ocean);}
+
+        /* FORM CARD */
+        .form-card{background:#fff;border-radius:var(--rl);padding:28px 24px;box-shadow:var(--shadow);margin-bottom:24px;}
+        .form-card h2{font-size:15px;font-weight:700;color:var(--txt);margin-bottom:20px;padding-bottom:14px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px;}
+        .form-card h2 .icon{display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;background:var(--bg2);border-radius:50%;font-size:14px;}
+
+        .form-group{margin-bottom:18px;}
+        .form-group:last-child{margin-bottom:0;}
+        .form-group label{display:block;font-size:12px;font-weight:700;color:var(--txt2);margin-bottom:6px;}
+        .form-group label .req{color:#e53e3e;margin-left:3px;font-size:11px;}
+        .form-group input,.form-group textarea,.form-group select{
+            width:100%;padding:13px 14px;
+            border:1.5px solid var(--border);border-radius:var(--r);
+            font-family:var(--jp);font-size:15px;color:var(--txt);background:#fff;
+            outline:none;transition:border-color .2s;
+            -webkit-appearance:none;
+        }
+        .form-group input:focus,.form-group textarea:focus,.form-group select:focus{border-color:var(--ocean);}
+        .form-group input.err,.form-group textarea.err,.form-group select.err{border-color:#e53e3e;}
+        .form-group textarea{resize:vertical;min-height:80px;line-height:1.7;font-size:14px;}
+        .form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+
+        /* RULES */
+        .rules-card{background:#fff;border-radius:var(--rl);padding:28px 24px;box-shadow:var(--shadow);margin-bottom:24px;}
+        .rules-card h2{font-size:15px;font-weight:700;color:var(--txt);margin-bottom:16px;padding-bottom:14px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px;}
+        .rules-scroll{background:var(--bg);border-radius:var(--r);padding:16px 18px;max-height:220px;overflow-y:auto;margin-bottom:20px;border:1px solid var(--border);}
+        .rules-scroll h3{font-size:13px;font-weight:700;color:var(--ocean);margin-bottom:10px;}
+        .rules-scroll ul{padding-left:18px;}
+        .rules-scroll li{font-size:13px;color:var(--txt2);line-height:1.9;margin-bottom:2px;}
+        .rules-scroll .rules-section{margin-bottom:14px;}
+        .rules-scroll .rules-section:last-child{margin-bottom:0;}
+        .rules-scroll p{font-size:12px;color:var(--txt3);line-height:1.8;margin-top:10px;}
+
+        .agree-wrap{display:flex;align-items:flex-start;gap:12px;padding:16px;background:rgba(0,136,204,0.05);border-radius:var(--r);border:1.5px solid var(--border);cursor:pointer;transition:border-color .2s;}
+        .agree-wrap:has(input:checked){border-color:var(--ocean);background:rgba(0,136,204,0.08);}
+        .agree-wrap input[type=checkbox]{width:20px;height:20px;accent-color:var(--ocean);flex-shrink:0;margin-top:2px;cursor:pointer;}
+        .agree-wrap label{font-size:14px;color:var(--txt);line-height:1.6;font-weight:500;cursor:pointer;}
+        .agree-wrap label span{color:var(--ocean);font-weight:700;}
+
+        /* SUBMIT */
+        .btn-submit{
+            width:100%;background:var(--grad);color:#fff;
+            border:none;border-radius:50px;padding:18px;
+            font-family:var(--en);font-size:15px;font-weight:700;letter-spacing:1px;
+            cursor:pointer;transition:opacity .2s,transform .2s;
+            box-shadow:0 4px 20px rgba(0,136,204,0.35);
+            margin-top:24px;
+        }
+        .btn-submit:hover{opacity:.9;transform:translateY(-1px);}
+        .btn-submit:disabled{opacity:.5;cursor:not-allowed;transform:none;}
+        .err-banner{background:rgba(229,62,62,0.08);border:1px solid rgba(229,62,62,0.3);border-radius:var(--r);padding:12px 16px;margin-top:16px;color:#c53030;font-size:13px;line-height:1.6;display:none;}
+        .err-banner.show{display:block;}
+
+        /* SUCCESS */
+        #screen-success{display:none;}
+        .success-wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px;background:var(--bg);}
+        .success-box{background:#fff;border-radius:var(--rl);padding:48px 32px;max-width:480px;width:100%;text-align:center;box-shadow:var(--shadow);}
+        .success-icon{width:72px;height:72px;background:rgba(56,161,105,0.1);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 20px;font-size:36px;}
+        .success-title{font-size:22px;font-weight:700;color:var(--txt);margin-bottom:10px;}
+        .success-sub{font-size:14px;color:var(--txt2);line-height:1.75;margin-bottom:28px;}
+        .success-detail{background:var(--bg2);border-radius:var(--r);padding:16px 20px;text-align:left;margin-bottom:24px;}
+        .success-detail-row{display:flex;gap:8px;font-size:13px;padding:5px 0;border-bottom:1px solid var(--border);}
+        .success-detail-row:last-child{border-bottom:none;}
+        .success-detail-label{color:var(--txt3);width:90px;flex-shrink:0;}
+        .success-detail-value{color:var(--txt);font-weight:500;flex:1;word-break:break-all;}
+        .success-rule-note{font-size:12px;color:var(--txt3);line-height:1.8;}
+
+        #screen-form{display:block;}
+    </style>
+    <script defer src="/_vercel/insights/script.js"></script>
+</head>
+<body>
+
+<!-- FORM SCREEN -->
+<div id="screen-form">
+    <header class="header">
+        <p class="header-en">AKIYAMA RYOKAN</p>
+        <h1 class="header-title">オンラインチェックイン</h1>
+        <p class="header-sub">お手続きはこちらのフォームで完結します<br>入力後に送信してください</p>
+    </header>
+
+    <main class="main">
+        <div class="notice">
+            <p>宿泊者名簿の記入は<strong>旅館業法</strong>に基づく義務です。代表者の方の情報を正確にご入力ください。</p>
+        </div>
+
+        <!-- 宿泊情報 -->
+        <div class="form-card">
+            <h2><span class="icon">📅</span>宿泊情報</h2>
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="f-checkin">チェックイン日<span class="req">必須</span></label>
+                    <input type="date" id="f-checkin">
+                </div>
+                <div class="form-group">
+                    <label for="f-checkout">チェックアウト日<span class="req">必須</span></label>
+                    <input type="date" id="f-checkout">
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="f-guests">宿泊人数（合計）<span class="req">必須</span></label>
+                <select id="f-guests">
+                    <option value="">選択してください</option>
+                    <option value="1">1名</option>
+                    <option value="2">2名</option>
+                    <option value="3">3名</option>
+                    <option value="4">4名</option>
+                    <option value="5">5名</option>
+                    <option value="6">6名以上</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- 代表者情報 -->
+        <div class="form-card">
+            <h2><span class="icon">👤</span>代表者情報</h2>
+            <div class="form-group">
+                <label for="f-name">お名前（代表者氏名）<span class="req">必須</span></label>
+                <input type="text" id="f-name" placeholder="例：秋山 太郎" autocomplete="name">
+            </div>
+            <div class="form-group">
+                <label for="f-address">ご住所<span class="req">必須</span></label>
+                <input type="text" id="f-address" placeholder="例：東京都渋谷区〇〇1-2-3" autocomplete="street-address">
+            </div>
+            <div class="form-group">
+                <label for="f-phone">電話番号<span class="req">必須</span></label>
+                <input type="tel" id="f-phone" placeholder="例：090-1234-5678" autocomplete="tel">
+            </div>
+        </div>
+
+        <!-- 備考 -->
+        <div class="form-card">
+            <h2><span class="icon">📝</span>備考・ご要望（任意）</h2>
+            <div class="form-group">
+                <textarea id="f-notes" placeholder="アレルギー、到着時間のご連絡、その他ご要望があればご記入ください。"></textarea>
+            </div>
+        </div>
+
+        <!-- ハウスルール -->
+        <div class="rules-card">
+            <h2><span class="icon">📋</span>ご利用規約・ハウスルール</h2>
+            <div class="rules-scroll" id="rules-scroll">
+                <div class="rules-section">
+                    <h3>■ チェックイン・アウト</h3>
+                    <ul>
+                        <li>チェックイン：15:00〜（遅れる場合はご連絡ください）</li>
+                        <li>チェックアウト：〜10:00（延長は要相談）</li>
+                    </ul>
+                </div>
+                <div class="rules-section">
+                    <h3>■ お静かにお過ごしください</h3>
+                    <ul>
+                        <li>夜22:00以降は騒音、大声、廊下での会話はご遠慮ください</li>
+                        <li>他のお客様のご迷惑になる行為はお控えください</li>
+                    </ul>
+                </div>
+                <div class="rules-section">
+                    <h3>■ 共用スペース</h3>
+                    <ul>
+                        <li>お風呂・脱衣所・廊下は清潔にご使用ください</li>
+                        <li>使用後は原状復帰にご協力ください</li>
+                        <li>他のお客様がいる場合はご配慮ください</li>
+                    </ul>
+                </div>
+                <div class="rules-section">
+                    <h3>■ 館内でのご注意</h3>
+                    <ul>
+                        <li>館内は禁煙です（喫煙は指定場所にて）</li>
+                        <li>ペットのご同伴はご遠慮ください</li>
+                        <li>火気の取り扱いには十分ご注意ください</li>
+                        <li>貴重品の管理はご自身でお願いします</li>
+                    </ul>
+                </div>
+                <div class="rules-section">
+                    <h3>■ ゴミ・清掃</h3>
+                    <ul>
+                        <li>ゴミは所定の場所へ正しく分別してお出しください</li>
+                        <li>お部屋は大切にご使用ください</li>
+                    </ul>
+                </div>
+                <div class="rules-section">
+                    <h3>■ お支払い</h3>
+                    <ul>
+                        <li>お支払いは現地払い（現金のみ）となります</li>
+                        <li>チェックアウト時にお支払いください</li>
+                    </ul>
+                </div>
+                <p>※宿泊者名簿への記入は旅館業法第6条に基づく義務です。虚偽の記入はお断りします。<br>※施設・備品を著しく汚損・破損された場合は実費をご請求する場合があります。</p>
+            </div>
+
+            <label class="agree-wrap" for="f-agree">
+                <input type="checkbox" id="f-agree">
+                <span>上記のハウスルール・ご利用規約をすべて読み、<span>同意します</span></span>
+            </label>
+        </div>
+
+        <button class="btn-submit" id="btn-submit" onclick="submitCheckin()">チェックインを完了する</button>
+        <div class="err-banner" id="err-banner"></div>
+    </main>
+</div>
+
+<!-- SUCCESS SCREEN -->
+<div id="screen-success">
+    <div class="success-wrap">
+        <div class="success-box">
+            <div class="success-icon">✅</div>
+            <h1 class="success-title">チェックイン完了！</h1>
+            <p class="success-sub">お手続きありがとうございます。<br>ご宿泊をお楽しみください。</p>
+            <div class="success-detail" id="success-detail"></div>
+            <p class="success-rule-note">ご不明な点はスタッフにお声がけください。<br>緊急の場合：<a href="tel:090-6398-3964" style="color:var(--ocean);font-weight:600;">090-6398-3964</a></p>
+        </div>
+    </div>
+</div>
+
+<script src="config.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<script>
+let sb;
+window.addEventListener('DOMContentLoaded', () => {
+    if(typeof SUPABASE_URL==='undefined'||SUPABASE_URL.startsWith('YOUR_')) return;
+    sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    // 今日の日付をデフォルトに
+    const today = new Date().toISOString().slice(0,10);
+    const tomorrow = new Date(Date.now()+86400000).toISOString().slice(0,10);
+    document.getElementById('f-checkin').value = today;
+    document.getElementById('f-checkout').value = tomorrow;
+});
+
+function showErr(msg){
+    const el = document.getElementById('err-banner');
+    el.textContent = msg;
+    el.classList.add('show');
+    el.scrollIntoView({behavior:'smooth',block:'nearest'});
+}
+function clearErr(){document.getElementById('err-banner').classList.remove('show');}
+
+function markErr(id){ document.getElementById(id).classList.add('err'); }
+function clearErrFields(){ document.querySelectorAll('.err').forEach(e=>e.classList.remove('err')); }
+
+async function submitCheckin(){
+    clearErr();
+    clearErrFields();
+
+    const checkin  = document.getElementById('f-checkin').value;
+    const checkout = document.getElementById('f-checkout').value;
+    const guests   = document.getElementById('f-guests').value;
+    const name     = document.getElementById('f-name').value.trim();
+    const address  = document.getElementById('f-address').value.trim();
+    const phone    = document.getElementById('f-phone').value.trim();
+    const notes    = document.getElementById('f-notes').value.trim();
+    const agreed   = document.getElementById('f-agree').checked;
+
+    let hasErr = false;
+    if(!checkin){  markErr('f-checkin');  hasErr=true; }
+    if(!checkout){ markErr('f-checkout'); hasErr=true; }
+    if(checkin && checkout && checkout <= checkin){ markErr('f-checkout'); hasErr=true; showErr('チェックアウト日はチェックイン日の翌日以降を選択してください。'); return; }
+    if(!guests){   markErr('f-guests');   hasErr=true; }
+    if(!name){     markErr('f-name');     hasErr=true; }
+    if(!address){  markErr('f-address');  hasErr=true; }
+    if(!phone){    markErr('f-phone');    hasErr=true; }
+    if(hasErr){ showErr('必須項目をすべて入力してください。'); return; }
+    if(!agreed){ showErr('ハウスルール・ご利用規約に同意してください。'); return; }
+
+    const btn = document.getElementById('btn-submit');
+    btn.disabled = true;
+    btn.textContent = '送信中...';
+
+    try {
+        const { error } = await sb.from('checkins').insert({
+            guest_name: name,
+            address: address,
+            phone: phone,
+            checkin_date: checkin,
+            checkout_date: checkout,
+            num_guests: parseInt(guests) || 1,
+            notes: notes || null,
+            agreed_to_terms: true
+        });
+        if(error) throw error;
+
+        // Success
+        function fd(d){const[y,m,day]=d.split('-');return`${y}年${parseInt(m)}月${parseInt(day)}日`;}
+        document.getElementById('success-detail').innerHTML = `
+            <div class="success-detail-row"><span class="success-detail-label">お名前</span><span class="success-detail-value">${esc(name)}</span></div>
+            <div class="success-detail-row"><span class="success-detail-label">チェックイン</span><span class="success-detail-value">${fd(checkin)}</span></div>
+            <div class="success-detail-row"><span class="success-detail-label">チェックアウト</span><span class="success-detail-value">${fd(checkout)}</span></div>
+            <div class="success-detail-row"><span class="success-detail-label">宿泊人数</span><span class="success-detail-value">${guests}名</span></div>
+        `;
+        document.getElementById('screen-form').style.display = 'none';
+        document.getElementById('screen-success').style.display = 'block';
+        window.scrollTo(0,0);
+    } catch(e) {
+        btn.disabled = false;
+        btn.textContent = 'チェックインを完了する';
+        showErr('送信に失敗しました。時間をおいて再度お試しいただくか、スタッフにお声がけください。');
+    }
+}
+
+function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+</script>
+</body>
+</html>

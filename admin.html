@@ -287,6 +287,15 @@
             <div id="cd-list"><p class="list-loading">読み込み中...</p></div>
         </div>
 
+        <!-- CHECKIN LIST -->
+        <div class="list-card" style="margin-top:48px;">
+            <h2 style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;">
+                <span>オンラインチェックイン受付一覧</span>
+                <span style="font-size:12px;font-weight:400;color:var(--txt3);" id="ci-count"></span>
+            </h2>
+            <div id="ci-list"><p class="list-loading">読み込み中...</p></div>
+        </div>
+
     </div>
 </div>
 
@@ -334,6 +343,7 @@ function showAdmin(user){
     loadGroupBookings();
     loadRoomBookings();
     loadClosedDays();
+    loadCheckins();
 }
 
 async function savePost(){
@@ -566,6 +576,42 @@ async function deleteClosedDay(id){
     const{error}=await sb.from('closed_days').delete().eq('id',id);
     if(error){alert('削除に失敗しました: '+error.message);return;}
     loadClosedDays();
+}
+
+async function loadCheckins(){
+    const listEl=document.getElementById('ci-list');
+    const cntEl=document.getElementById('ci-count');
+    const{data,error}=await sb.from('checkins').select('*').order('submitted_at',{ascending:false});
+    if(error){listEl.innerHTML='<p class="list-empty">エラー: '+error.message+'</p>';return;}
+    if(!data||data.length===0){listEl.innerHTML='<p class="list-empty">チェックイン受付はまだありません。</p>';cntEl.textContent='';return;}
+    cntEl.textContent=`計 ${data.length} 件`;
+    function fd(d){const[y,m,day]=d.split('-');return`${y}年${parseInt(m)}月${parseInt(day)}日`;}
+    function fdt(d){const dt=new Date(d);return`${dt.getFullYear()}/${dt.getMonth()+1}/${dt.getDate()} ${String(dt.getHours()).padStart(2,'0')}:${String(dt.getMinutes()).padStart(2,'0')}`;}
+    function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+    listEl.innerHTML=data.map(c=>`
+        <div class="post-row">
+            <div class="post-info">
+                <div class="post-title-row">
+                    <span class="post-title">${esc(c.guest_name)}</span>
+                    <span class="badge-pub">${c.num_guests}名</span>
+                </div>
+                <p class="post-date">${fd(c.checkin_date)} 〜 ${fd(c.checkout_date)}</p>
+                <p class="post-preview" style="-webkit-line-clamp:1;">${esc(c.address)} &nbsp;·&nbsp; ${esc(c.phone)}</p>
+                ${c.notes?`<p class="post-preview" style="-webkit-line-clamp:2;margin-top:2px;">備考：${esc(c.notes)}</p>`:''}
+                <p style="font-size:11px;color:var(--txt3);margin-top:4px;">受付：${fdt(c.submitted_at)}</p>
+            </div>
+            <div class="post-btns">
+                <button class="btn-sm btn-del" onclick="deleteCheckin('${c.id}')">削除</button>
+            </div>
+        </div>
+    `).join('');
+}
+
+async function deleteCheckin(id){
+    if(!confirm('このチェックイン記録を削除しますか？'))return;
+    const{error}=await sb.from('checkins').delete().eq('id',id);
+    if(error){alert('削除に失敗しました: '+error.message);return;}
+    loadCheckins();
 }
 </script>
 </body>
