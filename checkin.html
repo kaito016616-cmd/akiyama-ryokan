@@ -234,6 +234,10 @@
                     <input type="text" id="f-name" placeholder="例：秋山 太郎" autocomplete="name">
                 </div>
                 <div class="form-group">
+                    <label for="f-furigana">フリガナ<span class="req">必須</span></label>
+                    <input type="text" id="f-furigana" placeholder="例：アキヤマ タロウ" autocomplete="off">
+                </div>
+                <div class="form-group">
                     <label for="f-address">ご住所<span class="req">必須</span></label>
                     <input type="text" id="f-address" placeholder="例：東京都渋谷区〇〇1-2-3" autocomplete="street-address">
                 </div>
@@ -411,6 +415,7 @@ async function lookupGuest(){
 
 function autofill(data){
     setVal('f-name',       data.guest_name  || '');
+    setVal('f-furigana',   data.furigana    || '');
     setVal('f-address',    data.address     || '');
     setVal('f-phone',      data.phone       || '');
     setVal('f-occupation', data.occupation  || '');
@@ -421,7 +426,7 @@ function autofill(data){
 }
 
 function clearAutofill(){
-    ['f-name','f-address','f-phone','f-occupation','f-prev-loc','f-next-dest']
+    ['f-name','f-furigana','f-address','f-phone','f-occupation','f-prev-loc','f-next-dest']
         .forEach(id=>{ document.getElementById(id).value=''; document.getElementById(id).classList.remove('autofilled'); });
     document.getElementById('autofill-banner').classList.remove('show');
 }
@@ -447,6 +452,7 @@ async function submitCheckin(){
     const checkout = document.getElementById('f-checkout').value;
     const guests   = document.getElementById('f-guests').value;
     const name     = document.getElementById('f-name').value.trim();
+    const furigana = document.getElementById('f-furigana').value.trim();
     const address  = document.getElementById('f-address').value.trim();
     const phone    = document.getElementById('f-phone').value.trim();
     const occ      = document.getElementById('f-occupation').value.trim();
@@ -456,16 +462,17 @@ async function submitCheckin(){
     const agreed   = document.getElementById('f-agree').checked;
 
     let hasErr=false;
-    if(!checkin){  markErr('f-checkin');  hasErr=true; }
-    if(!checkout){ markErr('f-checkout'); hasErr=true; }
+    if(!checkin){   markErr('f-checkin');    hasErr=true; }
+    if(!checkout){  markErr('f-checkout');   hasErr=true; }
     if(checkin&&checkout&&checkout<=checkin){ markErr('f-checkout'); showErr('チェックアウト日はチェックイン日の翌日以降を選択してください。'); return; }
-    if(!guests){   markErr('f-guests');   hasErr=true; }
-    if(!name){     markErr('f-name');     hasErr=true; }
-    if(!address){  markErr('f-address');  hasErr=true; }
-    if(!phone){    markErr('f-phone');    hasErr=true; }
-    if(!occ){      markErr('f-occupation'); hasErr=true; }
-    if(!prevLoc){  markErr('f-prev-loc'); hasErr=true; }
-    if(!nextDest){ markErr('f-next-dest'); hasErr=true; }
+    if(!guests){    markErr('f-guests');     hasErr=true; }
+    if(!name){      markErr('f-name');       hasErr=true; }
+    if(!furigana){  markErr('f-furigana');   hasErr=true; }
+    if(!address){   markErr('f-address');    hasErr=true; }
+    if(!phone){     markErr('f-phone');      hasErr=true; }
+    if(!occ){       markErr('f-occupation'); hasErr=true; }
+    if(!prevLoc){   markErr('f-prev-loc');   hasErr=true; }
+    if(!nextDest){  markErr('f-next-dest');  hasErr=true; }
     if(hasErr){ showErr('必須項目をすべて入力してください。'); return; }
     if(!agreed){ showErr('ハウスルール・ご利用規約に同意してください。'); return; }
 
@@ -476,6 +483,7 @@ async function submitCheckin(){
         // チェックイン記録を保存
         const{error:ciErr}=await sb.from('checkins').insert({
             guest_name:   name,
+            furigana:     furigana||null,
             address:      address,
             phone:        phone,
             occupation:   occ,
@@ -493,6 +501,7 @@ async function submitCheckin(){
         await sb.from('guest_profiles').upsert({
             phone:      phone,
             guest_name: name,
+            furigana:   furigana||null,
             address:    address,
             occupation: occ,
             updated_at: new Date().toISOString()
@@ -501,7 +510,7 @@ async function submitCheckin(){
         // 完了画面
         function fd(d){const[y,m,day]=d.split('-');return`${y}年${parseInt(m)}月${parseInt(day)}日`;}
         document.getElementById('success-detail').innerHTML=`
-            <div class="success-detail-row"><span class="success-detail-label">お名前</span><span class="success-detail-value">${esc(name)}</span></div>
+            <div class="success-detail-row"><span class="success-detail-label">お名前</span><span class="success-detail-value">${esc(name)}${furigana?' （'+esc(furigana)+'）':''}</span></div>
             <div class="success-detail-row"><span class="success-detail-label">チェックイン</span><span class="success-detail-value">${fd(checkin)}</span></div>
             <div class="success-detail-row"><span class="success-detail-label">チェックアウト</span><span class="success-detail-value">${fd(checkout)}</span></div>
             <div class="success-detail-row"><span class="success-detail-label">宿泊人数</span><span class="success-detail-value">${guests}名</span></div>

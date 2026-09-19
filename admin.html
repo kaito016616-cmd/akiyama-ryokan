@@ -21,7 +21,7 @@
         }
         body{font-family:var(--jp);background:var(--bg);color:var(--txt);min-height:100vh;}
 
-        /* LOGIN */
+        /* LOGIN / RESET */
         .login-wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px;}
         .login-box{background:#fff;border-radius:var(--rl);padding:48px 40px;width:100%;max-width:400px;box-shadow:var(--shadow);}
         .login-logo{font-family:var(--en);font-size:11px;font-weight:700;letter-spacing:3px;color:var(--ocean);text-align:center;margin-bottom:8px;}
@@ -48,10 +48,19 @@
         .btn-edit{color:var(--ocean);}
         .btn-edit:hover{background:rgba(0,136,204,0.08);}
 
-        /* ADMIN BODY */
-        .admin-body{max-width:860px;margin:0 auto;padding:36px 24px 60px;}
+        /* TAB NAV */
+        .tab-nav{display:flex;background:#fff;border-bottom:2px solid var(--border);padding:0 24px;overflow-x:auto;-webkit-overflow-scrolling:touch;}
+        .tab-btn{background:none;border:none;border-bottom:3px solid transparent;padding:16px 22px;font-family:var(--jp);font-size:14px;font-weight:600;color:var(--txt3);cursor:pointer;white-space:nowrap;transition:all .2s;margin-bottom:-2px;display:flex;align-items:center;gap:6px;}
+        .tab-btn.active{color:var(--ocean);border-bottom-color:var(--ocean);}
+        .tab-btn:hover:not(.active){color:var(--txt2);}
+        .tab-badge{display:inline-flex;align-items:center;justify-content:center;background:var(--ocean);color:#fff;font-size:10px;font-weight:700;border-radius:50px;padding:1px 7px;min-width:18px;}
 
-        /* POST FORM */
+        /* ADMIN BODY */
+        .admin-body{max-width:860px;margin:0 auto;padding:32px 24px 60px;}
+        .tab-panel{display:none;}
+        .tab-panel.active{display:block;}
+
+        /* FORM CARDS */
         .form-card{background:#fff;border-radius:var(--rl);padding:32px;box-shadow:var(--shadow);margin-bottom:36px;}
         .form-card h2{font-size:17px;font-weight:700;margin-bottom:24px;padding-bottom:16px;border-bottom:1px solid var(--border);}
         .form-row{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
@@ -67,13 +76,13 @@
         .post-msg.ok{color:#38a169;}
         .post-msg.ng{color:#e53e3e;}
 
-        /* POST LIST */
-        .list-card{background:#fff;border-radius:var(--rl);box-shadow:var(--shadow);overflow:hidden;}
-        .list-card h2{font-size:17px;font-weight:700;padding:24px 28px 16px;border-bottom:1px solid var(--border);}
+        /* LIST CARDS */
+        .list-card{background:#fff;border-radius:var(--rl);box-shadow:var(--shadow);overflow:hidden;margin-bottom:36px;}
+        .list-card h2{font-size:17px;font-weight:700;padding:24px 28px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;}
         .post-row{padding:18px 28px;border-bottom:1px solid var(--border);display:flex;align-items:flex-start;gap:16px;}
         .post-row:last-child{border-bottom:none;}
         .post-info{flex:1;min-width:0;}
-        .post-title-row{display:flex;align-items:center;gap:10px;margin-bottom:4px;}
+        .post-title-row{display:flex;align-items:center;gap:10px;margin-bottom:4px;flex-wrap:wrap;}
         .post-title{font-size:15px;font-weight:600;}
         .post-date{font-family:var(--en);font-size:12px;color:var(--txt3);}
         .post-preview{font-size:13px;color:var(--txt2);line-height:1.6;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;}
@@ -83,16 +92,28 @@
         .list-empty{padding:48px 28px;text-align:center;color:var(--txt3);font-size:14px;}
         .list-loading{padding:48px 28px;text-align:center;color:var(--txt3);font-size:14px;}
 
+        /* SEARCH BAR */
+        .search-bar{padding:16px 28px;border-bottom:1px solid var(--border);display:flex;gap:10px;align-items:center;}
+        .search-bar input{flex:1;padding:10px 14px;border:1.5px solid var(--border);border-radius:50px;font-family:var(--jp);font-size:14px;color:var(--txt);background:var(--bg);outline:none;transition:border-color .2s;}
+        .search-bar input:focus{border-color:var(--ocean);background:#fff;}
+        .search-count{font-size:12px;color:var(--txt3);white-space:nowrap;}
+
+        /* CHECKIN ROW */
+        .ci-kana{font-size:12px;color:var(--txt3);font-weight:400;}
+
         #screen-admin{display:none;}
         .gb-dates{font-size:14px;font-weight:600;color:var(--txt);}
 
         @media(max-width:600px){
             .login-box{padding:36px 24px;}
-            .admin-nav{padding:0 20px;}
+            .admin-nav{padding:0 16px;}
             .admin-body{padding:24px 16px 48px;}
-            .form-card,.list-card h2{padding:24px 20px;}
+            .form-card{padding:24px 20px;}
+            .list-card h2{padding:20px 20px 12px;}
             .post-row{padding:16px 20px;}
             .form-row{grid-template-columns:1fr;}
+            .tab-btn{padding:14px 14px;font-size:13px;}
+            .search-bar{padding:12px 20px;}
         }
     </style>
 <script defer src="/_vercel/insights/script.js"></script>
@@ -145,184 +166,200 @@
         </div>
     </nav>
 
+    <!-- TAB NAV -->
+    <div class="tab-nav">
+        <button class="tab-btn active" data-tab="news" onclick="switchTab('news')">📢 お知らせ管理</button>
+        <button class="tab-btn" data-tab="booking" onclick="switchTab('booking')">📅 予約管理</button>
+        <button class="tab-btn" data-tab="checkin" onclick="switchTab('checkin')">📋 宿泊者名簿 <span class="tab-badge" id="ci-badge" style="display:none;"></span></button>
+    </div>
+
     <div class="admin-body">
 
-        <!-- POST FORM -->
-        <div class="form-card">
-            <h2 id="form-title">新しいお知らせを投稿</h2>
-            <input type="hidden" id="edit-id">
-            <div class="form-row">
-                <div class="form-group">
-                    <label for="p-date">日付</label>
-                    <input type="date" id="p-date">
-                </div>
-                <div class="form-group">
-                    <div class="checkbox-row" style="margin-top:22px;">
-                        <input type="checkbox" id="p-pub" checked>
-                        <label for="p-pub">すぐに公開する</label>
+        <!-- ======= TAB: お知らせ ======= -->
+        <div id="tab-news" class="tab-panel active">
+            <div class="form-card">
+                <h2 id="form-title">新しいお知らせを投稿</h2>
+                <input type="hidden" id="edit-id">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="p-date">日付</label>
+                        <input type="date" id="p-date">
+                    </div>
+                    <div class="form-group">
+                        <div class="checkbox-row" style="margin-top:22px;">
+                            <input type="checkbox" id="p-pub" checked>
+                            <label for="p-pub">すぐに公開する</label>
+                        </div>
                     </div>
                 </div>
+                <div class="form-group">
+                    <label for="p-title">タイトル</label>
+                    <input type="text" id="p-title" placeholder="例：夏季特別プランのお知らせ">
+                </div>
+                <div class="form-group">
+                    <label for="p-content">内容</label>
+                    <textarea id="p-content" placeholder="お知らせの詳細を入力してください。"></textarea>
+                </div>
+                <div class="form-actions">
+                    <button class="btn-post" id="btn-save" onclick="savePost()">投稿する</button>
+                    <button class="btn-cancel" id="btn-cancel" style="display:none" onclick="cancelEdit()">キャンセル</button>
+                </div>
+                <p class="post-msg" id="post-msg"></p>
             </div>
-            <div class="form-group">
-                <label for="p-title">タイトル</label>
-                <input type="text" id="p-title" placeholder="例：夏季特別プランのお知らせ">
+
+            <div class="list-card">
+                <h2>投稿一覧</h2>
+                <div id="post-list"><p class="list-loading">読み込み中...</p></div>
             </div>
-            <div class="form-group">
-                <label for="p-content">内容</label>
-                <textarea id="p-content" placeholder="お知らせの詳細を入力してください。"></textarea>
-            </div>
-            <div class="form-actions">
-                <button class="btn-post" id="btn-save" onclick="savePost()">投稿する</button>
-                <button class="btn-cancel" id="btn-cancel" style="display:none" onclick="cancelEdit()">キャンセル</button>
-            </div>
-            <p class="post-msg" id="post-msg"></p>
         </div>
 
-        <!-- POST LIST -->
-        <div class="list-card">
-            <h2>投稿一覧</h2>
-            <div id="post-list"><p class="list-loading">読み込み中...</p></div>
+        <!-- ======= TAB: 予約管理 ======= -->
+        <div id="tab-booking" class="tab-panel">
+
+            <!-- 個室予約フォーム -->
+            <div class="form-card">
+                <h2>個室予約管理（空き状況カレンダー用）</h2>
+                <p style="font-size:13px;color:var(--txt3);margin:-8px 0 20px;">reserva.beで受けた予約をここに入力すると、空き状況カレンダーに残室数が反映されます。</p>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>部屋タイプ</label>
+                        <select id="rb-type" style="width:100%;padding:12px 14px;border:1px solid var(--border);border-radius:var(--r);font-family:var(--jp);font-size:14px;color:var(--txt);background:#fff;outline:none;">
+                            <option value="6jo">6畳（全5室）</option>
+                            <option value="4jo">4畳半（全3室）</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>予約室数</label>
+                        <input type="number" id="rb-cnt" value="1" min="1" max="5" style="width:100%;padding:12px 14px;border:1px solid var(--border);border-radius:var(--r);font-family:var(--jp);font-size:14px;color:var(--txt);background:#fff;outline:none;">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>チェックイン日</label>
+                        <input type="date" id="rb-start">
+                    </div>
+                    <div class="form-group">
+                        <label>チェックアウト日</label>
+                        <input type="date" id="rb-end">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>お客様名（任意）</label>
+                        <input type="text" id="rb-guest" placeholder="例：田中様">
+                    </div>
+                    <div class="form-group">
+                        <label>メモ（任意）</label>
+                        <input type="text" id="rb-notes" placeholder="例：素泊まり">
+                    </div>
+                </div>
+                <div class="form-actions">
+                    <button class="btn-post" onclick="addRoomBooking()">予約を追加</button>
+                </div>
+                <p class="post-msg" id="rb-msg"></p>
+            </div>
+
+            <div class="list-card">
+                <h2>個室予約一覧</h2>
+                <div id="rb-list"><p class="list-loading">読み込み中...</p></div>
+            </div>
+
+            <!-- 団体予約フォーム -->
+            <div class="form-card">
+                <h2>団体予約カレンダー管理</h2>
+                <p style="font-size:13px;color:var(--txt3);margin:-8px 0 20px;">追加した日程はトップページのカレンダーに「団体予約あり」として表示されます。</p>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>チェックイン日</label>
+                        <input type="date" id="gb-start">
+                    </div>
+                    <div class="form-group">
+                        <label>チェックアウト日</label>
+                        <input type="date" id="gb-end">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>グループ名（任意）</label>
+                        <input type="text" id="gb-name" placeholder="例：〇〇大学サークル">
+                    </div>
+                    <div class="form-group">
+                        <label>メモ（任意）</label>
+                        <input type="text" id="gb-notes" placeholder="例：7名・素泊まり">
+                    </div>
+                </div>
+                <div class="form-actions">
+                    <button class="btn-post" onclick="addGroupBooking()">カレンダーに追加</button>
+                </div>
+                <p class="post-msg" id="gb-msg"></p>
+            </div>
+
+            <div class="list-card">
+                <h2>団体予約一覧</h2>
+                <div id="gb-list"><p class="list-loading">読み込み中...</p></div>
+            </div>
+
+            <!-- 休館日フォーム -->
+            <div class="form-card">
+                <h2>休館日・メンテナンス日管理</h2>
+                <p style="font-size:13px;color:var(--txt3);margin:-8px 0 20px;">設定した日程はカレンダーにグレーで「休館日」などと表示され、予約不可であることをお客様に伝えます。</p>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>開始日</label>
+                        <input type="date" id="cd-start">
+                    </div>
+                    <div class="form-group">
+                        <label>終了日</label>
+                        <input type="date" id="cd-end">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>理由・表示ラベル</label>
+                        <input type="text" id="cd-reason" placeholder="例：休館日 / メンテナンス / 年末年始" value="休館日">
+                    </div>
+                    <div class="form-group">
+                        <label>メモ（任意）</label>
+                        <input type="text" id="cd-notes" placeholder="例：設備点検のため">
+                    </div>
+                </div>
+                <div class="form-actions">
+                    <button class="btn-post" onclick="addClosedDay()">カレンダーに追加</button>
+                </div>
+                <p class="post-msg" id="cd-msg"></p>
+            </div>
+
+            <div class="list-card">
+                <h2>休館日一覧</h2>
+                <div id="cd-list"><p class="list-loading">読み込み中...</p></div>
+            </div>
+
         </div>
 
-        <!-- ROOM BOOKING FORM -->
-        <div class="form-card" style="margin-top:48px;">
-            <h2>個室予約管理（空き状況カレンダー用）</h2>
-            <p style="font-size:13px;color:var(--txt3);margin:-8px 0 20px;">reserva.beで受けた予約をここに入力すると、空き状況カレンダーに残室数が反映されます。</p>
-            <div class="form-row">
-                <div class="form-group">
-                    <label>部屋タイプ</label>
-                    <select id="rb-type" style="width:100%;padding:12px 14px;border:1px solid var(--border);border-radius:var(--r);font-family:var(--jp);font-size:14px;color:var(--txt);background:#fff;outline:none;">
-                        <option value="6jo">6畳（全5室）</option>
-                        <option value="4jo">4畳半（全3室）</option>
-                    </select>
+        <!-- ======= TAB: 宿泊者名簿 ======= -->
+        <div id="tab-checkin" class="tab-panel">
+            <div class="list-card">
+                <h2>
+                    <span>宿泊者名簿（オンラインチェックイン）</span>
+                    <span style="font-size:12px;font-weight:400;color:var(--txt3);" id="ci-count"></span>
+                </h2>
+                <div class="search-bar">
+                    <input type="search" id="ci-search" placeholder="名前・フリガナ・電話番号で検索..." oninput="filterCheckins()">
+                    <span class="search-count" id="ci-search-count"></span>
                 </div>
-                <div class="form-group">
-                    <label>予約室数</label>
-                    <input type="number" id="rb-cnt" value="1" min="1" max="5" style="width:100%;padding:12px 14px;border:1px solid var(--border);border-radius:var(--r);font-family:var(--jp);font-size:14px;color:var(--txt);background:#fff;outline:none;">
-                </div>
+                <div id="ci-list"><p class="list-loading">読み込み中...</p></div>
             </div>
-            <div class="form-row">
-                <div class="form-group">
-                    <label>チェックイン日</label>
-                    <input type="date" id="rb-start">
-                </div>
-                <div class="form-group">
-                    <label>チェックアウト日</label>
-                    <input type="date" id="rb-end">
-                </div>
-            </div>
-            <div class="form-row">
-                <div class="form-group">
-                    <label>お客様名（任意）</label>
-                    <input type="text" id="rb-guest" placeholder="例：田中様">
-                </div>
-                <div class="form-group">
-                    <label>メモ（任意）</label>
-                    <input type="text" id="rb-notes" placeholder="例：素泊まり">
-                </div>
-            </div>
-            <div class="form-actions">
-                <button class="btn-post" onclick="addRoomBooking()">予約を追加</button>
-            </div>
-            <p class="post-msg" id="rb-msg"></p>
         </div>
 
-        <!-- ROOM BOOKING LIST -->
-        <div class="list-card">
-            <h2>個室予約一覧</h2>
-            <div id="rb-list"><p class="list-loading">読み込み中...</p></div>
-        </div>
-
-        <!-- GROUP BOOKING FORM -->
-        <div class="form-card" style="margin-top:48px;">
-            <h2>団体予約カレンダー管理</h2>
-            <p style="font-size:13px;color:var(--txt3);margin:-8px 0 20px;">追加した日程はトップページのカレンダーに「団体予約あり」として表示されます。</p>
-            <div class="form-row">
-                <div class="form-group">
-                    <label>チェックイン日</label>
-                    <input type="date" id="gb-start">
-                </div>
-                <div class="form-group">
-                    <label>チェックアウト日</label>
-                    <input type="date" id="gb-end">
-                </div>
-            </div>
-            <div class="form-row">
-                <div class="form-group">
-                    <label>グループ名（任意）</label>
-                    <input type="text" id="gb-name" placeholder="例：〇〇大学サークル">
-                </div>
-                <div class="form-group">
-                    <label>メモ（任意）</label>
-                    <input type="text" id="gb-notes" placeholder="例：7名・素泊まり">
-                </div>
-            </div>
-            <div class="form-actions">
-                <button class="btn-post" onclick="addGroupBooking()">カレンダーに追加</button>
-            </div>
-            <p class="post-msg" id="gb-msg"></p>
-        </div>
-
-        <!-- GROUP BOOKING LIST -->
-        <div class="list-card">
-            <h2>団体予約一覧</h2>
-            <div id="gb-list"><p class="list-loading">読み込み中...</p></div>
-        </div>
-
-        <!-- CLOSED DAYS FORM -->
-        <div class="form-card" style="margin-top:48px;">
-            <h2>休館日・メンテナンス日管理</h2>
-            <p style="font-size:13px;color:var(--txt3);margin:-8px 0 20px;">設定した日程はカレンダーにグレーで「休館日」などと表示され、予約不可であることをお客様に伝えます。</p>
-            <div class="form-row">
-                <div class="form-group">
-                    <label>開始日</label>
-                    <input type="date" id="cd-start">
-                </div>
-                <div class="form-group">
-                    <label>終了日</label>
-                    <input type="date" id="cd-end">
-                </div>
-            </div>
-            <div class="form-row">
-                <div class="form-group">
-                    <label>理由・表示ラベル</label>
-                    <input type="text" id="cd-reason" placeholder="例：休館日 / メンテナンス / 年末年始" value="休館日">
-                </div>
-                <div class="form-group">
-                    <label>メモ（任意）</label>
-                    <input type="text" id="cd-notes" placeholder="例：設備点検のため">
-                </div>
-            </div>
-            <div class="form-actions">
-                <button class="btn-post" onclick="addClosedDay()">カレンダーに追加</button>
-            </div>
-            <p class="post-msg" id="cd-msg"></p>
-        </div>
-
-        <!-- CLOSED DAYS LIST -->
-        <div class="list-card">
-            <h2>休館日一覧</h2>
-            <div id="cd-list"><p class="list-loading">読み込み中...</p></div>
-        </div>
-
-        <!-- CHECKIN LIST -->
-        <div class="list-card" style="margin-top:48px;">
-            <h2 style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;">
-                <span>オンラインチェックイン受付一覧</span>
-                <span style="font-size:12px;font-weight:400;color:var(--txt3);" id="ci-count"></span>
-            </h2>
-            <div id="ci-list"><p class="list-loading">読み込み中...</p></div>
-        </div>
-
-    </div>
-</div>
+    </div><!-- /admin-body -->
+</div><!-- /screen-admin -->
 
 <script src="config.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 <script>
 let sb, currentUser;
+let allCheckins = [];
 
-// Init
 window.addEventListener('DOMContentLoaded', async () => {
     if(typeof SUPABASE_URL==='undefined'||SUPABASE_URL.startsWith('YOUR_')){
         document.getElementById('l-err').textContent='config.js に Supabase の設定を入力してください。';
@@ -340,9 +377,14 @@ window.addEventListener('DOMContentLoaded', async () => {
     const { data: { session } } = await sb.auth.getSession();
     if(session && session.user){ showAdmin(session.user); }
 
-    // 今日の日付をデフォルト設定
     document.getElementById('p-date').value = new Date().toISOString().slice(0,10);
 });
+
+// タブ切り替え
+function switchTab(name){
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('active', b.dataset.tab===name));
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.toggle('active', p.id==='tab-'+name));
+}
 
 async function doReset(){
     const pass  = document.getElementById('r-pass').value;
@@ -387,6 +429,7 @@ function showAdmin(user){
     loadCheckins();
 }
 
+/* ===== お知らせ ===== */
 async function savePost(){
     const id      = document.getElementById('edit-id').value;
     const title   = document.getElementById('p-title').value.trim();
@@ -394,23 +437,16 @@ async function savePost(){
     const date    = document.getElementById('p-date').value;
     const pub     = document.getElementById('p-pub').checked;
     const msgEl   = document.getElementById('post-msg');
-
     msgEl.className='post-msg'; msgEl.textContent='';
     if(!title){ msgEl.className='post-msg ng'; msgEl.textContent='タイトルを入力してください。'; return; }
     if(!content){ msgEl.className='post-msg ng'; msgEl.textContent='内容を入力してください。'; return; }
-
     const payload = { title, content, published_at: date||new Date().toISOString().slice(0,10), is_published: pub };
     let error;
-    if(id){
-        ({ error } = await sb.from('news').update(payload).eq('id', id));
-    } else {
-        ({ error } = await sb.from('news').insert(payload));
-    }
+    if(id){ ({ error } = await sb.from('news').update(payload).eq('id', id)); }
+    else   { ({ error } = await sb.from('news').insert(payload)); }
     if(error){ msgEl.className='post-msg ng'; msgEl.textContent='エラーが発生しました: '+error.message; return; }
-
     msgEl.className='post-msg ok'; msgEl.textContent= id ? '更新しました。' : '投稿しました！';
-    clearForm();
-    loadPosts();
+    clearForm(); loadPosts();
     setTimeout(()=>{ msgEl.textContent=''; }, 3000);
 }
 
@@ -430,11 +466,9 @@ function cancelEdit(){ clearForm(); document.getElementById('post-msg').textCont
 async function loadPosts(){
     const listEl = document.getElementById('post-list');
     const { data, error } = await sb.from('news').select('*').order('published_at',{ascending:false});
-    if(error||!data||data.length===0){
-        listEl.innerHTML='<p class="list-empty">投稿はまだありません。</p>'; return;
-    }
+    if(error||!data||data.length===0){ listEl.innerHTML='<p class="list-empty">投稿はまだありません。</p>'; return; }
     function fmt(d){ const dt=new Date(d); return`${dt.getFullYear()}年${dt.getMonth()+1}月${dt.getDate()}日`; }
-    function esc(s){ return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+    function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
     listEl.innerHTML = data.map(p=>`
         <div class="post-row" id="row-${p.id}">
             <div class="post-info">
@@ -464,6 +498,7 @@ async function editPost(id){
     document.getElementById('form-title').textContent = '投稿を編集';
     document.getElementById('btn-save').textContent   = '更新する';
     document.getElementById('btn-cancel').style.display = 'inline-block';
+    switchTab('news');
     window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
@@ -474,45 +509,7 @@ async function deletePost(id){
     loadPosts();
 }
 
-async function addGroupBooking(){
-    const start=document.getElementById('gb-start').value;
-    const end=document.getElementById('gb-end').value;
-    const name=document.getElementById('gb-name').value.trim()||'団体予約';
-    const notes=document.getElementById('gb-notes').value.trim();
-    const msgEl=document.getElementById('gb-msg');
-    msgEl.className='post-msg';msgEl.textContent='';
-    if(!start||!end){msgEl.className='post-msg ng';msgEl.textContent='日程を入力してください。';return;}
-    if(end<start){msgEl.className='post-msg ng';msgEl.textContent='チェックアウト日はチェックイン日以降にしてください。';return;}
-    const{error}=await sb.from('group_bookings').insert({start_date:start,end_date:end,group_name:name,notes:notes||null});
-    if(error){msgEl.className='post-msg ng';msgEl.textContent='エラー: '+error.message;return;}
-    msgEl.className='post-msg ok';msgEl.textContent='追加しました！';
-    document.getElementById('gb-start').value='';
-    document.getElementById('gb-end').value='';
-    document.getElementById('gb-name').value='';
-    document.getElementById('gb-notes').value='';
-    loadGroupBookings();
-    setTimeout(()=>{msgEl.textContent='';},3000);
-}
-
-async function loadGroupBookings(){
-    const listEl=document.getElementById('gb-list');
-    const{data,error}=await sb.from('group_bookings').select('*').order('start_date',{ascending:true});
-    if(error||!data||data.length===0){listEl.innerHTML='<p class="list-empty">団体予約はまだありません。</p>';return;}
-    function fd(d){const[y,m,day]=d.split('-');return`${y}年${parseInt(m)}月${parseInt(day)}日`;}
-    function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
-    listEl.innerHTML=data.map(b=>`
-        <div class="post-row">
-            <div class="post-info">
-                <p class="gb-dates">${fd(b.start_date)} 〜 ${fd(b.end_date)}</p>
-                <p class="post-date">${esc(b.group_name)}${b.notes?' · '+esc(b.notes):''}</p>
-            </div>
-            <div class="post-btns">
-                <button class="btn-sm btn-del" onclick="deleteGroupBooking('${b.id}')">削除</button>
-            </div>
-        </div>
-    `).join('');
-}
-
+/* ===== 個室予約 ===== */
 async function addRoomBooking(){
     const type=document.getElementById('rb-type').value;
     const start=document.getElementById('rb-start').value;
@@ -566,6 +563,46 @@ async function deleteRoomBooking(id){
     loadRoomBookings();
 }
 
+/* ===== 団体予約 ===== */
+async function addGroupBooking(){
+    const start=document.getElementById('gb-start').value;
+    const end=document.getElementById('gb-end').value;
+    const name=document.getElementById('gb-name').value.trim()||'団体予約';
+    const notes=document.getElementById('gb-notes').value.trim();
+    const msgEl=document.getElementById('gb-msg');
+    msgEl.className='post-msg';msgEl.textContent='';
+    if(!start||!end){msgEl.className='post-msg ng';msgEl.textContent='日程を入力してください。';return;}
+    if(end<start){msgEl.className='post-msg ng';msgEl.textContent='チェックアウト日はチェックイン日以降にしてください。';return;}
+    const{error}=await sb.from('group_bookings').insert({start_date:start,end_date:end,group_name:name,notes:notes||null});
+    if(error){msgEl.className='post-msg ng';msgEl.textContent='エラー: '+error.message;return;}
+    msgEl.className='post-msg ok';msgEl.textContent='追加しました！';
+    document.getElementById('gb-start').value='';
+    document.getElementById('gb-end').value='';
+    document.getElementById('gb-name').value='';
+    document.getElementById('gb-notes').value='';
+    loadGroupBookings();
+    setTimeout(()=>{msgEl.textContent='';},3000);
+}
+
+async function loadGroupBookings(){
+    const listEl=document.getElementById('gb-list');
+    const{data,error}=await sb.from('group_bookings').select('*').order('start_date',{ascending:true});
+    if(error||!data||data.length===0){listEl.innerHTML='<p class="list-empty">団体予約はまだありません。</p>';return;}
+    function fd(d){const[y,m,day]=d.split('-');return`${y}年${parseInt(m)}月${parseInt(day)}日`;}
+    function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+    listEl.innerHTML=data.map(b=>`
+        <div class="post-row">
+            <div class="post-info">
+                <p class="gb-dates">${fd(b.start_date)} 〜 ${fd(b.end_date)}</p>
+                <p class="post-date">${esc(b.group_name)}${b.notes?' · '+esc(b.notes):''}</p>
+            </div>
+            <div class="post-btns">
+                <button class="btn-sm btn-del" onclick="deleteGroupBooking('${b.id}')">削除</button>
+            </div>
+        </div>
+    `).join('');
+}
+
 async function deleteGroupBooking(id){
     if(!confirm('この団体予約をカレンダーから削除しますか？'))return;
     const{error}=await sb.from('group_bookings').delete().eq('id',id);
@@ -573,6 +610,7 @@ async function deleteGroupBooking(id){
     loadGroupBookings();
 }
 
+/* ===== 休館日 ===== */
 async function addClosedDay(){
     const start=document.getElementById('cd-start').value;
     const end=document.getElementById('cd-end').value;
@@ -619,25 +657,50 @@ async function deleteClosedDay(id){
     loadClosedDays();
 }
 
+/* ===== 宿泊者名簿（チェックイン） ===== */
 async function loadCheckins(){
     const listEl=document.getElementById('ci-list');
     const cntEl=document.getElementById('ci-count');
+    const badge=document.getElementById('ci-badge');
     const{data,error}=await sb.from('checkins').select('*').order('submitted_at',{ascending:false});
     if(error){listEl.innerHTML='<p class="list-empty">エラー: '+error.message+'</p>';return;}
-    if(!data||data.length===0){listEl.innerHTML='<p class="list-empty">チェックイン受付はまだありません。</p>';cntEl.textContent='';return;}
+    if(!data||data.length===0){
+        listEl.innerHTML='<p class="list-empty">チェックイン受付はまだありません。</p>';
+        cntEl.textContent=''; badge.style.display='none';
+        allCheckins=[];
+        return;
+    }
+    allCheckins = data;
     cntEl.textContent=`計 ${data.length} 件`;
+    badge.textContent=data.length; badge.style.display='inline-flex';
+    renderCheckins(data);
+}
+
+function renderCheckins(data){
+    const listEl=document.getElementById('ci-list');
+    const searchCountEl=document.getElementById('ci-search-count');
     function fd(d){const[y,m,day]=d.split('-');return`${y}年${parseInt(m)}月${parseInt(day)}日`;}
     function fdt(d){const dt=new Date(d);return`${dt.getFullYear()}/${dt.getMonth()+1}/${dt.getDate()} ${String(dt.getHours()).padStart(2,'0')}:${String(dt.getMinutes()).padStart(2,'0')}`;}
     function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+    if(!data||data.length===0){
+        listEl.innerHTML='<p class="list-empty">該当する記録が見つかりませんでした。</p>';
+        searchCountEl.textContent='';
+        return;
+    }
+    const q=document.getElementById('ci-search').value.trim();
+    searchCountEl.textContent = q ? `${data.length} 件該当` : '';
     listEl.innerHTML=data.map(c=>`
         <div class="post-row">
             <div class="post-info">
                 <div class="post-title-row">
                     <span class="post-title">${esc(c.guest_name)}</span>
+                    ${c.furigana?`<span class="ci-kana">${esc(c.furigana)}</span>`:''}
                     <span class="badge-pub">${c.num_guests}名</span>
                 </div>
                 <p class="post-date">${fd(c.checkin_date)} 〜 ${fd(c.checkout_date)}</p>
                 <p class="post-preview" style="-webkit-line-clamp:1;">${esc(c.address)} &nbsp;·&nbsp; ${esc(c.phone)}</p>
+                ${c.occupation?`<p class="post-preview" style="-webkit-line-clamp:1;margin-top:1px;">職業：${esc(c.occupation)}</p>`:''}
+                ${c.prev_location||c.next_destination?`<p class="post-preview" style="-webkit-line-clamp:1;margin-top:1px;">前泊：${esc(c.prev_location||'')} → 行先：${esc(c.next_destination||'')}</p>`:''}
                 ${c.notes?`<p class="post-preview" style="-webkit-line-clamp:2;margin-top:2px;">備考：${esc(c.notes)}</p>`:''}
                 <p style="font-size:11px;color:var(--txt3);margin-top:4px;">受付：${fdt(c.submitted_at)}</p>
             </div>
@@ -646,6 +709,19 @@ async function loadCheckins(){
             </div>
         </div>
     `).join('');
+}
+
+function filterCheckins(){
+    const q = document.getElementById('ci-search').value.trim().toLowerCase();
+    if(!q){ renderCheckins(allCheckins); return; }
+    const filtered = allCheckins.filter(c => {
+        const name = (c.guest_name||'').toLowerCase();
+        const kana = (c.furigana||'').toLowerCase();
+        const phone = (c.phone||'').replace(/-/g,'');
+        const qPhone = q.replace(/-/g,'');
+        return name.includes(q) || kana.includes(q) || phone.includes(qPhone);
+    });
+    renderCheckins(filtered);
 }
 
 async function deleteCheckin(id){
