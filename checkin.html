@@ -30,20 +30,54 @@
         /* MAIN */
         .main{max-width:520px;margin:0 auto;padding:28px 20px 60px;}
 
-        /* NOTICE BOX */
-        .notice{background:#fff;border-radius:var(--rl);padding:18px 20px;margin-bottom:24px;border-left:4px solid var(--ocean);box-shadow:var(--shadow);}
+        /* VISIT TYPE SELECT */
+        .visit-select{margin-bottom:24px;}
+        .visit-select-title{font-size:14px;font-weight:700;color:var(--txt);margin-bottom:12px;text-align:center;}
+        .visit-cards{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+        .visit-card{background:#fff;border-radius:var(--rl);padding:20px 16px;text-align:center;cursor:pointer;border:2px solid var(--border);transition:all .2s;box-shadow:var(--shadow);}
+        .visit-card:hover{border-color:var(--ocean);}
+        .visit-card.selected{border-color:var(--ocean);background:rgba(0,136,204,0.06);}
+        .visit-card-icon{font-size:28px;margin-bottom:8px;}
+        .visit-card-label{font-size:14px;font-weight:700;color:var(--txt);margin-bottom:4px;}
+        .visit-card-desc{font-size:11px;color:var(--txt3);line-height:1.5;}
+
+        /* REPEAT LOOKUP */
+        .lookup-card{background:#fff;border-radius:var(--rl);padding:24px;box-shadow:var(--shadow);margin-bottom:24px;display:none;}
+        .lookup-card.show{display:block;}
+        .lookup-card h3{font-size:14px;font-weight:700;color:var(--txt);margin-bottom:6px;}
+        .lookup-card p{font-size:13px;color:var(--txt2);margin-bottom:14px;line-height:1.6;}
+        .lookup-row{display:flex;gap:10px;}
+        .lookup-row input{flex:1;padding:13px 14px;border:1.5px solid var(--border);border-radius:var(--r);font-family:var(--jp);font-size:15px;color:var(--txt);background:#fff;outline:none;transition:border-color .2s;-webkit-appearance:none;}
+        .lookup-row input:focus{border-color:var(--ocean);}
+        .btn-lookup{background:var(--grad);color:#fff;border:none;border-radius:50px;padding:13px 20px;font-family:var(--jp);font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap;transition:opacity .2s;}
+        .btn-lookup:hover{opacity:.85;}
+        .btn-lookup:disabled{opacity:.5;cursor:not-allowed;}
+        .lookup-result{margin-top:12px;padding:12px 14px;border-radius:var(--r);font-size:13px;display:none;}
+        .lookup-result.ok{background:rgba(56,161,105,0.08);color:#276749;border:1px solid rgba(56,161,105,0.25);display:block;}
+        .lookup-result.ng{background:rgba(229,62,62,0.06);color:#c53030;border:1px solid rgba(229,62,62,0.2);display:block;}
+
+        /* FORM SECTIONS */
+        #form-section{display:none;}
+        #form-section.show{display:block;}
+
+        /* AUTOFILL BADGE */
+        .autofill-banner{background:rgba(56,161,105,0.08);border:1px solid rgba(56,161,105,0.25);border-radius:var(--r);padding:10px 14px;margin-bottom:20px;font-size:12px;color:#276749;display:none;align-items:center;gap:8px;}
+        .autofill-banner.show{display:flex;}
+
+        /* NOTICE */
+        .notice{background:#fff;border-radius:var(--rl);padding:16px 18px;margin-bottom:20px;border-left:4px solid var(--ocean);box-shadow:var(--shadow);}
         .notice p{font-size:13px;color:var(--txt2);line-height:1.75;}
         .notice strong{color:var(--ocean);}
 
         /* FORM CARD */
-        .form-card{background:#fff;border-radius:var(--rl);padding:28px 24px;box-shadow:var(--shadow);margin-bottom:24px;}
-        .form-card h2{font-size:15px;font-weight:700;color:var(--txt);margin-bottom:20px;padding-bottom:14px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px;}
-        .form-card h2 .icon{display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;background:var(--bg2);border-radius:50%;font-size:14px;}
-
-        .form-group{margin-bottom:18px;}
+        .form-card{background:#fff;border-radius:var(--rl);padding:24px;box-shadow:var(--shadow);margin-bottom:20px;}
+        .form-card h2{font-size:14px;font-weight:700;color:var(--txt);margin-bottom:18px;padding-bottom:12px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px;}
+        .form-card h2 .icon{display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;background:var(--bg2);border-radius:50%;font-size:13px;}
+        .form-group{margin-bottom:16px;}
         .form-group:last-child{margin-bottom:0;}
-        .form-group label{display:block;font-size:12px;font-weight:700;color:var(--txt2);margin-bottom:6px;}
-        .form-group label .req{color:#e53e3e;margin-left:3px;font-size:11px;}
+        .form-group label{display:block;font-size:12px;font-weight:700;color:var(--txt2);margin-bottom:5px;}
+        .form-group label .req{color:#e53e3e;margin-left:3px;font-size:10px;}
+        .form-group label .law{font-size:10px;color:var(--txt3);font-weight:400;margin-left:6px;}
         .form-group input,.form-group textarea,.form-group select{
             width:100%;padding:13px 14px;
             border:1.5px solid var(--border);border-radius:var(--r);
@@ -53,21 +87,25 @@
         }
         .form-group input:focus,.form-group textarea:focus,.form-group select:focus{border-color:var(--ocean);}
         .form-group input.err,.form-group textarea.err,.form-group select.err{border-color:#e53e3e;}
-        .form-group textarea{resize:vertical;min-height:80px;line-height:1.7;font-size:14px;}
+        .form-group input.autofilled{background:rgba(0,136,204,0.04);border-color:rgba(0,136,204,0.3);}
+        .form-group textarea{resize:vertical;min-height:72px;line-height:1.7;font-size:14px;}
         .form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+        .field-note{font-size:11px;color:var(--txt3);margin-top:4px;line-height:1.5;}
+
+        /* CHANGED FIELDS HIGHLIGHT */
+        .change-badge{display:inline-block;background:rgba(237,137,54,0.1);color:#c05621;font-size:9px;font-weight:700;padding:2px 8px;border-radius:50px;margin-left:6px;vertical-align:middle;}
 
         /* RULES */
-        .rules-card{background:#fff;border-radius:var(--rl);padding:28px 24px;box-shadow:var(--shadow);margin-bottom:24px;}
-        .rules-card h2{font-size:15px;font-weight:700;color:var(--txt);margin-bottom:16px;padding-bottom:14px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px;}
-        .rules-scroll{background:var(--bg);border-radius:var(--r);padding:16px 18px;max-height:220px;overflow-y:auto;margin-bottom:20px;border:1px solid var(--border);}
-        .rules-scroll h3{font-size:13px;font-weight:700;color:var(--ocean);margin-bottom:10px;}
-        .rules-scroll ul{padding-left:18px;}
-        .rules-scroll li{font-size:13px;color:var(--txt2);line-height:1.9;margin-bottom:2px;}
-        .rules-scroll .rules-section{margin-bottom:14px;}
+        .rules-card{background:#fff;border-radius:var(--rl);padding:24px;box-shadow:var(--shadow);margin-bottom:20px;}
+        .rules-card h2{font-size:14px;font-weight:700;color:var(--txt);margin-bottom:14px;padding-bottom:12px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px;}
+        .rules-scroll{background:var(--bg);border-radius:var(--r);padding:14px 16px;max-height:200px;overflow-y:auto;margin-bottom:18px;border:1px solid var(--border);}
+        .rules-scroll h3{font-size:12px;font-weight:700;color:var(--ocean);margin-bottom:8px;}
+        .rules-scroll ul{padding-left:16px;}
+        .rules-scroll li{font-size:12px;color:var(--txt2);line-height:1.9;margin-bottom:1px;}
+        .rules-scroll .rules-section{margin-bottom:12px;}
         .rules-scroll .rules-section:last-child{margin-bottom:0;}
-        .rules-scroll p{font-size:12px;color:var(--txt3);line-height:1.8;margin-top:10px;}
-
-        .agree-wrap{display:flex;align-items:flex-start;gap:12px;padding:16px;background:rgba(0,136,204,0.05);border-radius:var(--r);border:1.5px solid var(--border);cursor:pointer;transition:border-color .2s;}
+        .rules-scroll p{font-size:11px;color:var(--txt3);line-height:1.7;margin-top:8px;}
+        .agree-wrap{display:flex;align-items:flex-start;gap:12px;padding:14px;background:rgba(0,136,204,0.05);border-radius:var(--r);border:1.5px solid var(--border);cursor:pointer;transition:border-color .2s;}
         .agree-wrap:has(input:checked){border-color:var(--ocean);background:rgba(0,136,204,0.08);}
         .agree-wrap input[type=checkbox]{width:20px;height:20px;accent-color:var(--ocean);flex-shrink:0;margin-top:2px;cursor:pointer;}
         .agree-wrap label{font-size:14px;color:var(--txt);line-height:1.6;font-weight:500;cursor:pointer;}
@@ -80,21 +118,21 @@
             font-family:var(--en);font-size:15px;font-weight:700;letter-spacing:1px;
             cursor:pointer;transition:opacity .2s,transform .2s;
             box-shadow:0 4px 20px rgba(0,136,204,0.35);
-            margin-top:24px;
+            margin-top:20px;
         }
         .btn-submit:hover{opacity:.9;transform:translateY(-1px);}
         .btn-submit:disabled{opacity:.5;cursor:not-allowed;transform:none;}
-        .err-banner{background:rgba(229,62,62,0.08);border:1px solid rgba(229,62,62,0.3);border-radius:var(--r);padding:12px 16px;margin-top:16px;color:#c53030;font-size:13px;line-height:1.6;display:none;}
+        .err-banner{background:rgba(229,62,62,0.08);border:1px solid rgba(229,62,62,0.3);border-radius:var(--r);padding:12px 16px;margin-top:14px;color:#c53030;font-size:13px;line-height:1.6;display:none;}
         .err-banner.show{display:block;}
 
         /* SUCCESS */
         #screen-success{display:none;}
         .success-wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px;background:var(--bg);}
-        .success-box{background:#fff;border-radius:var(--rl);padding:48px 32px;max-width:480px;width:100%;text-align:center;box-shadow:var(--shadow);}
-        .success-icon{width:72px;height:72px;background:rgba(56,161,105,0.1);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 20px;font-size:36px;}
-        .success-title{font-size:22px;font-weight:700;color:var(--txt);margin-bottom:10px;}
-        .success-sub{font-size:14px;color:var(--txt2);line-height:1.75;margin-bottom:28px;}
-        .success-detail{background:var(--bg2);border-radius:var(--r);padding:16px 20px;text-align:left;margin-bottom:24px;}
+        .success-box{background:#fff;border-radius:var(--rl);padding:44px 28px;max-width:480px;width:100%;text-align:center;box-shadow:var(--shadow);}
+        .success-icon{width:68px;height:68px;background:rgba(56,161,105,0.1);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 18px;font-size:34px;}
+        .success-title{font-size:22px;font-weight:700;color:var(--txt);margin-bottom:8px;}
+        .success-sub{font-size:14px;color:var(--txt2);line-height:1.75;margin-bottom:24px;}
+        .success-detail{background:var(--bg2);border-radius:var(--r);padding:14px 18px;text-align:left;margin-bottom:20px;}
         .success-detail-row{display:flex;gap:8px;font-size:13px;padding:5px 0;border-bottom:1px solid var(--border);}
         .success-detail-row:last-child{border-bottom:none;}
         .success-detail-label{color:var(--txt3);width:90px;flex-shrink:0;}
@@ -102,6 +140,11 @@
         .success-rule-note{font-size:12px;color:var(--txt3);line-height:1.8;}
 
         #screen-form{display:block;}
+
+        @media(max-width:400px){
+            .visit-cards{grid-template-columns:1fr;}
+            .form-row{grid-template-columns:1fr;}
+        }
     </style>
     <script defer src="/_vercel/insights/script.js"></script>
 </head>
@@ -112,126 +155,176 @@
     <header class="header">
         <p class="header-en">AKIYAMA RYOKAN</p>
         <h1 class="header-title">オンラインチェックイン</h1>
-        <p class="header-sub">お手続きはこちらのフォームで完結します<br>入力後に送信してください</p>
+        <p class="header-sub">フォームを送信してチェックイン完了です</p>
     </header>
 
     <main class="main">
-        <div class="notice">
-            <p>宿泊者名簿の記入は<strong>旅館業法</strong>に基づく義務です。代表者の方の情報を正確にご入力ください。</p>
+
+        <!-- 初回 / リピーター選択 -->
+        <div class="visit-select">
+            <p class="visit-select-title">今回のご宿泊について教えてください</p>
+            <div class="visit-cards">
+                <div class="visit-card selected" id="card-first" onclick="selectVisit('first')">
+                    <div class="visit-card-icon">🌊</div>
+                    <div class="visit-card-label">初めての方</div>
+                    <div class="visit-card-desc">すべての項目をご入力ください</div>
+                </div>
+                <div class="visit-card" id="card-repeat" onclick="selectVisit('repeat')">
+                    <div class="visit-card-icon">🏠</div>
+                    <div class="visit-card-label">2回目以降の方</div>
+                    <div class="visit-card-desc">前回の情報を自動入力します</div>
+                </div>
+            </div>
         </div>
 
-        <!-- 宿泊情報 -->
-        <div class="form-card">
-            <h2><span class="icon">📅</span>宿泊情報</h2>
-            <div class="form-row">
+        <!-- リピーター検索 -->
+        <div class="lookup-card" id="lookup-card">
+            <h3>📱 前回ご登録の電話番号を入力してください</h3>
+            <p>前回のご宿泊時に入力した電話番号を入力すると、お名前・住所などを自動で入力します。</p>
+            <div class="lookup-row">
+                <input type="tel" id="lookup-phone" placeholder="090-1234-5678" autocomplete="tel">
+                <button class="btn-lookup" id="btn-lookup" onclick="lookupGuest()">検索</button>
+            </div>
+            <div class="lookup-result" id="lookup-result"></div>
+        </div>
+
+        <!-- フォーム本体 -->
+        <div id="form-section" class="show">
+
+            <div class="autofill-banner" id="autofill-banner">
+                ✅ 前回のご登録情報を自動入力しました。内容をご確認の上、変更があれば修正してください。
+            </div>
+
+            <div class="notice">
+                <p>宿泊者名簿の記入は<strong>旅館業法</strong>に基づく義務です。代表者の方の情報を正確にご入力ください。</p>
+            </div>
+
+            <!-- 宿泊情報 -->
+            <div class="form-card">
+                <h2><span class="icon">📅</span>宿泊情報</h2>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="f-checkin">チェックイン日<span class="req">必須</span></label>
+                        <input type="date" id="f-checkin">
+                    </div>
+                    <div class="form-group">
+                        <label for="f-checkout">チェックアウト日<span class="req">必須</span></label>
+                        <input type="date" id="f-checkout">
+                    </div>
+                </div>
                 <div class="form-group">
-                    <label for="f-checkin">チェックイン日<span class="req">必須</span></label>
-                    <input type="date" id="f-checkin">
+                    <label for="f-guests">宿泊人数（合計）<span class="req">必須</span></label>
+                    <select id="f-guests">
+                        <option value="">選択してください</option>
+                        <option value="1">1名</option>
+                        <option value="2">2名</option>
+                        <option value="3">3名</option>
+                        <option value="4">4名</option>
+                        <option value="5">5名</option>
+                        <option value="6">6名以上</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- 代表者情報（自動入力対象） -->
+            <div class="form-card">
+                <h2><span class="icon">👤</span>代表者情報</h2>
+                <div class="form-group">
+                    <label for="f-name">お名前（代表者氏名）<span class="req">必須</span></label>
+                    <input type="text" id="f-name" placeholder="例：秋山 太郎" autocomplete="name">
                 </div>
                 <div class="form-group">
-                    <label for="f-checkout">チェックアウト日<span class="req">必須</span></label>
-                    <input type="date" id="f-checkout">
+                    <label for="f-address">ご住所<span class="req">必須</span></label>
+                    <input type="text" id="f-address" placeholder="例：東京都渋谷区〇〇1-2-3" autocomplete="street-address">
                 </div>
-            </div>
-            <div class="form-group">
-                <label for="f-guests">宿泊人数（合計）<span class="req">必須</span></label>
-                <select id="f-guests">
-                    <option value="">選択してください</option>
-                    <option value="1">1名</option>
-                    <option value="2">2名</option>
-                    <option value="3">3名</option>
-                    <option value="4">4名</option>
-                    <option value="5">5名</option>
-                    <option value="6">6名以上</option>
-                </select>
-            </div>
-        </div>
-
-        <!-- 代表者情報 -->
-        <div class="form-card">
-            <h2><span class="icon">👤</span>代表者情報</h2>
-            <div class="form-group">
-                <label for="f-name">お名前（代表者氏名）<span class="req">必須</span></label>
-                <input type="text" id="f-name" placeholder="例：秋山 太郎" autocomplete="name">
-            </div>
-            <div class="form-group">
-                <label for="f-address">ご住所<span class="req">必須</span></label>
-                <input type="text" id="f-address" placeholder="例：東京都渋谷区〇〇1-2-3" autocomplete="street-address">
-            </div>
-            <div class="form-group">
-                <label for="f-phone">電話番号<span class="req">必須</span></label>
-                <input type="tel" id="f-phone" placeholder="例：090-1234-5678" autocomplete="tel">
-            </div>
-        </div>
-
-        <!-- 備考 -->
-        <div class="form-card">
-            <h2><span class="icon">📝</span>備考・ご要望（任意）</h2>
-            <div class="form-group">
-                <textarea id="f-notes" placeholder="アレルギー、到着時間のご連絡、その他ご要望があればご記入ください。"></textarea>
-            </div>
-        </div>
-
-        <!-- ハウスルール -->
-        <div class="rules-card">
-            <h2><span class="icon">📋</span>ご利用規約・ハウスルール</h2>
-            <div class="rules-scroll" id="rules-scroll">
-                <div class="rules-section">
-                    <h3>■ チェックイン・アウト</h3>
-                    <ul>
-                        <li>チェックイン：15:00〜（遅れる場合はご連絡ください）</li>
-                        <li>チェックアウト：〜10:00（延長は要相談）</li>
-                    </ul>
+                <div class="form-group">
+                    <label for="f-phone">電話番号<span class="req">必須</span></label>
+                    <input type="tel" id="f-phone" placeholder="例：090-1234-5678" autocomplete="tel">
                 </div>
-                <div class="rules-section">
-                    <h3>■ お静かにお過ごしください</h3>
-                    <ul>
-                        <li>夜22:00以降は騒音、大声、廊下での会話はご遠慮ください</li>
-                        <li>他のお客様のご迷惑になる行為はお控えください</li>
-                    </ul>
+                <div class="form-group">
+                    <label for="f-occupation">職業<span class="req">必須</span><span class="law">旅館業法</span></label>
+                    <input type="text" id="f-occupation" placeholder="例：会社員、学生、自営業 など" autocomplete="organization-title">
                 </div>
-                <div class="rules-section">
-                    <h3>■ 共用スペース</h3>
-                    <ul>
-                        <li>お風呂・脱衣所・廊下は清潔にご使用ください</li>
-                        <li>使用後は原状復帰にご協力ください</li>
-                        <li>他のお客様がいる場合はご配慮ください</li>
-                    </ul>
-                </div>
-                <div class="rules-section">
-                    <h3>■ 館内でのご注意</h3>
-                    <ul>
-                        <li>館内は禁煙です（喫煙は指定場所にて）</li>
-                        <li>ペットのご同伴はご遠慮ください</li>
-                        <li>火気の取り扱いには十分ご注意ください</li>
-                        <li>貴重品の管理はご自身でお願いします</li>
-                    </ul>
-                </div>
-                <div class="rules-section">
-                    <h3>■ ゴミ・清掃</h3>
-                    <ul>
-                        <li>ゴミは所定の場所へ正しく分別してお出しください</li>
-                        <li>お部屋は大切にご使用ください</li>
-                    </ul>
-                </div>
-                <div class="rules-section">
-                    <h3>■ お支払い</h3>
-                    <ul>
-                        <li>お支払いは現地払い（現金のみ）となります</li>
-                        <li>チェックアウト時にお支払いください</li>
-                    </ul>
-                </div>
-                <p>※宿泊者名簿への記入は旅館業法第6条に基づく義務です。虚偽の記入はお断りします。<br>※施設・備品を著しく汚損・破損された場合は実費をご請求する場合があります。</p>
             </div>
 
-            <label class="agree-wrap" for="f-agree">
-                <input type="checkbox" id="f-agree">
-                <span>上記のハウスルール・ご利用規約をすべて読み、<span>同意します</span></span>
-            </label>
-        </div>
+            <!-- 旅行情報（毎回入力が必要） -->
+            <div class="form-card">
+                <h2><span class="icon">🗺️</span>旅行情報<span class="change-badge">毎回ご入力ください</span></h2>
+                <div class="form-group">
+                    <label for="f-prev-loc">前泊地<span class="req">必須</span><span class="law">旅館業法</span></label>
+                    <input type="text" id="f-prev-loc" placeholder="例：自宅（東京）、〇〇ホテル（熱海）">
+                    <p class="field-note">昨夜お泊まりになった場所をご記入ください（自宅の場合は「自宅（都道府県）」）</p>
+                </div>
+                <div class="form-group">
+                    <label for="f-next-dest">行先<span class="req">必須</span><span class="law">旅館業法</span></label>
+                    <input type="text" id="f-next-dest" placeholder="例：帰宅（東京）、〇〇（伊豆高原）">
+                    <p class="field-note">チェックアウト後の次の目的地をご記入ください</p>
+                </div>
+            </div>
 
-        <button class="btn-submit" id="btn-submit" onclick="submitCheckin()">チェックインを完了する</button>
-        <div class="err-banner" id="err-banner"></div>
+            <!-- 備考 -->
+            <div class="form-card">
+                <h2><span class="icon">📝</span>備考・ご要望（任意）</h2>
+                <div class="form-group">
+                    <textarea id="f-notes" placeholder="到着予定時刻、アレルギー、その他ご要望があればご記入ください。"></textarea>
+                </div>
+            </div>
+
+            <!-- ハウスルール -->
+            <div class="rules-card">
+                <h2><span class="icon">📋</span>ご利用規約・ハウスルール</h2>
+                <div class="rules-scroll">
+                    <div class="rules-section">
+                        <h3>■ チェックイン・アウト</h3>
+                        <ul>
+                            <li>チェックイン：15:00〜（遅れる場合はご連絡ください）</li>
+                            <li>チェックアウト：〜10:00（延長は要相談）</li>
+                        </ul>
+                    </div>
+                    <div class="rules-section">
+                        <h3>■ お静かにお過ごしください</h3>
+                        <ul>
+                            <li>夜22:00以降は騒音、大声、廊下での会話はご遠慮ください</li>
+                            <li>他のお客様のご迷惑になる行為はお控えください</li>
+                        </ul>
+                    </div>
+                    <div class="rules-section">
+                        <h3>■ 共用スペース</h3>
+                        <ul>
+                            <li>お風呂・脱衣所・廊下は清潔にご使用ください</li>
+                            <li>使用後は原状復帰にご協力ください</li>
+                        </ul>
+                    </div>
+                    <div class="rules-section">
+                        <h3>■ 館内でのご注意</h3>
+                        <ul>
+                            <li>館内は禁煙です（喫煙は指定場所にて）</li>
+                            <li>ペットのご同伴はご遠慮ください</li>
+                            <li>火気の取り扱いには十分ご注意ください</li>
+                            <li>貴重品の管理はご自身でお願いします</li>
+                        </ul>
+                    </div>
+                    <div class="rules-section">
+                        <h3>■ お支払い</h3>
+                        <ul>
+                            <li>お支払いは現地払い（現金のみ）となります</li>
+                            <li>チェックアウト時にお支払いください</li>
+                        </ul>
+                    </div>
+                    <p>※宿泊者名簿への記入は旅館業法第6条に基づく義務です。虚偽の記入はお断りします。<br>
+                    ※施設・備品を著しく汚損・破損された場合は実費をご請求する場合があります。</p>
+                </div>
+
+                <label class="agree-wrap" for="f-agree">
+                    <input type="checkbox" id="f-agree">
+                    <span>上記のハウスルール・ご利用規約をすべて読み、<span>同意します</span></span>
+                </label>
+            </div>
+
+            <button class="btn-submit" id="btn-submit" onclick="submitCheckin()">チェックインを完了する</button>
+            <div class="err-banner" id="err-banner"></div>
+
+        </div><!-- /form-section -->
     </main>
 </div>
 
@@ -241,7 +334,7 @@
         <div class="success-box">
             <div class="success-icon">✅</div>
             <h1 class="success-title">チェックイン完了！</h1>
-            <p class="success-sub">お手続きありがとうございます。<br>ご宿泊をお楽しみください。</p>
+            <p class="success-sub">お手続きありがとうございます。<br>ごゆっくりお過ごしください。</p>
             <div class="success-detail" id="success-detail"></div>
             <p class="success-rule-note">ご不明な点はスタッフにお声がけください。<br>緊急の場合：<a href="tel:090-6398-3964" style="color:var(--ocean);font-weight:600;">090-6398-3964</a></p>
         </div>
@@ -252,27 +345,99 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 <script>
 let sb;
+let visitType = 'first';
+
 window.addEventListener('DOMContentLoaded', () => {
     if(typeof SUPABASE_URL==='undefined'||SUPABASE_URL.startsWith('YOUR_')) return;
     sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-    // 今日の日付をデフォルトに
-    const today = new Date().toISOString().slice(0,10);
+    const today    = new Date().toISOString().slice(0,10);
     const tomorrow = new Date(Date.now()+86400000).toISOString().slice(0,10);
-    document.getElementById('f-checkin').value = today;
+    document.getElementById('f-checkin').value  = today;
     document.getElementById('f-checkout').value = tomorrow;
 });
 
-function showErr(msg){
-    const el = document.getElementById('err-banner');
-    el.textContent = msg;
-    el.classList.add('show');
-    el.scrollIntoView({behavior:'smooth',block:'nearest'});
+// 初回 / リピーター 切り替え
+function selectVisit(type){
+    visitType = type;
+    document.getElementById('card-first').classList.toggle('selected', type==='first');
+    document.getElementById('card-repeat').classList.toggle('selected', type==='repeat');
+    document.getElementById('lookup-card').classList.toggle('show', type==='repeat');
+    if(type==='first'){
+        clearAutofill();
+        document.getElementById('lookup-result').className='lookup-result';
+        document.getElementById('lookup-phone').value='';
+    }
 }
-function clearErr(){document.getElementById('err-banner').classList.remove('show');}
 
+// リピーター検索
+async function lookupGuest(){
+    const phone = document.getElementById('lookup-phone').value.trim();
+    const resultEl = document.getElementById('lookup-result');
+    const btn = document.getElementById('btn-lookup');
+    resultEl.className='lookup-result';
+
+    if(!phone){ resultEl.className='lookup-result ng'; resultEl.textContent='電話番号を入力してください。'; return; }
+
+    btn.disabled = true;
+    btn.textContent = '検索中...';
+
+    try{
+        // phone を正規化して検索（ハイフンあり・なし両対応）
+        const normalized = phone.replace(/-/g,'');
+        const{data,error}=await sb.from('guest_profiles')
+            .select('guest_name,address,occupation,phone')
+            .or(`phone.eq.${phone},phone.eq.${normalized}`)
+            .order('updated_at',{ascending:false})
+            .limit(1)
+            .maybeSingle();
+
+        if(error||!data){
+            resultEl.className='lookup-result ng';
+            resultEl.textContent='登録情報が見つかりませんでした。初めての方として下のフォームをご入力ください。';
+        } else {
+            autofill(data);
+            resultEl.className='lookup-result ok';
+            resultEl.textContent=`✅ ${data.guest_name} 様の情報を自動入力しました。内容をご確認ください。`;
+        }
+    }catch(e){
+        resultEl.className='lookup-result ng';
+        resultEl.textContent='検索に失敗しました。下のフォームに直接ご入力ください。';
+    }finally{
+        btn.disabled=false;
+        btn.textContent='検索';
+    }
+}
+
+function autofill(data){
+    setVal('f-name',       data.guest_name  || '');
+    setVal('f-address',    data.address     || '');
+    setVal('f-phone',      data.phone       || '');
+    setVal('f-occupation', data.occupation  || '');
+    // 旅行情報（前泊地・行先）は毎回変わるのでクリア
+    document.getElementById('f-prev-loc').value  = '';
+    document.getElementById('f-next-dest').value = '';
+    document.getElementById('autofill-banner').classList.add('show');
+}
+
+function clearAutofill(){
+    ['f-name','f-address','f-phone','f-occupation','f-prev-loc','f-next-dest']
+        .forEach(id=>{ document.getElementById(id).value=''; document.getElementById(id).classList.remove('autofilled'); });
+    document.getElementById('autofill-banner').classList.remove('show');
+}
+
+function setVal(id, val){
+    const el = document.getElementById(id);
+    el.value = val;
+    el.classList.toggle('autofilled', val!=='');
+}
+
+// バリデーション
+function showErr(msg){ const el=document.getElementById('err-banner'); el.textContent=msg; el.classList.add('show'); el.scrollIntoView({behavior:'smooth',block:'nearest'}); }
+function clearErr(){ document.getElementById('err-banner').classList.remove('show'); }
 function markErr(id){ document.getElementById(id).classList.add('err'); }
 function clearErrFields(){ document.querySelectorAll('.err').forEach(e=>e.classList.remove('err')); }
+function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 
 async function submitCheckin(){
     clearErr();
@@ -284,56 +449,73 @@ async function submitCheckin(){
     const name     = document.getElementById('f-name').value.trim();
     const address  = document.getElementById('f-address').value.trim();
     const phone    = document.getElementById('f-phone').value.trim();
+    const occ      = document.getElementById('f-occupation').value.trim();
+    const prevLoc  = document.getElementById('f-prev-loc').value.trim();
+    const nextDest = document.getElementById('f-next-dest').value.trim();
     const notes    = document.getElementById('f-notes').value.trim();
     const agreed   = document.getElementById('f-agree').checked;
 
-    let hasErr = false;
+    let hasErr=false;
     if(!checkin){  markErr('f-checkin');  hasErr=true; }
     if(!checkout){ markErr('f-checkout'); hasErr=true; }
-    if(checkin && checkout && checkout <= checkin){ markErr('f-checkout'); hasErr=true; showErr('チェックアウト日はチェックイン日の翌日以降を選択してください。'); return; }
+    if(checkin&&checkout&&checkout<=checkin){ markErr('f-checkout'); showErr('チェックアウト日はチェックイン日の翌日以降を選択してください。'); return; }
     if(!guests){   markErr('f-guests');   hasErr=true; }
     if(!name){     markErr('f-name');     hasErr=true; }
     if(!address){  markErr('f-address');  hasErr=true; }
     if(!phone){    markErr('f-phone');    hasErr=true; }
+    if(!occ){      markErr('f-occupation'); hasErr=true; }
+    if(!prevLoc){  markErr('f-prev-loc'); hasErr=true; }
+    if(!nextDest){ markErr('f-next-dest'); hasErr=true; }
     if(hasErr){ showErr('必須項目をすべて入力してください。'); return; }
     if(!agreed){ showErr('ハウスルール・ご利用規約に同意してください。'); return; }
 
-    const btn = document.getElementById('btn-submit');
-    btn.disabled = true;
-    btn.textContent = '送信中...';
+    const btn=document.getElementById('btn-submit');
+    btn.disabled=true; btn.textContent='送信中...';
 
-    try {
-        const { error } = await sb.from('checkins').insert({
-            guest_name: name,
-            address: address,
-            phone: phone,
+    try{
+        // チェックイン記録を保存
+        const{error:ciErr}=await sb.from('checkins').insert({
+            guest_name:   name,
+            address:      address,
+            phone:        phone,
+            occupation:   occ,
             checkin_date: checkin,
-            checkout_date: checkout,
-            num_guests: parseInt(guests) || 1,
-            notes: notes || null,
-            agreed_to_terms: true
+            checkout_date:checkout,
+            num_guests:   parseInt(guests)||1,
+            prev_location:prevLoc,
+            next_destination:nextDest,
+            notes:        notes||null,
+            agreed_to_terms:true
         });
-        if(error) throw error;
+        if(ciErr) throw ciErr;
 
-        // Success
+        // ゲストプロフィールをupsert（次回自動入力のため）
+        await sb.from('guest_profiles').upsert({
+            phone:      phone,
+            guest_name: name,
+            address:    address,
+            occupation: occ,
+            updated_at: new Date().toISOString()
+        }, { onConflict:'phone' });
+
+        // 完了画面
         function fd(d){const[y,m,day]=d.split('-');return`${y}年${parseInt(m)}月${parseInt(day)}日`;}
-        document.getElementById('success-detail').innerHTML = `
+        document.getElementById('success-detail').innerHTML=`
             <div class="success-detail-row"><span class="success-detail-label">お名前</span><span class="success-detail-value">${esc(name)}</span></div>
             <div class="success-detail-row"><span class="success-detail-label">チェックイン</span><span class="success-detail-value">${fd(checkin)}</span></div>
             <div class="success-detail-row"><span class="success-detail-label">チェックアウト</span><span class="success-detail-value">${fd(checkout)}</span></div>
             <div class="success-detail-row"><span class="success-detail-label">宿泊人数</span><span class="success-detail-value">${guests}名</span></div>
+            <div class="success-detail-row"><span class="success-detail-label">前泊地</span><span class="success-detail-value">${esc(prevLoc)}</span></div>
+            <div class="success-detail-row"><span class="success-detail-label">行先</span><span class="success-detail-value">${esc(nextDest)}</span></div>
         `;
-        document.getElementById('screen-form').style.display = 'none';
-        document.getElementById('screen-success').style.display = 'block';
+        document.getElementById('screen-form').style.display='none';
+        document.getElementById('screen-success').style.display='block';
         window.scrollTo(0,0);
-    } catch(e) {
-        btn.disabled = false;
-        btn.textContent = 'チェックインを完了する';
-        showErr('送信に失敗しました。時間をおいて再度お試しいただくか、スタッフにお声がけください。');
+    }catch(e){
+        btn.disabled=false; btn.textContent='チェックインを完了する';
+        showErr('送信に失敗しました。しばらくしてから再度お試しいただくか、スタッフにお声がけください。');
     }
 }
-
-function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 </script>
 </body>
 </html>
