@@ -105,6 +105,8 @@
         .rules-scroll .rules-section{margin-bottom:12px;}
         .rules-scroll .rules-section:last-child{margin-bottom:0;}
         .rules-scroll p{font-size:11px;color:var(--txt3);line-height:1.7;margin-top:8px;}
+        .pay-badges{display:flex;flex-wrap:wrap;gap:5px;margin-top:6px;}
+        .pay-badge{display:inline-block;background:#fff;border:1px solid var(--border);border-radius:50px;font-size:11px;color:var(--txt2);padding:3px 10px;white-space:nowrap;}
         .agree-wrap{display:flex;align-items:flex-start;gap:12px;padding:14px;background:rgba(0,136,204,0.05);border-radius:var(--r);border:1.5px solid var(--border);cursor:pointer;transition:border-color .2s;}
         .agree-wrap:has(input:checked){border-color:var(--ocean);background:rgba(0,136,204,0.08);}
         .agree-wrap input[type=checkbox]{width:20px;height:20px;accent-color:var(--ocean);flex-shrink:0;margin-top:2px;cursor:pointer;}
@@ -328,12 +330,39 @@
                     <div class="rules-section">
                         <h3>■ お支払い</h3>
                         <ul>
-                            <li>お支払いはチェックアウト時に現地払いとなります</li>
+                            <li>チェックアウト時に現地払いとなります</li>
                             <li>現金・各種キャッシュレス決済がご利用いただけます</li>
-                            <li>クレジットカード：Visa / Mastercard / JCB / American Express / Diners Club / Discover / UnionPay（銀聯）</li>
-                            <li>電子マネー：交通系電子マネー / iD / QUICPay / 楽天Edy</li>
-                            <li>QRコード決済：PayPay / au PAY / 楽天ペイ / d払い / WeChat Pay / Alipay+ / UnionPay QRコード / COIN+ / J-Coin Pay / Smart Code</li>
                         </ul>
+                        <h3 style="margin-top:10px;">💳 クレジットカード</h3>
+                        <div class="pay-badges">
+                            <span class="pay-badge">Visa</span>
+                            <span class="pay-badge">Mastercard</span>
+                            <span class="pay-badge">JCB</span>
+                            <span class="pay-badge">American Express</span>
+                            <span class="pay-badge">Diners Club</span>
+                            <span class="pay-badge">Discover</span>
+                            <span class="pay-badge">UnionPay（銀聯）</span>
+                        </div>
+                        <h3 style="margin-top:10px;">📱 電子マネー</h3>
+                        <div class="pay-badges">
+                            <span class="pay-badge">交通系電子マネー</span>
+                            <span class="pay-badge">iD</span>
+                            <span class="pay-badge">QUICPay</span>
+                            <span class="pay-badge">楽天Edy</span>
+                        </div>
+                        <h3 style="margin-top:10px;">🔲 QRコード決済</h3>
+                        <div class="pay-badges">
+                            <span class="pay-badge">PayPay</span>
+                            <span class="pay-badge">au PAY</span>
+                            <span class="pay-badge">楽天ペイ</span>
+                            <span class="pay-badge">d払い</span>
+                            <span class="pay-badge">WeChat Pay</span>
+                            <span class="pay-badge">Alipay+</span>
+                            <span class="pay-badge">UnionPay QRコード</span>
+                            <span class="pay-badge">COIN+</span>
+                            <span class="pay-badge">J-Coin Pay</span>
+                            <span class="pay-badge">Smart Code</span>
+                        </div>
                     </div>
                     <p>※宿泊者名簿への記入は旅館業法第6条に基づく義務です。虚偽の記入はお断りします。<br>
                     ※施設・備品を著しく汚損・破損された場合は実費をご請求する場合があります。</p>
