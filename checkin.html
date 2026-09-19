@@ -277,8 +277,11 @@
                         <input type="text" id="f-car-type" placeholder="例：トヨタ プリウス">
                     </div>
                     <div class="form-group">
-                        <label for="f-car-plate">ナンバー</label>
-                        <input type="text" id="f-car-plate" placeholder="例：伊豆 500 あ 1234">
+                        <label>ナンバー</label>
+                        <div style="display:flex;gap:6px;align-items:center;">
+                            <input type="text" id="f-car-region" placeholder="地名（例：伊豆）" style="flex:1;min-width:0;">
+                            <input type="text" id="f-car-plate" placeholder="4桁（例：1234）" maxlength="4" inputmode="numeric" style="flex:1;min-width:0;">
+                        </div>
                     </div>
                 </div>
             </div>
@@ -507,8 +510,10 @@ async function submitCheckin(){
     const occ      = document.getElementById('f-occupation').value.trim();
     const prevLoc  = document.getElementById('f-prev-loc').value.trim();
     const nextDest = document.getElementById('f-next-dest').value.trim();
-    const carType  = document.getElementById('f-car-type').value.trim();
-    const carPlate = document.getElementById('f-car-plate').value.trim();
+    const carType   = document.getElementById('f-car-type').value.trim();
+    const carRegion = document.getElementById('f-car-region').value.trim();
+    const carNum    = document.getElementById('f-car-plate').value.trim();
+    const carPlate  = (carRegion||carNum) ? [carRegion, carNum].filter(Boolean).join(' ') : '';
     const notes    = document.getElementById('f-notes').value.trim();
     const agreed   = document.getElementById('f-agree').checked;
 
