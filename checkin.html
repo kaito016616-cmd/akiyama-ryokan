@@ -113,6 +113,16 @@
         .agree-wrap label{font-size:14px;color:var(--txt);line-height:1.6;font-weight:500;cursor:pointer;}
         .agree-wrap label span{color:var(--ocean);font-weight:700;}
 
+        /* COMPANIONS */
+        .companion-row{display:flex;align-items:center;gap:8px;margin-bottom:10px;}
+        .companion-row input{flex:1;padding:11px 13px;border:1.5px solid var(--border);border-radius:var(--r);font-family:var(--jp);font-size:15px;color:var(--txt);background:#fff;outline:none;transition:border-color .2s;-webkit-appearance:none;}
+        .companion-row input:focus{border-color:var(--ocean);}
+        .btn-remove-companion{background:none;border:none;color:var(--txt3);font-size:20px;line-height:1;cursor:pointer;padding:4px;flex-shrink:0;transition:color .2s;}
+        .btn-remove-companion:hover{color:#e53e3e;}
+        .btn-add-companion{display:flex;align-items:center;gap:6px;background:none;border:1.5px dashed var(--border);border-radius:var(--r);padding:10px 16px;font-family:var(--jp);font-size:13px;font-weight:700;color:var(--ocean);cursor:pointer;width:100%;justify-content:center;transition:all .2s;margin-top:4px;}
+        .btn-add-companion:hover{background:rgba(0,136,204,0.05);border-color:var(--ocean);}
+        .companion-empty{font-size:12px;color:var(--txt3);text-align:center;padding:8px 0;}
+
         /* SUBMIT */
         .btn-submit{
             width:100%;background:var(--grad);color:#fff;
@@ -251,6 +261,14 @@
                     <label for="f-occupation">職業<span class="req">必須</span><span class="law">旅館業法</span></label>
                     <input type="text" id="f-occupation" placeholder="例：会社員、学生、自営業 など" autocomplete="organization-title">
                 </div>
+            </div>
+
+            <!-- 同伴者 -->
+            <div class="form-card">
+                <h2><span class="icon">👥</span>同伴者（任意）</h2>
+                <p class="field-note" style="margin-bottom:12px;">代表者以外の同伴者がいる場合、お名前を追加してください</p>
+                <div id="companion-list"></div>
+                <button type="button" class="btn-add-companion" onclick="addCompanion()">＋ 同伴者を追加</button>
             </div>
 
             <!-- 旅行情報（毎回入力が必要） -->
@@ -496,6 +514,21 @@ function markErr(id){ document.getElementById(id).classList.add('err'); }
 function clearErrFields(){ document.querySelectorAll('.err').forEach(e=>e.classList.remove('err')); }
 function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 
+let companionCount = 0;
+function addCompanion(){
+    companionCount++;
+    const id = 'companion-'+companionCount;
+    const row = document.createElement('div');
+    row.className = 'companion-row';
+    row.id = 'row-'+id;
+    row.innerHTML = `<input type="text" id="${id}" placeholder="同伴者のお名前"><button type="button" class="btn-remove-companion" onclick="removeCompanion('row-${id}')" title="削除">×</button>`;
+    document.getElementById('companion-list').appendChild(row);
+}
+function removeCompanion(rowId){
+    const el = document.getElementById(rowId);
+    if(el) el.remove();
+}
+
 async function submitCheckin(){
     clearErr();
     clearErrFields();
@@ -516,6 +549,8 @@ async function submitCheckin(){
     const carPlate  = (carRegion||carNum) ? [carRegion, carNum].filter(Boolean).join(' ') : '';
     const notes    = document.getElementById('f-notes').value.trim();
     const agreed   = document.getElementById('f-agree').checked;
+    const companions = Array.from(document.querySelectorAll('#companion-list .companion-row input'))
+        .map(i=>i.value.trim()).filter(Boolean).join('、');
 
     let hasErr=false;
     if(!checkin){   markErr('f-checkin');    hasErr=true; }
@@ -550,6 +585,7 @@ async function submitCheckin(){
             next_destination:nextDest,
             car_type:     carType||null,
             car_plate:    carPlate||null,
+            companions:   companions||null,
             notes:        notes||null,
             agreed_to_terms:true
         });
@@ -574,6 +610,7 @@ async function submitCheckin(){
             <div class="success-detail-row"><span class="success-detail-label">宿泊人数</span><span class="success-detail-value">${guests}名</span></div>
             <div class="success-detail-row"><span class="success-detail-label">前泊地</span><span class="success-detail-value">${esc(prevLoc)}</span></div>
             <div class="success-detail-row"><span class="success-detail-label">行先</span><span class="success-detail-value">${esc(nextDest)}</span></div>
+            ${companions?`<div class="success-detail-row"><span class="success-detail-label">同伴者</span><span class="success-detail-value">${esc(companions)}</span></div>`:''}
             ${carType||carPlate?`<div class="success-detail-row"><span class="success-detail-label">お車</span><span class="success-detail-value">${esc(carType)}${carType&&carPlate?' / ':''}${esc(carPlate)}</span></div>`:''}
         `;
         document.getElementById('screen-form').style.display='none';
